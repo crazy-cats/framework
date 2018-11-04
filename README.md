@@ -1,2 +1,3 @@
 # CrazyCat Framework
-Framework of CrazyCat Data management platform
+
+Framework of CrazyCat platform

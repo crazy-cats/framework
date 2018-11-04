@@ -1,6 +1,6 @@
 {
     "name": "crazycat/framework",
-    "description": "Framework of CrazyCat Data management platform",
+    "description": "Framework of CrazyCat platform",
     "type": "crazycat-library",
     "require": {
         "php": ">5.6.0"
