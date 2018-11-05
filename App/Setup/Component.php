@@ -7,7 +7,6 @@
 
 namespace CrazyCat\Framework\App\Setup;
 
-use CrazyCat\Framework\App\Module;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -118,9 +117,9 @@ class Component {
         if ( isset( $this->components[$type][$name] ) ) {
             throw new \Exception( sprintf( 'Component name `%s` has been used.', $name ) );
         }
-        $this->components[$type][$name] = ObjectManager::getInstance()->create( Module::class, [
-            'name' => $name,
-            'dir' => $dir ] );
+        $this->components[$type][$name] = [
+            'dir' => $dir
+        ];
     }
 
 }
