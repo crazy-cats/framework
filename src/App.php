@@ -9,6 +9,7 @@ namespace CrazyCat\Framework;
 
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Logger;
+use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
 
@@ -36,6 +37,11 @@ class App {
     private $logger;
 
     /**
+     * @var \CrazyCat\Framework\App\Module\Manager
+     */
+    private $moduleManager;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     private $objectManager;
@@ -49,11 +55,12 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
+    public function __construct( ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
     {
         $this->componentSetup = $componentSetup;
         $this->config = $config;
         $this->logger = $logger;
+        $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
     }
 
@@ -67,8 +74,10 @@ class App {
          */
         ini_set( 'date.timezone', 'UTC' );
 
-        $this->componentSetup->init( $composerLoader, ROOT );
+        $components = $this->componentSetup->init( $composerLoader, ROOT );
+        $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
 
+        // TODO :: init modules
         // TODO :: init area
         // TODO :: translation
         // TODO :: database
