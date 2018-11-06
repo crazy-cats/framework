@@ -67,7 +67,7 @@ class App {
          */
         ini_set( 'date.timezone', 'UTC' );
 
-        $this->config->setData( [] );
+        $this->config->addData( require DIR_CONFIG . DS . 'env.php' );
         $this->componentSetup->init( $composerLoader, ROOT );
 
         // TODO :: init area

@@ -18,7 +18,7 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Component {
 
-    const CACHE_NAME = 'component';
+    const CACHE_NAME = 'components';
 
     /**
      * types

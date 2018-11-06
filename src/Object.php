@@ -18,7 +18,7 @@ class Object {
     protected $data;
 
     /**
-     * @param string $key
+     * @param string|null $key
      * @return mixed
      */
     public function getData( $key = null )
@@ -29,18 +29,25 @@ class Object {
     }
 
     /**
-     * @param string $key
+     * @param string|array $key|$data
      * @param mixed $value
      * @return $this
      */
-    public function addData( $key, $value )
+    public function addData()
     {
-        $this->data[(string) $key] = $value;
+        if ( func_num_args() === 1 ) {
+            foreach ( (array) func_get_arg( 0 ) as $key => $value ) {
+                $this->data[$key] = $value;
+            }
+        }
+        else {
+            $this->data[(string) func_get_arg( 0 )] = func_get_arg( 1 );
+        }
         return $this;
     }
 
     /**
-     * @param string $key
+     * @param string|array $key|$data
      * @param mixed $value
      * @return $this
      */

@@ -38,7 +38,7 @@ class Factory {
                 $className = File::class;
                 break;
         }
-        $this->objectManager->create( $className, [ 'name' => $name ] );
+        return $this->objectManager->create( $className, [ 'name' => $name ] );
     }
 
 }
