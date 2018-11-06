@@ -13,7 +13,7 @@ namespace CrazyCat\Framework\App\Cache;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-abstract class AbstractCache extends \CrazyCat\Framework\Object {
+abstract class AbstractCache extends \CrazyCat\Framework\Data\Object {
 
     /**
      * @var string
