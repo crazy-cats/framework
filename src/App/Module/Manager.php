@@ -7,6 +7,9 @@
 
 namespace CrazyCat\Framework\App\Module;
 
+use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\ObjectManager;
+
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -15,10 +18,28 @@ namespace CrazyCat\Framework\App\Module;
  */
 class Manager {
 
+    const CACHE_NAME = 'modules';
+
     /**
      * @var array
      */
     private $modules = [];
+
+    /**
+     * @var \CrazyCat\Framework\App\Cache\Factory
+     */
+    private $cacheFactory;
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    private $objectManager;
+
+    public function __construct( CacheFactory $cacheFactory, ObjectManager $objectManager )
+    {
+        $this->cacheFactory = $cacheFactory;
+        $this->objectManager = $objectManager;
+    }
 
     /**
      * @param string $moduleName
@@ -37,18 +58,45 @@ class Manager {
         }
     }
 
+    private function initModule( $name, $module, $config )
+    {
+        return [
+            'name' => $name,
+            'depends' => $config['depends']
+        ];
+    }
+
+    private function sortModules( $modules )
+    {
+        
+    }
+
     /**
      * @param array $modules
      */
     public function init( $modules )
     {
-        foreach ( $modules as $name => $module ) {
-            if ( !is_file( $module['dir'] . DS . 'config' . DS . 'module.php' ) ) {
-                throw new \Exception( sprintf( 'Config file of module `%s` does not exist.', $name ) );
+        $cache = $this->cacheFactory->create( self::CACHE_NAME );
+
+        if ( empty( $this->modules = $cache->getData() ) ) {
+            $this->modules = [];
+            foreach ( $modules as $name => &$module ) {
+                if ( !is_file( $module['dir'] . DS . 'config' . DS . 'module.php' ) ) {
+                    throw new \Exception( sprintf( 'Config file of module `%s` does not exist.', $name ) );
+                }
+                $config = require $module['dir'] . DS . 'config' . DS . 'module.php';
+                $this->verifyConfig( $name, $config, array_keys( $modules ) );
+                $this->modules[] = $this->initModule( $name, $module, $config );
             }
-            $config = require $module['dir'] . DS . 'config' . DS . 'module.php';
-            $this->verifyConfig( $name, $config, array_keys( $modules ) );
+            $this->sortModules( $this->modules );
+
+            /**
+             * Store in cache
+             */
+            $cache->setData( $this->modules )->save();
         }
+
+        return $this->modules;
     }
 
     /**
