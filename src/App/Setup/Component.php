@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Setup;
 
+use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -17,6 +18,11 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Component {
 
+    const CACHE_NAME = 'component';
+
+    /**
+     * types
+     */
     const TYPE_LANG = 'lang';
     const TYPE_MODULE = 'module';
     const TYPE_THEME = 'theme';
@@ -28,6 +34,16 @@ class Component {
     ];
 
     /**
+     * @var \CrazyCat\Framework\App\Cache\Factory
+     */
+    private $cacheFactory;
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    private $objectManager;
+
+    /**
      * Get component setup singleton
      * @return \CrazyCat\Framework\App\Setup\Component
      */
@@ -36,12 +52,10 @@ class Component {
         return ObjectManager::getInstance()->get( self::class );
     }
 
-    /**
-     * @return array|null
-     */
-    private function getComponentConfig( $configFile )
+    public function __construct( CacheFactory $cacheFactory, ObjectManager $objectManager )
     {
-        return is_file( $configFile ) ? json_decode( file_get_contents( $configFile ), true ) : null;
+        $this->cacheFactory = $cacheFactory;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -49,11 +63,12 @@ class Component {
      * @param boolean $forceGenerate
      * @see https://getcomposer.org/apidoc/master/Composer/Autoload/ClassLoader.html
      */
-    public function init( $composerLoader, $rootDir, $forceGenerate = false )
+    public function init( $composerLoader, $forceGenerate = false )
     {
-        $configFile = $rootDir . '/app/config/components.json';
+        $cache = $this->cacheFactory->create( self::CACHE_NAME );
 
-        if ( $forceGenerate || !( $componentConfig = $this->getComponentConfig( $configFile ) ) ) {
+        if ( $forceGenerate || !( $this->components = $cache->getData() ) ) {
+
             /**
              * Add modules of which source codes are in `app/modules` as Psr4 packages
              */
@@ -91,17 +106,12 @@ class Component {
             }
 
             /**
-             * Create component config file
+             * Store in cache
              */
-            if ( !is_dir( $rootDir . '/app/config' ) ) {
-                mkdir( $rootDir . '/app/config', 0755, true );
-            }
-            file_put_contents( $configFile, json_encode( $this->components ) );
-
-            return $this->components;
+            $cache->setData( $this->components )->save();
         }
 
-        return $componentConfig;
+        return $this->components;
     }
 
     /**

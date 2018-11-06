@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework;
 
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
@@ -23,6 +24,11 @@ class App {
      * @var \CrazyCat\Framework\Setup\Components
      */
     private $componentSetup;
+
+    /**
+     * @var \CrazyCat\Framework\App\Config
+     */
+    private $config;
 
     /**
      * @var \CrazyCat\Framework\App\Logger
@@ -43,9 +49,10 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( ComponentSetup $componentSetup, ObjectManager $objectManager, Logger $logger )
+    public function __construct( ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
     {
         $this->componentSetup = $componentSetup;
+        $this->config = $config;
         $this->logger = $logger;
         $this->objectManager = $objectManager;
     }
@@ -60,6 +67,7 @@ class App {
          */
         ini_set( 'date.timezone', 'UTC' );
 
+        $this->config->setData( [] );
         $this->componentSetup->init( $composerLoader, ROOT );
 
         // TODO :: init area
