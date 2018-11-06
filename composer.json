@@ -2,6 +2,9 @@
     "name": "crazycat/framework",
     "description": "Framework of CrazyCat platform",
     "type": "crazycat-library",
+    "license": [
+        "proprietary"
+    ],
     "require": {
         "php": ">5.6.0"
     },
