@@ -128,7 +128,8 @@ class Component {
             throw new \Exception( sprintf( 'Component name `%s` has been used.', $name ) );
         }
         $this->components[$type][$name] = [
-            'dir' => $dir
+            'dir' => $dir,
+            'name' => $name
         ];
     }
 

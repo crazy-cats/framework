@@ -8,6 +8,8 @@
 namespace CrazyCat\Framework\App\Module;
 
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Module;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -19,6 +21,7 @@ use CrazyCat\Framework\App\ObjectManager;
 class Manager {
 
     const CACHE_NAME = 'modules';
+    const CONFIG_FILE = Config::DIR . DS . 'modules.php';
 
     /**
      * @var array
@@ -31,69 +34,93 @@ class Manager {
     private $cacheFactory;
 
     /**
+     * @var \CrazyCat\Framework\App\Config
+     */
+    private $config;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     private $objectManager;
 
-    public function __construct( CacheFactory $cacheFactory, ObjectManager $objectManager )
+    public function __construct( Config $config, CacheFactory $cacheFactory, ObjectManager $objectManager )
     {
         $this->cacheFactory = $cacheFactory;
+        $this->config = $config;
         $this->objectManager = $objectManager;
     }
 
-    /**
-     * @param string $moduleName
-     * @param array $config
-     * @param array $existModules
-     */
-    private function verifyConfig( $moduleName, $config, $existModules )
+    private function checkDependents( $moduleData )
     {
-        if ( !is_array( $config ) || !isset( $config['depends'] ) || !is_array( $config['depends'] ) ) {
-            throw new \Exception( sprintf( 'Invalidated config file of module `%s`.', $moduleName ) );
-        }
-        foreach ( $config['depends'] as $depandModuleName ) {
-            if ( !in_array( $depandModuleName, $existModules ) ) {
-                throw new \Exception( sprintf( 'Dependent module `%s` does not exist.', $depandModuleName ) );
+        foreach ( $moduleData as $data ) {
+            foreach ( $data['config']['depends'] as $depandModuleName ) {
+                if ( !in_array( $depandModuleName, $existModules ) ) {
+                    throw new \Exception( sprintf( 'Dependent module `%s` does not exist.', $depandModuleName ) );
+                }
             }
         }
     }
 
-    private function initModule( $name, $module, $config )
-    {
-        return [
-            'name' => $name,
-            'depends' => $config['depends']
-        ];
-    }
-
+    /**
+     * @param array $modules
+     */
     private function sortModules( $modules )
     {
         
     }
 
     /**
-     * @param array $modules
+     * @return array
      */
-    public function init( $modules )
+    private function getModulesConfig()
+    {
+        if ( is_file( self::CONFIG_FILE ) ) {
+            $config = self::CONFIG_FILE;
+        }
+        if ( !isset( $config ) || !is_array( $config ) || empty( $config ) ) {
+            return [];
+        }
+        return $config;
+    }
+
+    /**
+     * @param array $config
+     */
+    private function updateModulesConfig( array $config )
+    {
+        file_put_contents( self::CONFIG_FILE, sprintf( "<?php\nreturn %s;", $this->config->toString( $config ) ) );
+    }
+
+    /**
+     * @param array $moduleSource
+     */
+    public function init( $moduleSource )
     {
         $cache = $this->cacheFactory->create( self::CACHE_NAME );
 
         if ( empty( $this->modules = $cache->getData() ) ) {
-            $this->modules = [];
-            foreach ( $modules as $name => &$module ) {
-                if ( !is_file( $module['dir'] . DS . 'config' . DS . 'module.php' ) ) {
-                    throw new \Exception( sprintf( 'Config file of module `%s` does not exist.', $name ) );
-                }
-                $config = require $module['dir'] . DS . 'config' . DS . 'module.php';
-                $this->verifyConfig( $name, $config, array_keys( $modules ) );
-                $this->modules[] = $this->initModule( $name, $module, $config );
+
+            $moduleConfig = $this->getModulesConfig();
+
+            $moduleData = [];
+            foreach ( $moduleSource as $data ) {
+                $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
+                $module->setData( 'enabled', isset( $moduleConfig[$data['name']] ) ? $moduleConfig[$data['name']] : true  );
+                $moduleData[] = $module->getData();
             }
-            $this->sortModules( $this->modules );
+            $this->checkDependents( $moduleData );
+            $this->sortModules( $moduleData );
+
+            if ( empty( $moduleConfig ) ) {
+                $this->updateModulesConfig( array_map( function() {
+                            return true;
+                        }, $moduleSource ) );
+            }
 
             /**
              * Store in cache
              */
-            $cache->setData( $this->modules )->save();
+            $cache->setData( $moduleData )->save();
         }
 
         return $this->modules;
