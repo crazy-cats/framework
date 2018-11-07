@@ -25,41 +25,4 @@ class Config extends \CrazyCat\Framework\Data\Object {
         parent::__construct( require self::DIR . DS . 'env.php' );
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
-    public function toString( array $data )
-    {
-        $arrString = [];
-        foreach ( $data as $key => $value ) {
-            switch ( gettype( $value ) ) {
-
-                case 'integer' :
-                case 'double' :
-                    $value = $value;
-                    break;
-
-                case 'string' :
-                    $value = str_replace( '\'', '\\\'', $value );
-                    break;
-
-                case 'null' :
-                    $value = 'null';
-                    break;
-
-                case 'boolean' :
-                    $value = $value ? 'true' : 'false';
-                    break;
-
-                case 'array' :
-                    $value = $this->toString( $value );
-                    break;
-            }
-            $arrString[] = sprintf( '\'%s\' => %s', str_replace( '\'', '\\\'', $key ), $value );
-        }
-
-        return '[ ' . implode( ', ', $arrString ) . ' ]';
-    }
-
 }

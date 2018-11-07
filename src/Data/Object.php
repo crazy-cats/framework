@@ -129,7 +129,7 @@ class Object implements \ArrayAccess {
                 return '--- RECURSION ---';
             }
             $objectHashs[$hash] = true;
-            $data = $this->data;
+            $data = $this->getData();
         }
 
         $result = [];
@@ -145,6 +145,47 @@ class Object implements \ArrayAccess {
             }
         }
         return $result;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function toString( $data = null )
+    {
+        if ( $data === null ) {
+            $data = $this->getData();
+        }
+
+        $arrString = [];
+        foreach ( $data as $key => $value ) {
+            switch ( gettype( $value ) ) {
+
+                case 'integer' :
+                case 'double' :
+                    $value = $value;
+                    break;
+
+                case 'string' :
+                    $value = str_replace( '\'', '\\\'', $value );
+                    break;
+
+                case 'null' :
+                    $value = 'null';
+                    break;
+
+                case 'boolean' :
+                    $value = $value ? 'true' : 'false';
+                    break;
+
+                case 'array' :
+                    $value = $this->toString( $value );
+                    break;
+            }
+            $arrString[] = sprintf( '\'%s\' => %s', str_replace( '\'', '\\\'', $key ), $value );
+        }
+
+        return '[ ' . implode( ', ', $arrString ) . ' ]';
     }
 
 }

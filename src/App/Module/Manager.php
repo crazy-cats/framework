@@ -50,11 +50,21 @@ class Manager {
         $this->objectManager = $objectManager;
     }
 
+    /**
+     * @param array $moduleData
+     */
     private function checkDependents( $moduleData )
     {
+        $enabledModules = [];
+        foreach ( $moduleData as $data ) {
+            if ( $data['enabled'] ) {
+                $enabledModules[] = $data['name'];
+            }
+        }
+
         foreach ( $moduleData as $data ) {
             foreach ( $data['config']['depends'] as $depandModuleName ) {
-                if ( !in_array( $depandModuleName, $existModules ) ) {
+                if ( !in_array( $depandModuleName, $enabledModules ) ) {
                     throw new \Exception( sprintf( 'Dependent module `%s` does not exist.', $depandModuleName ) );
                 }
             }
@@ -62,11 +72,23 @@ class Manager {
     }
 
     /**
-     * @param array $modules
+     * Sort modules by dependency
+     * 
+     * @param array $moduleData
      */
-    private function sortModules( $modules )
+    private function sortModules( $moduleData )
     {
-        
+        $processedModules = [];
+
+        $sortFun = function ( $a, $b ) {
+            return in_array( $a['name'], $b['config']['depends'] ) ? 1 : 0;
+        };
+
+        foreach ( $moduleData as $data ) {
+            $processedModules[] = $data['name'];
+
+            $data['config']['depends'];
+        }
     }
 
     /**
@@ -111,6 +133,10 @@ class Manager {
             $this->checkDependents( $moduleData );
             $this->sortModules( $moduleData );
 
+            /**
+             * Create module config file with all modules enabled
+             *     at first time running the application.
+             */
             if ( empty( $moduleConfig ) ) {
                 $this->updateModulesConfig( array_map( function() {
                             return true;
