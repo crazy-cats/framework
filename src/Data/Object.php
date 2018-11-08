@@ -151,15 +151,11 @@ class Object implements \ArrayAccess {
      * @param array $data
      * @return string
      */
-    public function toString( $data = null )
+    public function toString( array $data )
     {
-        if ( $data === null ) {
-            $data = $this->getData();
-        }
-
         $arrString = [];
         foreach ( $data as $key => $value ) {
-            switch ( gettype( $value ) ) {
+            switch ( strtolower( gettype( $value ) ) ) {
 
                 case 'integer' :
                 case 'double' :
@@ -186,6 +182,14 @@ class Object implements \ArrayAccess {
         }
 
         return '[ ' . implode( ', ', $arrString ) . ' ]';
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->toString( $this->getData() );
     }
 
 }

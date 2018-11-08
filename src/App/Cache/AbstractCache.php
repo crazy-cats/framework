@@ -22,6 +22,8 @@ abstract class AbstractCache extends \CrazyCat\Framework\Data\Object {
 
     public function __construct( $name )
     {
+        parent::__construct( [] );
+
         $this->name = $name;
 
         $this->init();

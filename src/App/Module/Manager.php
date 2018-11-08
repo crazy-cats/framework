@@ -51,44 +51,47 @@ class Manager {
     }
 
     /**
-     * @param array $moduleData
+     * Check dependency of enabled modules
+     * 
+     * @param array $modulesData
      */
-    private function checkDependents( $moduleData )
+    private function checkDependency( $modulesData )
     {
         $enabledModules = [];
-        foreach ( $moduleData as $data ) {
+        foreach ( $modulesData as $data ) {
             if ( $data['enabled'] ) {
                 $enabledModules[] = $data['name'];
             }
         }
 
-        foreach ( $moduleData as $data ) {
-            foreach ( $data['config']['depends'] as $depandModuleName ) {
-                if ( !in_array( $depandModuleName, $enabledModules ) ) {
-                    throw new \Exception( sprintf( 'Dependent module `%s` does not exist.', $depandModuleName ) );
+        foreach ( $modulesData as $data ) {
+            foreach ( $data['config']['depends'] as $dependedModuleName ) {
+                if ( !in_array( $dependedModuleName, $enabledModules ) ) {
+                    throw new \Exception( sprintf( 'Dependent module `%s` does not exist.', $dependedModuleName ) );
                 }
             }
         }
     }
 
-    /**
-     * Sort modules by dependency
-     * 
-     * @param array $moduleData
-     */
-    private function sortModules( $moduleData )
+    private function getAllDepentModules( $module, $modulesData )
     {
-        $processedModules = [];
+        foreach ( $module['config']['depends'] as $dependedModuleName ) {
+            
+        }
+    }
 
+    /**
+     * Sort enabled modules by dependency
+     * 
+     * @param array $modulesData
+     */
+    private function sortModules( $modulesData )
+    {
         $sortFun = function ( $a, $b ) {
             return in_array( $a['name'], $b['config']['depends'] ) ? 1 : 0;
         };
 
-        foreach ( $moduleData as $data ) {
-            $processedModules[] = $data['name'];
-
-            $data['config']['depends'];
-        }
+        //$this->getAllDepentModules( $module, $modulesData );
     }
 
     /**
@@ -120,18 +123,9 @@ class Manager {
     {
         $cache = $this->cacheFactory->create( self::CACHE_NAME );
 
-        if ( empty( $this->modules = $cache->getData() ) ) {
+        if ( empty( $modulesData = $cache->getData() ) ) {
 
             $moduleConfig = $this->getModulesConfig();
-
-            $moduleData = [];
-            foreach ( $moduleSource as $data ) {
-                $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
-                $module->setData( 'enabled', isset( $moduleConfig[$data['name']] ) ? $moduleConfig[$data['name']] : true  );
-                $moduleData[] = $module->getData();
-            }
-            $this->checkDependents( $moduleData );
-            $this->sortModules( $moduleData );
 
             /**
              * Create module config file with all modules enabled
@@ -143,19 +137,35 @@ class Manager {
                         }, $moduleSource ) );
             }
 
-            /**
-             * Store in cache
-             */
-            $cache->setData( $moduleData )->save();
+            $modulesData = [ 'enabled' => [], 'disabled' => [] ];
+            foreach ( $moduleSource as $data ) {
+                $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
+                $module->setData( 'enabled', isset( $moduleConfig[$data['name']] ) ? $moduleConfig[$data['name']] : true  );
+                if ( $module->getData( 'enabled' ) ) {
+                    $modulesData['enabled'][$module->getData( 'name' )] = $module->getData();
+                }
+                else {
+                    $modulesData['disabled'][$module->getData( 'name' )] = $module->getData();
+                }
+                $this->modules[] = $module;
+            }
+            $this->checkDependency( $modulesData['enabled'] );
+            $this->sortModules( $modulesData['enabled'] );
+            $cache->setData( $modulesData )->save();
         }
-
-        return $this->modules;
+        else {
+            foreach ( $modulesData as $moduleGroupData ) {
+                foreach ( $moduleGroupData as $moduleData ) {
+                    $this->modules[] = $this->objectManager->create( Module::class, [ 'data' => $moduleData ] );
+                }
+            }
+        }
     }
 
     /**
      * @return array
      */
-    public function getModules()
+    public function getAllModules()
     {
         return $this->modules;
     }

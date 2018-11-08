@@ -30,8 +30,9 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     private function init( $data )
     {
-        $data['config'] = $this->verifyConfig( $data );
-
+        if ( !isset( $data['config'] ) ) {
+            $data['config'] = $this->verifyConfig( $data );
+        }
         return $data;
     }
 
