@@ -51,32 +51,51 @@ class Manager {
     }
 
     /**
+     * @param array $moduleData
+     * @param array $modulesData
+     * @param array $treeNodes
+     */
+    private function getAllDependentModules( $moduleData, $modulesData, $treeNodes = [] )
+    {
+        $dependentModuleNames = [];
+        foreach ( $moduleData['config']['depends'] as $dependentModuleName ) {
+            if ( in_array( $dependentModuleName, $treeNodes ) ) {
+                throw new \Exception( sprintf( 'Meet module dependency dead loop `%s` - `%s`.', $moduleData['name'], $dependentModuleName ) );
+            }
+            $tmp = $treeNodes;
+            $tmp[] = $dependentModuleName;
+            $dependentModuleNames = array_merge( $tmp, $this->getAllDependentModules( $modulesData[$dependentModuleName], $modulesData, $tmp ) );
+        }
+        return array_unique( $dependentModuleNames );
+    }
+
+    /**
      * Check dependency of enabled modules
+     * Append full dependency for modules
      * 
      * @param array $modulesData
      */
-    private function checkDependency( $modulesData )
+    private function processDependency( &$modulesData )
     {
-        $enabledModules = [];
+        $moduleNames = [];
         foreach ( $modulesData as $data ) {
-            if ( $data['enabled'] ) {
-                $enabledModules[] = $data['name'];
-            }
+            $moduleNames[] = $data['name'];
         }
 
-        foreach ( $modulesData as $data ) {
-            foreach ( $data['config']['depends'] as $dependedModuleName ) {
-                if ( !in_array( $dependedModuleName, $enabledModules ) ) {
+        foreach ( $modulesData as $moduleData ) {
+            foreach ( $moduleData['config']['depends'] as $dependedModuleName ) {
+                if ( $moduleData['name'] == $dependedModuleName ) {
+                    throw new \Exception( sprintf( 'Dependent module can not set as itself.', $dependedModuleName ) );
+                }
+                if ( !in_array( $dependedModuleName, $moduleNames ) ) {
                     throw new \Exception( sprintf( 'Dependent module `%s` does not exist.', $dependedModuleName ) );
                 }
             }
         }
-    }
 
-    private function getAllDepentModules( $module, $modulesData )
-    {
-        foreach ( $module['config']['depends'] as $dependedModuleName ) {
-            
+        $tmpModulesData = $modulesData;
+        foreach ( $modulesData as &$moduleData ) {
+            $moduleData['config']['depends'] = $this->getAllDependentModules( $moduleData, $tmpModulesData );
         }
     }
 
@@ -87,11 +106,9 @@ class Manager {
      */
     private function sortModules( $modulesData )
     {
-        $sortFun = function ( $a, $b ) {
+        usort( $modulesData, function ( $a, $b ) {
             return in_array( $a['name'], $b['config']['depends'] ) ? 1 : 0;
-        };
-
-        //$this->getAllDepentModules( $module, $modulesData );
+        } );
     }
 
     /**
@@ -139,6 +156,7 @@ class Manager {
 
             $modulesData = [ 'enabled' => [], 'disabled' => [] ];
             foreach ( $moduleSource as $data ) {
+                /* @var $module \CrazyCat\Framework\App\Module */
                 $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
                 $module->setData( 'enabled', isset( $moduleConfig[$data['name']] ) ? $moduleConfig[$data['name']] : true  );
                 if ( $module->getData( 'enabled' ) ) {
@@ -149,7 +167,7 @@ class Manager {
                 }
                 $this->modules[] = $module;
             }
-            $this->checkDependency( $modulesData['enabled'] );
+            $this->processDependency( $modulesData['enabled'] );
             $this->sortModules( $modulesData['enabled'] );
             $cache->setData( $modulesData )->save();
         }

@@ -30,6 +30,10 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     private function init( $data )
     {
+        /**
+         * Consider the module data is got from cache and skip
+         *     initializing actions when it is with `config`.
+         */
         if ( !isset( $data['config'] ) ) {
             $data['config'] = $this->verifyConfig( $data );
         }
@@ -55,7 +59,12 @@ class Module extends \CrazyCat\Framework\Data\Object {
                 unset( $config[$key] );
             }
             elseif ( gettype( $value ) != $this->configRules[$key]['type'] ) {
-                throw new \Exception( sprintf( 'Invalidated config file of module `%s`.', $data['name'] ) );
+                throw new \Exception( sprintf( 'Invalidated setting `%s` of module `%s`.', $key, $data['name'] ) );
+            }
+        }
+        foreach ( $this->configRules as $key => $rule ) {
+            if ( $rule['required'] && !isset( $config[$key] ) ) {
+                throw new \Exception( sprintf( 'Setting `%s` of module `%s` is required.', $key, $data['name'] ) );
             }
         }
         return $config;
