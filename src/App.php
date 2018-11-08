@@ -104,7 +104,8 @@ class App {
         $this->response = $this->request->process();
 
         if ( $this->request->getModuleName() ) {
-            $this->moduleManager->getModule( $this->request->getModuleName() );
+            $this->moduleManager->getModule( $this->request->getModuleName() )
+                    ->launch( $this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName() );
         }
 
         // TODO :: translation

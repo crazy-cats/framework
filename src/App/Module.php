@@ -23,6 +23,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
      * @var array
      */
     private $configRules = [
+        'namespace' => [ 'required' => true, 'type' => 'string' ],
         'depends' => [ 'required' => true, 'type' => 'array' ],
         'events' => [ 'required' => false, 'type' => 'array' ]
     ];
@@ -32,9 +33,15 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     private $eventManager;
 
-    public function __construct( EventManager $eventManager, array $data )
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    private $objectManager;
+
+    public function __construct( ObjectManager $objectManager, EventManager $eventManager, array $data )
     {
         $this->eventManager = $eventManager;
+        $this->objectManager = $objectManager;
 
         parent::__construct( $this->init( $data ) );
     }
@@ -114,6 +121,21 @@ class Module extends \CrazyCat\Framework\Data\Object {
     public function getBlocks()
     {
         
+    }
+
+    /**
+     * @param string $areaCode
+     * @param string $controllerName
+     * @param string $actionName
+     */
+    public function launch( $areaCode, $controllerName, $actionName )
+    {
+        $namespace = trim( $this->getData( 'namespace' ), '\\' );
+        $area = ucfirst( $areaCode );
+        $controller = str_replace( ' ', '', ucwords( implode( ' ', explode( '_', $controllerName ) ) ) );
+        $action = ucfirst( $actionName );
+
+        $this->objectManager->create( sprintf( '%s\Controller\%s\%s\%s', $namespace, $area, $controller, $action ) )->execute();
     }
 
 }

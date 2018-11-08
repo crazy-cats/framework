@@ -58,7 +58,6 @@ class Factory {
                     break;
 
                 case Area::CODE_CLI :
-                case Area::CODE_CRON :
                     $request = $this->objectManager->create( Cli\Request::class );
                     break;
             }
