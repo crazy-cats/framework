@@ -104,7 +104,7 @@ class Manager {
      * 
      * @param array $modulesData
      */
-    private function sortModules( $modulesData )
+    private function sortModules( &$modulesData )
     {
         usort( $modulesData, function ( $a, $b ) {
             return in_array( $a['name'], $b['config']['depends'] ) ? 1 : 0;
