@@ -161,7 +161,7 @@ class Manager {
                 else {
                     $modulesData['disabled'][$module->getData( 'name' )] = $module->getData();
                 }
-                $this->modules[] = $module;
+                $this->modules[$module->getData( 'name' )] = $module;
             }
             $this->processDependency( $modulesData['enabled'] );
             $cache->setData( $modulesData )->save();
@@ -169,7 +169,7 @@ class Manager {
         else {
             foreach ( $modulesData as $moduleGroupData ) {
                 foreach ( $moduleGroupData as $moduleData ) {
-                    $this->modules[] = $this->objectManager->create( Module::class, [ 'data' => $moduleData ] );
+                    $this->modules[$moduleData['name']] = $this->objectManager->create( Module::class, [ 'data' => $moduleData ] );
                 }
             }
         }
@@ -181,6 +181,15 @@ class Manager {
     public function getAllModules()
     {
         return $this->modules;
+    }
+
+    /**
+     * @param string $name
+     * @return \CrazyCat\Framework\App\Module|null
+     */
+    public function getModule( $name )
+    {
+        return isset( $this->modules[$name] ) ? $this->modules[$name] : null;
     }
 
 }

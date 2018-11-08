@@ -7,7 +7,9 @@
 
 namespace CrazyCat\Framework;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Io\Factory as IoFactory;
 use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
@@ -22,6 +24,11 @@ use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
 class App {
 
     /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    private $area;
+
+    /**
      * @var \CrazyCat\Framework\Setup\Components
      */
     private $componentSetup;
@@ -30,6 +37,11 @@ class App {
      * @var \CrazyCat\Framework\App\Config
      */
     private $config;
+
+    /**
+     * @var \CrazyCat\Framework\App\Io\Factory
+     */
+    private $ioFactory;
 
     /**
      * @var \CrazyCat\Framework\App\Logger
@@ -47,6 +59,16 @@ class App {
     private $objectManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\AbstractRequest
+     */
+    private $request;
+
+    /**
+     * @var \CrazyCat\Framework\App\Io\AbstractResponse
+     */
+    private $response;
+
+    /**
      * Get app singleton
      * @return \CrazyCat\Framework\App
      */
@@ -55,10 +77,12 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
+    public function __construct( Area $area, IoFactory $ioFactory, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
     {
+        $this->area = $area;
         $this->componentSetup = $componentSetup;
         $this->config = $config;
+        $this->ioFactory = $ioFactory;
         $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
@@ -67,7 +91,7 @@ class App {
     /**
      * @param \Composer\Autoload\ClassLoader $composerLoader
      */
-    public function run( $composerLoader )
+    public function run( $composerLoader, $areaCode = null )
     {
         /**
          * Use UTC time as system time, for calculation and storage
@@ -76,8 +100,13 @@ class App {
 
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+        $this->request = $this->ioFactory->create( $areaCode );
+        $this->response = $this->request->process();
 
-        // TODO :: init area
+        if ( $this->request->getModuleName() ) {
+            $this->moduleManager->getModule( $this->request->getModuleName() );
+        }
+
         // TODO :: translation
         // TODO :: database
     }
