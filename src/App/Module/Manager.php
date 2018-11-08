@@ -70,17 +70,14 @@ class Manager {
     }
 
     /**
-     * Check dependency of enabled modules, append full dependency for modules.
-     * 
      * @param array $modulesData
      */
     private function processDependency( &$modulesData )
     {
-        $moduleNames = [];
-        foreach ( $modulesData as $data ) {
-            $moduleNames[] = $data['name'];
-        }
-
+        /**
+         * Check dependency of enabled modules
+         */
+        $moduleNames = array_keys( $modulesData );
         foreach ( $modulesData as $moduleData ) {
             foreach ( $moduleData['config']['depends'] as $dependedModuleName ) {
                 if ( $moduleData['name'] == $dependedModuleName ) {
@@ -92,20 +89,19 @@ class Manager {
             }
         }
 
+        /**
+         * Append full dependency in modules data for 
+         *     dead loop checking and sorting.
+         */
         $tmpModulesData = $modulesData;
         foreach ( $modulesData as &$moduleData ) {
             $moduleData['config']['depends'] = $this->getAllDependentModules( $moduleData, $tmpModulesData );
         }
-    }
 
-    /**
-     * Sort enabled modules by dependency, high level ones run at the end.
-     * Affects initialization order of events, translations etc..
-     * 
-     * @param array $modulesData
-     */
-    private function sortModules( &$modulesData )
-    {
+        /**
+         * Sort enabled modules by dependency, high level ones run at the end.
+         * Affects initialization order of events, translations etc..
+         */
         usort( $modulesData, function ( $a, $b ) {
             return in_array( $a['name'], $b['config']['depends'] ) ? 0 : 1;
         } );
@@ -168,7 +164,6 @@ class Manager {
                 $this->modules[] = $module;
             }
             $this->processDependency( $modulesData['enabled'] );
-            $this->sortModules( $modulesData['enabled'] );
             $cache->setData( $modulesData )->save();
         }
         else {
