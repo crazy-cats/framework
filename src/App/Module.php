@@ -7,6 +7,8 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\App\EventManager;
+
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -15,29 +17,26 @@ namespace CrazyCat\Framework\App;
  */
 class Module extends \CrazyCat\Framework\Data\Object {
 
-    private $configRules = [
-        'depends' => [ 'required' => true, 'type' => 'array' ]
-    ];
-
-    public function __construct( array $data )
-    {
-        parent::__construct( $this->init( $data ) );
-    }
+    const FILE_CONFIG = 'config' . DS . 'module.php';
 
     /**
-     * @param array $data
-     * @return array
+     * @var array
      */
-    private function init( $data )
+    private $configRules = [
+        'depends' => [ 'required' => true, 'type' => 'array' ],
+        'events' => [ 'required' => false, 'type' => 'array' ]
+    ];
+
+    /**
+     * @var \CrazyCat\Framework\App\EventManager
+     */
+    private $eventManager;
+
+    public function __construct( EventManager $eventManager, array $data )
     {
-        /**
-         * Consider the module data is got from cache and skip
-         *     initializing actions when it is with `config`.
-         */
-        if ( !isset( $data['config'] ) ) {
-            $data['config'] = $this->verifyConfig( $data );
-        }
-        return $data;
+        $this->eventManager = $eventManager;
+
+        parent::__construct( $this->init( $data ) );
     }
 
     /**
@@ -46,10 +45,10 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     private function verifyConfig( $data )
     {
-        if ( !is_file( $data['dir'] . DS . 'config' . DS . 'module.php' ) ) {
+        if ( !is_file( $data['dir'] . DS . self::FILE_CONFIG ) ) {
             throw new \Exception( sprintf( 'Config file of module `%s` does not exist.', $data['name'] ) );
         }
-        $config = require $data['dir'] . DS . 'config' . DS . 'module.php';
+        $config = require $data['dir'] . DS . self::FILE_CONFIG;
 
         if ( !is_array( $config ) ) {
             throw new \Exception( sprintf( 'Invalidated config file of module `%s`.', $data['name'] ) );
@@ -68,6 +67,37 @@ class Module extends \CrazyCat\Framework\Data\Object {
             }
         }
         return $config;
+    }
+
+    /**
+     * @param array $events
+     */
+    private function assignEvents( array $events )
+    {
+        foreach ( $events as $eventName => $observer ) {
+            $this->eventManager->addEvent( $eventName, $observer );
+        }
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    private function init( $data )
+    {
+        /**
+         * Consider the module data is got from cache and skip
+         *     initializing actions when it is with `config`.
+         */
+        if ( !isset( $data['config'] ) ) {
+            $data['config'] = $this->verifyConfig( $data );
+        }
+
+        if ( !empty( $data['config']['events'] ) ) {
+            $this->assignEvents( $data );
+        }
+
+        return $data;
     }
 
     /**

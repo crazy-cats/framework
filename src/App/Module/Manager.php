@@ -70,8 +70,7 @@ class Manager {
     }
 
     /**
-     * Check dependency of enabled modules
-     * Append full dependency for modules
+     * Check dependency of enabled modules, append full dependency for modules.
      * 
      * @param array $modulesData
      */
@@ -100,14 +99,15 @@ class Manager {
     }
 
     /**
-     * Sort enabled modules by dependency
+     * Sort enabled modules by dependency, high level ones run at the end.
+     * Affects initialization order of events, translations etc..
      * 
      * @param array $modulesData
      */
     private function sortModules( &$modulesData )
     {
         usort( $modulesData, function ( $a, $b ) {
-            return in_array( $a['name'], $b['config']['depends'] ) ? 1 : 0;
+            return in_array( $a['name'], $b['config']['depends'] ) ? 0 : 1;
         } );
     }
 

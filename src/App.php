@@ -77,7 +77,6 @@ class App {
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
 
-        // TODO :: init modules
         // TODO :: init area
         // TODO :: translation
         // TODO :: database
