@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller;
+namespace CrazyCat\Framework\App\Module\Model;
 
 /**
  * @category CrazyCat

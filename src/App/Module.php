@@ -106,6 +106,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
          */
         if ( !isset( $data['config'] ) ) {
             $data['config'] = $this->verifyConfig( $data );
+            $data['controller_actions'] = $this->intiControllerActions( $data );
         }
 
         if ( !empty( $data['config']['events'] ) ) {
@@ -116,31 +117,47 @@ class Module extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return string[]
+     * @param array $data
+     * @return array [ areaCode => [ route => className ] ]
      */
-    public function getControllerActions( $areaCode = null )
+    private function intiControllerActions( $data )
     {
-        $controllerDir = $this->getData( 'dir' ) . DS . 'code' . DS . 'Controller';
-        $namespace = $this->getData( 'config' )['namespace'];
+        $controllerDir = $data['dir'] . DS . 'code' . DS . 'Controller';
+        $namespace = $data['config']['namespace'];
+        $routes = $data['config']['routes'];
+
         $actions = [];
-        if ( $areaCode === null ) {
-            foreach ( $this->area->getAllowedCodes() as $areaCode ) {
-                $actions[$areaCode] = $this->getControllerActions( $areaCode );
+        foreach ( $this->area->getAllowedCodes() as $areaCode ) {
+            $actions[$areaCode] = [];
+            if ( !isset( $routes[$areaCode] ) ) {
+                continue;
             }
-        }
-        else {
+
             $area = ucfirst( $areaCode );
             $dir = $controllerDir . DS . $area;
             if ( is_dir( $dir ) ) {
                 foreach ( File::getFolders( $dir ) as $controller ) {
                     foreach ( File::getFiles( $dir . DS . $controller ) as $action ) {
                         $action = str_replace( '.php', '', $action );
-                        $actions[strtolower( $controller . '/' . $action )] = $namespace . '\\Controller\\' . $controller . '\\' . $area . '\\' . $action;
+                        $actions[$areaCode][strtolower( $routes[$areaCode] . '/' . $controller . '/' . $action )] = $namespace . '\\Controller\\' . $area . '\\' . $controller . '\\' . $action;
                     }
                 }
             }
         }
+
         return $actions;
+    }
+
+    /**
+     * @param string|null $areaCode
+     * @return array
+     */
+    public function getControllerActions( $areaCode = null )
+    {
+        $controllerActions = $this->getData( 'controller_actions' );
+
+        return ( $areaCode === null ) ? $controllerActions :
+                ( isset( $controllerActions[$areaCode] ) ? $controllerActions[$areaCode] : [] );
     }
 
     /**

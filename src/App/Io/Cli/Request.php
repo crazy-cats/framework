@@ -11,6 +11,7 @@ use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * @category CrazyCat
@@ -48,15 +49,18 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     public function process()
     {
         $response = $this->objectManager->create( Response::class );
-
         $this->area->setCode( Area::CODE_CLI );
 
-        //$consoleApplication = $this->objectManager->create( ConsoleApplication::class );
-        //$consoleApplication->run();
-
+        $consoleApplication = $this->objectManager->create( ConsoleApplication::class );
         foreach ( $this->moduleManager->getEnabledModules() as $module ) {
-            print_r( $module->getControllerActions( Area::CODE_CLI ) );
+            foreach ( $module->getControllerActions( Area::CODE_CLI ) as $route => $className ) {
+                $controllerAction = $this->objectManager->create( $className );
+                $command = $this->objectManager->create( Command::class, $route )
+                        ->setCode( [ $controllerAction, 'execute' ] );
+                $consoleApplication->add( $command );
+            }
         }
+        $consoleApplication->run();
 
         return $response;
     }
