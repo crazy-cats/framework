@@ -41,7 +41,7 @@ class Factory {
     public function create( $areaCode = null )
     {
         if ( $areaCode === null ) {
-            if ( $this->area->isHttp() ) {
+            if ( !$this->area->isCli() ) {
                 $request = $this->objectManager->create( Http\Request::class );
             }
             else {

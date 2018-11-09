@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App;
 
 use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\Utility\File;
 
 /**
  * @category CrazyCat
@@ -25,8 +26,14 @@ class Module extends \CrazyCat\Framework\Data\Object {
     private $configRules = [
         'namespace' => [ 'required' => true, 'type' => 'string' ],
         'depends' => [ 'required' => true, 'type' => 'array' ],
-        'events' => [ 'required' => false, 'type' => 'array' ]
+        'events' => [ 'required' => false, 'type' => 'array' ],
+        'routes' => [ 'required' => false, 'type' => 'array' ]
     ];
+
+    /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    private $area;
 
     /**
      * @var \CrazyCat\Framework\App\EventManager
@@ -38,8 +45,9 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     private $objectManager;
 
-    public function __construct( ObjectManager $objectManager, EventManager $eventManager, array $data )
+    public function __construct( Area $area, ObjectManager $objectManager, EventManager $eventManager, array $data )
     {
+        $this->area = $area;
         $this->eventManager = $eventManager;
         $this->objectManager = $objectManager;
 
@@ -110,9 +118,29 @@ class Module extends \CrazyCat\Framework\Data\Object {
     /**
      * @return string[]
      */
-    public function getControllerActions()
+    public function getControllerActions( $areaCode = null )
     {
-        
+        $controllerDir = $this->getData( 'dir' ) . DS . 'code' . DS . 'Controller';
+        $namespace = $this->getData( 'config' )['namespace'];
+        $actions = [];
+        if ( $areaCode === null ) {
+            foreach ( $this->area->getAllowedCodes() as $areaCode ) {
+                $actions[$areaCode] = $this->getControllerActions( $areaCode );
+            }
+        }
+        else {
+            $area = ucfirst( $areaCode );
+            $dir = $controllerDir . DS . $area;
+            if ( is_dir( $dir ) ) {
+                foreach ( File::getFolders( $dir ) as $controller ) {
+                    foreach ( File::getFiles( $dir . DS . $controller ) as $action ) {
+                        $action = str_replace( '.php', '', $action );
+                        $actions[strtolower( $controller . '/' . $action )] = $namespace . '\\Controller\\' . $controller . '\\' . $area . '\\' . $action;
+                    }
+                }
+            }
+        }
+        return $actions;
     }
 
     /**
@@ -120,7 +148,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     public function getBlocks()
     {
-        
+        return [];
     }
 
     /**

@@ -9,6 +9,7 @@ namespace CrazyCat\Framework\App\Setup;
 
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\ObjectManager;
+use CrazyCat\Framework\Utility\File;
 
 /**
  * @category CrazyCat
@@ -72,21 +73,9 @@ class Component {
             /**
              * Add modules of which source codes are in `app/modules` as Psr4 packages
              */
-            $funGetSubDirs = function( $dir ) {
-                $subDirs = [];
-                if ( ( $dh = opendir( $dir ) ) ) {
-                    while ( ( $file = readdir( $dh ) ) !== false ) {
-                        if ( $file !== '.' && $file !== '..' && is_dir( $dir . '/' . $file ) ) {
-                            $subDirs[] = $file;
-                        }
-                    }
-                    closedir( $dh );
-                }
-                return $subDirs;
-            };
             foreach ( $composerLoader->getFallbackDirsPsr4() as $dir ) {
-                foreach ( $funGetSubDirs( $dir ) as $vendor ) {
-                    foreach ( $funGetSubDirs( $dir . '/' . $vendor ) as $module ) {
+                foreach ( File::getFolders( $dir ) as $vendor ) {
+                    foreach ( File::getFolders( $dir . '/' . $vendor ) as $module ) {
                         $prefix = $vendor . '\\' . $module . '\\';
                         $path = $dir . '/' . $vendor . '/' . $module . '/code';
                         $composerLoader->addPsr4( $prefix, $path );

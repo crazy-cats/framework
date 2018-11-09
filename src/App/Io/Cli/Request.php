@@ -7,7 +7,10 @@
 
 namespace CrazyCat\Framework\App\Io\Cli;
 
+use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
+use Symfony\Component\Console\Application as ConsoleApplication;
 
 /**
  * @category CrazyCat
@@ -18,12 +21,24 @@ use CrazyCat\Framework\App\ObjectManager;
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    protected $area;
+
+    /**
+     * @var \CrazyCat\Framework\App\Module\Manager
+     */
+    protected $moduleManager;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     protected $objectManager;
 
-    public function __construct( ObjectManager $objectManager )
+    public function __construct( Area $area, ModuleManager $moduleManager, ObjectManager $objectManager )
     {
+        $this->area = $area;
+        $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
     }
 
@@ -33,6 +48,15 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     public function process()
     {
         $response = $this->objectManager->create( Response::class );
+
+        $this->area->setCode( Area::CODE_CLI );
+
+        //$consoleApplication = $this->objectManager->create( ConsoleApplication::class );
+        //$consoleApplication->run();
+
+        foreach ( $this->moduleManager->getEnabledModules() as $module ) {
+            print_r( $module->getControllerActions( Area::CODE_CLI ) );
+        }
 
         return $response;
     }

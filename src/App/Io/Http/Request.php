@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Io\Http;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -18,12 +19,18 @@ use CrazyCat\Framework\App\ObjectManager;
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    protected $area;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     protected $objectManager;
 
-    public function __construct( ObjectManager $objectManager )
+    public function __construct( Area $area, ObjectManager $objectManager )
     {
+        $this->area = $area;
         $this->objectManager = $objectManager;
     }
 

@@ -24,19 +24,24 @@ class Manager {
     const CONFIG_FILE = Config::DIR . DS . 'modules.php';
 
     /**
-     * @var array
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
      */
-    private $modules = [];
-
-    /**
-     * @var \CrazyCat\Framework\App\Cache\Factory
-     */
-    private $cacheFactory;
+    private $cache;
 
     /**
      * @var \CrazyCat\Framework\App\Config
      */
     private $config;
+
+    /**
+     * @var \CrazyCat\Framework\App\Module[]
+     */
+    private $enabledModules;
+
+    /**
+     * @var \CrazyCat\Framework\App\Module[]
+     */
+    private $modules = [];
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
@@ -45,7 +50,7 @@ class Manager {
 
     public function __construct( Config $config, CacheFactory $cacheFactory, ObjectManager $objectManager )
     {
-        $this->cacheFactory = $cacheFactory;
+        $this->cache = $cacheFactory->create( self::CACHE_NAME );
         $this->config = $config;
         $this->objectManager = $objectManager;
     }
@@ -134,9 +139,7 @@ class Manager {
      */
     public function init( $moduleSource )
     {
-        $cache = $this->cacheFactory->create( self::CACHE_NAME );
-
-        if ( empty( $modulesData = $cache->getData() ) ) {
+        if ( empty( $modulesData = $this->cache->getData() ) ) {
 
             $moduleConfig = $this->getModulesConfig();
 
@@ -164,7 +167,7 @@ class Manager {
                 $this->modules[$module->getData( 'name' )] = $module;
             }
             $this->processDependency( $modulesData['enabled'] );
-            $cache->setData( $modulesData )->save();
+            $this->cache->setData( $modulesData )->save();
         }
         else {
             foreach ( $modulesData as $moduleGroupData ) {
@@ -176,11 +179,25 @@ class Manager {
     }
 
     /**
-     * @return array
+     * @return \CrazyCat\Framework\App\Module[]
      */
     public function getAllModules()
     {
         return $this->modules;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Module[]
+     */
+    public function getEnabledModules()
+    {
+        if ( $this->enabledModules === null ) {
+            $modulesData = $this->cache->getData();
+            foreach ( $modulesData['enabled'] as $moduleData ) {
+                $this->enabledModules[] = $this->modules[$moduleData['name']];
+            }
+        }
+        return $this->enabledModules;
     }
 
     /**
