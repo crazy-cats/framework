@@ -70,7 +70,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
                 /* @var $controllerAction \CrazyCat\Framework\App\Module\Controller\Cli\AbstractAction */
                 $controllerAction = $this->objectManager->create( $className );
-                $controllerAction->setCommand( $command )->configure();
+                $controllerAction->setCommand( $command )->init();
 
                 $consoleApplication->add( $command->setCode( [ $controllerAction, 'execute' ] ) );
             }

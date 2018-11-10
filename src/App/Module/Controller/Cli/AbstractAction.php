@@ -35,6 +35,16 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     }
 
     /**
+     * @return $this
+     */
+    public function init()
+    {
+        $this->configure( $this->command );
+
+        return $this;
+    }
+
+    /**
      * @return void
      */
     public function execute()
@@ -45,9 +55,9 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     }
 
     /**
-     * @return void
+     * @param \Symfony\Component\Console\Command\Command $command
      */
-    abstract public function configure();
+    abstract public function configure( $command );
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
