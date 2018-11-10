@@ -192,6 +192,7 @@ class Manager {
     public function getEnabledModules()
     {
         if ( $this->enabledModules === null ) {
+            $this->enabledModules = [];
             $modulesData = $this->cache->getData();
             foreach ( $modulesData['enabled'] as $moduleData ) {
                 $this->enabledModules[] = $this->modules[$moduleData['name']];

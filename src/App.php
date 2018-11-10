@@ -14,6 +14,7 @@ use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
+use CrazyCat\Framework\App\Translation;
 
 /**
  * @category CrazyCat
@@ -22,6 +23,8 @@ use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
  * @link http://crazy-cat.co
  */
 class App {
+
+    const DIR = __DIR__;
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -64,9 +67,9 @@ class App {
     private $request;
 
     /**
-     * @var \CrazyCat\Framework\App\Io\AbstractResponse
+     * @var \CrazyCat\Framework\App\Translation
      */
-    private $response;
+    private $translation;
 
     /**
      * Get app singleton
@@ -77,7 +80,7 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( Area $area, IoFactory $ioFactory, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
+    public function __construct( Area $area, IoFactory $ioFactory, Translation $translation, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
     {
         $this->area = $area;
         $this->componentSetup = $componentSetup;
@@ -86,6 +89,7 @@ class App {
         $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
+        $this->translation = $translation;
     }
 
     /**
@@ -94,6 +98,14 @@ class App {
     public function getVersion()
     {
         return '1.0.0';
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Translation
+     */
+    public function getTranslation()
+    {
+        return $this->translation;
     }
 
     /**
@@ -108,6 +120,7 @@ class App {
 
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+        $this->translation->init();
         $this->request = $this->ioFactory->create( $areaCode );
         $this->request->process();
 
