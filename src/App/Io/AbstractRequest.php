@@ -31,6 +31,11 @@ abstract class AbstractRequest {
     protected $actionName;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\Cli\Response
+     */
+    protected $response;
+
+    /**
      * @return string
      */
     public function getModuleName()
@@ -55,7 +60,15 @@ abstract class AbstractRequest {
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Io\AbstractResponse
+     * @return \CrazyCat\Framework\App\Io\AbstractResponse|null
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @return void
      */
     abstract public function process();
 }

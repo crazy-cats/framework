@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Io\Cli;
 
+use CrazyCat\Framework\App;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
@@ -20,6 +21,11 @@ use Symfony\Component\Console\Command\Command;
  * @link http://crazy-cat.co
  */
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
+
+    /**
+     * @var \CrazyCat\Framework\App
+     */
+    protected $app;
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -36,33 +42,40 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      */
     protected $objectManager;
 
-    public function __construct( Area $area, ModuleManager $moduleManager, ObjectManager $objectManager )
+    public function __construct( App $app, Area $area, ModuleManager $moduleManager, ObjectManager $objectManager )
     {
+        $this->app = $app;
         $this->area = $area;
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Io\Cli\Response
+     * @return void
      */
     public function process()
     {
-        $response = $this->objectManager->create( Response::class );
         $this->area->setCode( Area::CODE_CLI );
 
-        $consoleApplication = $this->objectManager->create( ConsoleApplication::class );
+        /* @var $consoleApplication \Symfony\Component\Console\Application */
+        $consoleApplication = $this->objectManager->create( ConsoleApplication::class, [
+            'name' => 'CrazyCat CLI',
+            'version' => $this->app->getVersion() ] );
+
         foreach ( $this->moduleManager->getEnabledModules() as $module ) {
             foreach ( $module->getControllerActions( Area::CODE_CLI ) as $route => $className ) {
+
+                /* @var $command \Symfony\Component\Console\Command\Command */
+                $command = $this->objectManager->create( Command::class, [ 'name' => str_replace( '/', ':', $route ) ] );
+
+                /* @var $controllerAction \CrazyCat\Framework\App\Module\Controller\Cli\AbstractAction */
                 $controllerAction = $this->objectManager->create( $className );
-                $command = $this->objectManager->create( Command::class, $route )
-                        ->setCode( [ $controllerAction, 'execute' ] );
-                $consoleApplication->add( $command );
+                $controllerAction->setCommand( $command )->configure();
+
+                $consoleApplication->add( $command->setCode( [ $controllerAction, 'execute' ] ) );
             }
         }
         $consoleApplication->run();
-
-        return $response;
     }
 
 }

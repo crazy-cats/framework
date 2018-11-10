@@ -89,6 +89,14 @@ class App {
     }
 
     /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return '1.0.0';
+    }
+
+    /**
      * @param \Composer\Autoload\ClassLoader $composerLoader
      */
     public function run( $composerLoader, $areaCode = null )
@@ -101,7 +109,7 @@ class App {
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
         $this->request = $this->ioFactory->create( $areaCode );
-        $this->response = $this->request->process();
+        $this->request->process();
 
         if ( $this->request->getModuleName() ) {
             $this->moduleManager->getModule( $this->request->getModuleName() )

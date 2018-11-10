@@ -37,6 +37,17 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     /**
      * @return \CrazyCat\Framework\App\Io\Http\Response
      */
+    public function getResponse()
+    {
+        if ( $this->response === null ) {
+            $this->response = $this->objectManager->create( Response::class );
+        }
+        return $this->response;
+    }
+
+    /**
+     * @return void
+     */
     public function process()
     {
         $response = $this->objectManager->create( Response::class );
