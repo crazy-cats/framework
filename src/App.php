@@ -9,6 +9,7 @@ namespace CrazyCat\Framework;
 
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\Io\Factory as IoFactory;
 use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
@@ -40,6 +41,11 @@ class App {
      * @var \CrazyCat\Framework\App\Config
      */
     private $config;
+
+    /**
+     * @var \CrazyCat\Framework\App\Db\Manager
+     */
+    private $dbManager;
 
     /**
      * @var \CrazyCat\Framework\App\Io\Factory
@@ -80,11 +86,12 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( Area $area, IoFactory $ioFactory, Translation $translation, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
+    public function __construct( DbManager $dbManager, Area $area, IoFactory $ioFactory, Translation $translation, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
     {
         $this->area = $area;
         $this->componentSetup = $componentSetup;
         $this->config = $config;
+        $this->dbManager = $dbManager;
         $this->ioFactory = $ioFactory;
         $this->logger = $logger;
         $this->moduleManager = $moduleManager;
@@ -124,12 +131,17 @@ class App {
         $this->request = $this->ioFactory->create( $areaCode );
         $this->request->process();
 
+        /**
+         * Do database initialization after processing request
+         *     so that admin can use CLI when the database is down.
+         */
+        $this->dbManager->init();
+
         if ( $this->request->getModuleName() ) {
             $this->moduleManager->getModule( $this->request->getModuleName() )
                     ->launch( $this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName() );
         }
 
-        // TODO :: translation
         // TODO :: database
     }
 
