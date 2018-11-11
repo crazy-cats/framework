@@ -10,8 +10,9 @@ namespace CrazyCat\Framework;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;
+use CrazyCat\Framework\App\Handler\ErrorHandler;
+use CrazyCat\Framework\App\Handler\ExceptionHandler;
 use CrazyCat\Framework\App\Io\Factory as IoFactory;
-use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
@@ -48,14 +49,14 @@ class App {
     private $dbManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Handler\ErrorHandler
+     */
+    private $errorHandler;
+
+    /**
      * @var \CrazyCat\Framework\App\Io\Factory
      */
     private $ioFactory;
-
-    /**
-     * @var \CrazyCat\Framework\App\Logger
-     */
-    private $logger;
 
     /**
      * @var \CrazyCat\Framework\App\Module\Manager
@@ -86,14 +87,15 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( DbManager $dbManager, Area $area, IoFactory $ioFactory, Translation $translation, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager, Logger $logger )
+    public function __construct( ExceptionHandler $exceptionHandler, ErrorHandler $errorHandler, DbManager $dbManager, Area $area, IoFactory $ioFactory, Translation $translation, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager )
     {
         $this->area = $area;
         $this->componentSetup = $componentSetup;
         $this->config = $config;
         $this->dbManager = $dbManager;
+        $this->errorHandler = $errorHandler;
+        $this->exceptionHandler = $exceptionHandler;
         $this->ioFactory = $ioFactory;
-        $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
         $this->translation = $translation;
@@ -124,6 +126,9 @@ class App {
          * Use UTC time as system time, for calculation and storage
          */
         ini_set( 'date.timezone', 'UTC' );
+
+        set_error_handler( [ $this->errorHandler, 'process' ] );
+        set_exception_handler( [ $this->exceptionHandler, 'process' ] );
 
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );

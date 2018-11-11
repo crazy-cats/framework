@@ -5,6 +5,8 @@
  * See COPYRIGHT.txt for license details.
  */
 
+use CrazyCat\Framework\App;
+
 /**
  * @param string $text
  * @param array $variables
@@ -12,5 +14,5 @@
  */
 function __( $text, $variables = [] )
 {
-    return \CrazyCat\Framework\App::getInstance()->getTranslation()->translate( $text, $variables );
+    return App::getInstance()->getTranslation()->translate( $text, $variables );
 }
