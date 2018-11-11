@@ -135,8 +135,6 @@ class App {
             $this->moduleManager->getModule( $this->request->getModuleName() )
                     ->launch( $this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName() );
         }
-
-        // TODO :: database
     }
 
 }
