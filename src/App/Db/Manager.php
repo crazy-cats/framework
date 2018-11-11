@@ -39,18 +39,9 @@ class Manager {
         $this->objectManager = $objectManager;
     }
 
-    public function init()
-    {
-        $dbSource = $this->config->getData( 'db' );
-
-        if ( !isset( $dbSource['default'] ) ) {
-            throw new \Exception( 'Incorrect database setting.' );
-        }
-    }
-
     /**
      * @param string $name
-     * @return 
+     * @return \CrazyCat\Framework\App\Db\AbstractAdapter
      */
     public function getConnection( $name = 'default' )
     {
@@ -61,7 +52,7 @@ class Manager {
             }
             switch ( $dbSource[$name]['type'] ) {
 
-                case 'mysql' :
+                case MySql::TYPE :
                     $this->conns[$name] = $this->objectManager->create( MySql::class, [ 'config' => $dbSource[$name] ] );
                     break;
 

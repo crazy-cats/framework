@@ -131,12 +131,6 @@ class App {
         $this->request = $this->ioFactory->create( $areaCode );
         $this->request->process();
 
-        /**
-         * Do database initialization after processing request
-         *     so that admin can use CLI when the database is down.
-         */
-        $this->dbManager->init();
-
         if ( $this->request->getModuleName() ) {
             $this->moduleManager->getModule( $this->request->getModuleName() )
                     ->launch( $this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName() );

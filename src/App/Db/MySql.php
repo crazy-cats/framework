@@ -15,6 +15,8 @@ namespace CrazyCat\Framework\App\Db;
  */
 class MySql extends AbstractAdapter {
 
+    const TYPE = 'mysql';
+
     /**
      * @var \PDO
      */
@@ -33,7 +35,10 @@ class MySql extends AbstractAdapter {
     public function fetchAll( $sql, array $binds = [] )
     {
         $statement = $this->pdo->prepare( $sql );
-        $statement->execute( $binds );
+        if ( !$statement->execute( $binds ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
         return $statement->fetchAll( \PDO::FETCH_ASSOC );
     }
 
@@ -45,7 +50,10 @@ class MySql extends AbstractAdapter {
     public function fetchPairs( $sql, array $binds = [] )
     {
         $statement = $this->pdo->prepare( $sql );
-        $statement->execute( $binds );
+        if ( !$statement->execute( $binds ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
         $data = [];
         while ( list( $key, $value ) = $statement->fetch( \PDO::FETCH_NUM ) ) {
             $data[$key] = $value;
@@ -61,7 +69,10 @@ class MySql extends AbstractAdapter {
     public function fetchCol( $sql, array $binds = [] )
     {
         $statement = $this->pdo->prepare( $sql );
-        $statement->execute( $binds );
+        if ( !$statement->execute( $binds ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
         $data = [];
         while ( ( $row = $statement->fetchColumn() ) ) {
             $data[] = $row;
@@ -77,7 +88,10 @@ class MySql extends AbstractAdapter {
     public function fetchRow( $sql, array $binds = [] )
     {
         $statement = $this->pdo->prepare( $sql );
-        $statement->execute( $binds );
+        if ( !$statement->execute( $binds ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
         return $statement->fetch( \PDO::FETCH_ASSOC );
     }
 
@@ -89,7 +103,10 @@ class MySql extends AbstractAdapter {
     public function fetchOne( $sql, array $binds = [] )
     {
         $statement = $this->pdo->prepare( $sql );
-        $statement->execute( $binds );
+        if ( !$statement->execute( $binds ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
         return $statement->fetchColumn();
     }
 
