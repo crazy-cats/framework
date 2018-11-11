@@ -34,7 +34,7 @@ class MySql extends AbstractAdapter {
     {
         $statement = $this->pdo->prepare( $sql );
         $statement->execute( $binds );
-        return $statement->fetchAll();
+        return $statement->fetchAll( \PDO::FETCH_ASSOC );
     }
 
     /**
@@ -47,7 +47,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         $statement->execute( $binds );
         $data = [];
-        foreach ( $statement->fetch( FETCH_ASSOC ) as $key => $value ) {
+        while ( list( $key, $value ) = $statement->fetch( \PDO::FETCH_NUM ) ) {
             $data[$key] = $value;
         }
         return $data;
@@ -63,7 +63,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         $statement->execute( $binds );
         $data = [];
-        while ( ( $row = $statement->fetchColumn( FETCH_ASSOC ) ) ) {
+        while ( ( $row = $statement->fetchColumn() ) ) {
             $data[] = $row;
         }
         return $data;
@@ -78,7 +78,7 @@ class MySql extends AbstractAdapter {
     {
         $statement = $this->pdo->prepare( $sql );
         $statement->execute( $binds );
-        return $statement->fetch( FETCH_ASSOC );
+        return $statement->fetch( \PDO::FETCH_ASSOC );
     }
 
     /**
@@ -109,13 +109,17 @@ class MySql extends AbstractAdapter {
                     return '?';
                 }, $fields ) );
 
-        $statement = $this->pdo->prepare( 'INSERT INTO `' . $table . '` ( ' . $keyMarks . ' ) VALUES ( ' . $valueMarks . ' )' );
+        $statement = $this->pdo->prepare( sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s )', $table, $keyMarks, $valueMarks ) );
         foreach ( array_values( $data ) as $k => $value ) {
             $statement->bindValue( $k + 1, $value );
         }
         $statement->execute();
 
-        return $this->pdo->lastInsertId();
+        if ( !( $id = $this->pdo->lastInsertId() ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
+        return $id;
     }
 
     /**
@@ -136,13 +140,17 @@ class MySql extends AbstractAdapter {
         }
 
         $k = 0;
-        $statement = $this->pdo->prepare( 'INSERT INTO `' . $table . '` ( ' . $keyMarks . ' ) VALUES ( ' . implode( '), (', $valueMarks ) . ' )' );
+        $statement = $this->pdo->prepare( sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s )', $table, $keyMarks, implode( '), (', $valueMarks ) ) );
         foreach ( $data as $row ) {
             foreach ( $row as $value ) {
                 $statement->bindValue( ++$k, $value );
             }
         }
-        $statement->execute();
+
+        if ( !$statement->execute() ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
     }
 
 }
