@@ -44,8 +44,9 @@ class Logger {
     public function log( $content, $file = 'system.log' )
     {
         if ( !isset( $this->handlers[$file] ) ) {
-            if ( !is_dir( self::DIR ) ) {
-                mkdir( self::DIR, 0755, true );
+            $dir = self::DIR . DS . dirname( $file );
+            if ( !is_dir( $dir ) ) {
+                mkdir( $dir, 0755, true );
             }
             $this->handlers[$file] = $this->objectManager->create( StreamHandler::class, [
                 'stream' => self::DIR . DS . $file,

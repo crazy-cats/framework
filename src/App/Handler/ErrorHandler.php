@@ -35,6 +35,17 @@ class ErrorHandler {
     }
 
     /**
+     * @param string $message
+     * @return string
+     */
+    private function logError( $message )
+    {
+        $this->logger->log( $message, sprintf( 'errors/%s/%s.log', date( 'Y-m' ), date( 'Y-m-d' ) ) );
+
+        return $message;
+    }
+
+    /**
      * @param string $errno
      * @param string $errstr
      * @param string $errfile
@@ -42,7 +53,7 @@ class ErrorHandler {
      */
     private function processCliError( $errno, $errstr, $errfile, $errline )
     {
-        echo sprintf( "Meet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr );
+        echo $this->logError( sprintf( "\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr ) );
     }
 
     /**
@@ -53,7 +64,7 @@ class ErrorHandler {
      */
     private function processHttpError( $errno, $errstr, $errfile, $errline )
     {
-        echo sprintf( "Meet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr );
+        echo $this->logError( sprintf( "\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr ) );
     }
 
     /**

@@ -35,11 +35,22 @@ class ExceptionHandler {
     }
 
     /**
+     * @param string $message
+     * @return string
+     */
+    private function logException( $message )
+    {
+        $this->logger->log( $message, sprintf( 'errors/%s/%s.log', date( 'Y-m' ), date( 'Y-m-d' ) ) );
+
+        return $message;
+    }
+
+    /**
      * @param \Exception $exception
      */
     private function processCliException( $exception )
     {
-        echo $exception->getMessage() . "\n" . $exception->getTraceAsString();
+        echo $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() );
     }
 
     /**
@@ -47,7 +58,7 @@ class ExceptionHandler {
      */
     private function processHttpException( $exception )
     {
-        echo $exception->getMessage() . "\n" . $exception->getTraceAsString();
+        echo $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() );
     }
 
     /**
