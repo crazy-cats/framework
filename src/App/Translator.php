@@ -17,7 +17,7 @@ use CrazyCat\Framework\App\Module\Manager as ModuleManager;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Translation {
+class Translator {
 
     const CACHE_NAME = 'translations';
 
@@ -42,9 +42,9 @@ class Translation {
     private $langCode = 'en_US';
 
     /**
-     * @var string[]
+     * @var array
      */
-    private $langCodes = [ 'en_US' ];
+    private $langPackages = [];
 
     public function __construct( CacheFactory $cacheFactory, ModuleManager $moduleManager )
     {
@@ -82,11 +82,14 @@ class Translation {
         }
 
         if ( empty( $this->caches[$langCode]->getData() ) ) {
+            $translations = [];
 
             /**
-             * Translations in framework
+             * Translations in language packages
              */
-            $translations = $this->collectTranslations( App::DIR . DS . 'i18n', $langCode );
+            foreach ( $this->langPackages as $package ) {
+                $translations = array_merge( $translations, $this->collectTranslations( $package['dir'] . DS . 'i18n', $langCode ) );
+            }
 
             /**
              * Translations in modules
@@ -107,7 +110,7 @@ class Translation {
      */
     public function setLangCode( $langCode )
     {
-        if ( in_array( $langCode, $this->langCodes ) ) {
+        if ( isset( $this->langPackages[$langCode] ) ) {
             $this->langCode = $langCode;
         }
 
@@ -115,11 +118,17 @@ class Translation {
     }
 
     /**
-     * @return void
+     * @param array $languageSource
      */
-    public function init()
+    public function init( $languageSource )
     {
-        $this->getTranslations( $this->langCode );
+        foreach ( $languageSource as $language ) {
+            $config = require $language['dir'] . DS . 'config' . DS . 'lang.php';
+            $this->langPackages[$config['code']] = [
+                'dir' => $language['dir'],
+                'code' => $config['code']
+            ];
+        }
     }
 
     /**
@@ -134,7 +143,7 @@ class Translation {
             $langCode = $this->langCode;
         }
 
-        $translations = $this->caches[$langCode]->getData();
+        $translations = $this->getTranslations( $langCode );
         $translatedText = isset( $translations[$text] ) ? $translations[$text] : $text;
         for ( $k = 0; $k < count( $variables ); $k ++ ) {
             $i = $k + 1;

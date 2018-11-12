@@ -14,5 +14,5 @@ use CrazyCat\Framework\App;
  */
 function __( $text, $variables = [] )
 {
-    return App::getInstance()->getTranslation()->translate( $text, $variables );
+    return App::getInstance()->getTranslator()->translate( $text, $variables );
 }

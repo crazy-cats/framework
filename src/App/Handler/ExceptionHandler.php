@@ -39,7 +39,7 @@ class ExceptionHandler {
      */
     private function processCliException( $exception )
     {
-        echo $exception->getTraceAsString();
+        echo $exception->getMessage() . "\n" . $exception->getTraceAsString();
     }
 
     /**
@@ -47,7 +47,7 @@ class ExceptionHandler {
      */
     private function processHttpException( $exception )
     {
-        echo $exception->getTraceAsString();
+        echo $exception->getMessage() . "\n" . $exception->getTraceAsString();
     }
 
     /**
