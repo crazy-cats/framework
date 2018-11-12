@@ -7,7 +7,6 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\App;
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 
@@ -19,7 +18,8 @@ use CrazyCat\Framework\App\Module\Manager as ModuleManager;
  */
 class Translator {
 
-    const CACHE_NAME = 'translations';
+    const CACHE_LANG_NAME = 'languages';
+    const CACHE_TRANSLATIONS_NAME = 'translations';
 
     /**
      * @var \CrazyCat\Framework\App\Cache\Factory
@@ -27,9 +27,14 @@ class Translator {
     private $cacheFactory;
 
     /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
+     */
+    private $cache;
+
+    /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache[]
      */
-    private $caches;
+    private $translationsCaches;
 
     /**
      * @var \CrazyCat\Framework\App\Module\Manager
@@ -48,6 +53,7 @@ class Translator {
 
     public function __construct( CacheFactory $cacheFactory, ModuleManager $moduleManager )
     {
+        $this->cache = $cacheFactory->create( self::CACHE_LANG_NAME );
         $this->cacheFactory = $cacheFactory;
         $this->moduleManager = $moduleManager;
     }
@@ -77,11 +83,11 @@ class Translator {
 
     private function getTranslations( $langCode )
     {
-        if ( !isset( $this->caches[$langCode] ) ) {
-            $this->caches[$langCode] = $this->cacheFactory->create( self::CACHE_NAME . '-' . $langCode );
+        if ( !isset( $this->translationsCaches[$langCode] ) ) {
+            $this->translationsCaches[$langCode] = $this->cacheFactory->create( self::CACHE_TRANSLATIONS_NAME . '-' . $langCode );
         }
 
-        if ( empty( $this->caches[$langCode]->getData() ) ) {
+        if ( empty( $this->translationsCaches[$langCode]->getData() ) ) {
             $translations = [];
 
             /**
@@ -98,10 +104,10 @@ class Translator {
                 $translations = array_merge( $translations, $this->collectTranslations( $module->getData( 'dir' ) . DS . 'i18n', $langCode ) );
             }
 
-            $this->caches[$langCode]->setData( $translations )->save();
+            $this->translationsCaches[$langCode]->setData( $translations )->save();
         }
 
-        return $this->caches[$langCode]->getData();
+        return $this->translationsCaches[$langCode]->getData();
     }
 
     /**
@@ -122,12 +128,15 @@ class Translator {
      */
     public function init( $languageSource )
     {
-        foreach ( $languageSource as $language ) {
-            $config = require $language['dir'] . DS . 'config' . DS . 'lang.php';
-            $this->langPackages[$config['code']] = [
-                'dir' => $language['dir'],
-                'code' => $config['code']
-            ];
+        if ( empty( $this->langPackages = $this->cache->getData() ) ) {
+            foreach ( $languageSource as $language ) {
+                $config = require $language['dir'] . DS . 'config' . DS . 'lang.php';
+                $this->langPackages[$config['code']] = [
+                    'dir' => $language['dir'],
+                    'code' => $config['code']
+                ];
+            }
+            $this->cache->setData( $this->langPackages )->save();
         }
     }
 
