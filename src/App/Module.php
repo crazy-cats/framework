@@ -175,7 +175,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     public function launch( $areaCode, $controllerName, $actionName )
     {
-        $namespace = trim( $this->getData( 'namespace' ), '\\' );
+        $namespace = trim( $this->getData( 'config' )['namespace'], '\\' );
         $area = ucfirst( $areaCode );
         $controller = str_replace( ' ', '', ucwords( implode( ' ', explode( '_', $controllerName ) ) ) );
         $action = ucfirst( $actionName );

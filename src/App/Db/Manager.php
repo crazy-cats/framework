@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Db;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\ObjectManager;
 
@@ -46,7 +47,7 @@ class Manager {
     public function getConnection( $name = 'default' )
     {
         if ( !isset( $this->conns[$name] ) ) {
-            $dbSource = $this->config->getData( 'db' );
+            $dbSource = $this->config->getData( Area::CODE_GLOBAL )['db'];
             if ( !isset( $dbSource[$name] ) ) {
                 throw new \Exception( 'Specified database connection does not exist.' );
             }

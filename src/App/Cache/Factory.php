@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Cache;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\ObjectManager;
 
@@ -33,7 +34,7 @@ class Factory {
      */
     public function create( $name )
     {
-        switch ( $this->config->getData( 'cache' ) ) {
+        switch ( $this->config->getData( Area::CODE_GLOBAL )['cache'] ) {
             default:
                 $className = File::class;
                 break;

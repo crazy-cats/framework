@@ -22,9 +22,16 @@ class MySql extends AbstractAdapter {
      */
     private $pdo;
 
+    /**
+     * @var string
+     */
+    private $tblPrefix;
+
     public function __construct( $config )
     {
         $this->pdo = new \PDO( sprintf( 'mysql:host=%s;dbname=%s;charset=utf8', $config['host'], $config['database'] ), $config['username'], $config['password'] );
+
+        $this->tblPrefix = $config['prefix'];
     }
 
     /**
@@ -217,6 +224,15 @@ class MySql extends AbstractAdapter {
             list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( $errorInfo );
         }
+    }
+
+    /**
+     * @param string $table
+     * @return string
+     */
+    public function getTableName( $table )
+    {
+        return $this->tblPrefix . $table;
     }
 
 }

@@ -15,6 +15,7 @@ namespace CrazyCat\Framework\App;
  */
 class Area {
 
+    const CODE_GLOBAL = 'global';
     const CODE_CLI = 'cli';
     const CODE_CRON = 'cron';
     const CODE_API = 'api';

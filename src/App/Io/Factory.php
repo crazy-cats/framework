@@ -42,10 +42,10 @@ class Factory {
     {
         if ( $areaCode === null ) {
             if ( !$this->area->isCli() ) {
-                $request = $this->objectManager->create( Http\Request::class );
+                $request = $this->objectManager->get( Http\Request::class );
             }
             else {
-                $request = $this->objectManager->create( Cli\Request::class );
+                $request = $this->objectManager->get( Cli\Request::class );
             }
         }
         else {
@@ -54,11 +54,11 @@ class Factory {
                 case Area::CODE_API :
                 case Area::CODE_BACKEND :
                 case Area::CODE_FRONTEND :
-                    $request = $this->objectManager->create( Http\Request::class );
+                    $request = $this->objectManager->get( Http\Request::class );
                     break;
 
                 case Area::CODE_CLI :
-                    $request = $this->objectManager->create( Cli\Request::class );
+                    $request = $this->objectManager->get( Cli\Request::class );
                     break;
             }
         }
