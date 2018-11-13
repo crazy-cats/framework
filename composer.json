@@ -9,6 +9,7 @@
         "php": ">5.6.0",
         "monolog/monolog": "1.0.*",
         "symfony/console": "*",
+        "crazycat/language-en_us": "dev-master",
         "crazycat/module-index": "dev-master"
     },
     "autoload": {
