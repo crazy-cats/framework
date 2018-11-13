@@ -69,4 +69,10 @@ abstract class AbstractAdapter {
      * @param array $conditions
      */
     abstract public function update( $table, array $data, array $conditions = [] );
+
+    /**
+     * @param string $table
+     * @param array $conditions
+     */
+    abstract public function delete( $table, array $conditions = [] );
 }

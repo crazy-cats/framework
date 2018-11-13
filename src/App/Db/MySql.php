@@ -181,8 +181,8 @@ class MySql extends AbstractAdapter {
                     return '`' . $key . '` = ?';
                 }, array_keys( $data ) ) );
 
-        $binds = array_values( $data );
         $conditionSql = '';
+        $binds = array_values( $data );
         foreach ( $conditions as $condition => $bind ) {
             $conditionSql .= ' AND ' . $condition;
             if ( strpos( $condition, '?' ) !== false ) {
@@ -190,6 +190,28 @@ class MySql extends AbstractAdapter {
             }
         }
         $statement = $this->pdo->prepare( sprintf( 'UPDATE `%s` SET %s WHERE 1=1 %s', $table, $updateMarks, $conditionSql ) );
+
+        if ( !$statement->execute( $binds ) ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
+    }
+
+    /**
+     * @param string $table
+     * @param array $conditions
+     */
+    public function delete( $table, array $conditions = [] )
+    {
+        $conditionSql = '';
+        $binds = [];
+        foreach ( $conditions as $condition => $bind ) {
+            $conditionSql .= ' AND ' . $condition;
+            if ( strpos( $condition, '?' ) !== false ) {
+                $binds[] = $bind;
+            }
+        }
+        $statement = $this->pdo->prepare( sprintf( 'DELETE FROM `%s` WHERE 1=1 %s', $table, $conditionSql ) );
 
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
