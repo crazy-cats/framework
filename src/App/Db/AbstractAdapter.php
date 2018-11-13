@@ -52,15 +52,21 @@ abstract class AbstractAdapter {
 
     /**
      * @param string $table
-     * @param array $data
+     * @param array $data [ key => value ]
      * @return int
      */
     abstract public function insert( $table, array $data );
 
     /**
      * @param string $table
-     * @param array $data
-     * @return int
+     * @param array $data [ [ key => value ], [ key => value ], ... ]
      */
     abstract public function insertArray( $table, array $data );
+
+    /**
+     * @param string $table
+     * @param array $data [ key => value ]
+     * @param array $conditions
+     */
+    abstract public function update( $table, array $data, array $conditions = [] );
 }

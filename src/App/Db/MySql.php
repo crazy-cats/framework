@@ -112,7 +112,7 @@ class MySql extends AbstractAdapter {
 
     /**
      * @param string $table
-     * @param array $data
+     * @param array $data [ key => value ]
      * @return int
      */
     public function insert( $table, array $data )
@@ -141,7 +141,7 @@ class MySql extends AbstractAdapter {
 
     /**
      * @param string $table
-     * @param array $data
+     * @param array $data [ [ key => value ], [ key => value ], ... ]
      */
     public function insertArray( $table, array $data )
     {
@@ -165,6 +165,33 @@ class MySql extends AbstractAdapter {
         }
 
         if ( !$statement->execute() ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
+    }
+
+    /**
+     * @param string $table
+     * @param array $data [ key => value ]
+     * @param array $conditions
+     */
+    public function update( $table, array $data, array $conditions = [] )
+    {
+        $updateMarks = implode( ', ', array_map( function ( $key ) {
+                    return '`' . $key . '` = ?';
+                }, array_keys( $data ) ) );
+
+        $binds = array_values( $data );
+        $conditionSql = '';
+        foreach ( $conditions as $condition => $bind ) {
+            $conditionSql .= ' AND ' . $condition;
+            if ( strpos( $condition, '?' ) !== false ) {
+                $binds[] = $bind;
+            }
+        }
+        $statement = $this->pdo->prepare( sprintf( 'UPDATE `%s` SET %s WHERE 1=1 %s', $table, $updateMarks, $conditionSql ) );
+
+        if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( $errorInfo );
         }
