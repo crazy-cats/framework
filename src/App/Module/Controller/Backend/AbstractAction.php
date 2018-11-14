@@ -13,6 +13,6 @@ namespace CrazyCat\Framework\App\Module\Controller\Backend;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
+abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\Frontend\AbstractAction {
     
 }

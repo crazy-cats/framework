@@ -7,6 +7,9 @@
 
 namespace CrazyCat\Framework\App\Module\Controller;
 
+use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\App\ObjectManager;
+
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -15,5 +18,24 @@ namespace CrazyCat\Framework\App\Module\Controller;
  */
 abstract class AbstractAction {
 
+    /**
+     * @var \CrazyCat\Framework\App\EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    protected $objectManager;
+
+    public function __construct( EventManager $eventManager, ObjectManager $objectManager )
+    {
+        $this->eventManager = $eventManager;
+        $this->objectManager = $objectManager;
+    }
+
+    /**
+     * @return void
+     */
     abstract public function execute();
 }
