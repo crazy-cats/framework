@@ -43,6 +43,14 @@ class EventManager {
     }
 
     /**
+     * @return array
+     */
+    public function getEvents()
+    {
+        return $this->events;
+    }
+
+    /**
      * @param string $eventName
      * @param array $data
      */

@@ -18,6 +18,11 @@ abstract class AbstractRequest {
     /**
      * @var string
      */
+    protected $routeName;
+
+    /**
+     * @var string
+     */
     protected $moduleName;
 
     /**
@@ -34,6 +39,14 @@ abstract class AbstractRequest {
      * @var \CrazyCat\Framework\App\Io\Cli\Response
      */
     protected $response;
+
+    /**
+     * @return string
+     */
+    public function getRouteName()
+    {
+        return $this->routeName;
+    }
 
     /**
      * @return string

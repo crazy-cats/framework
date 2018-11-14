@@ -114,7 +114,8 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          */
         $pathParts = explode( '/', $this->path );
         if ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) {
-            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, (!empty( $pathParts[1] ) ? $pathParts[1] : 'index' ) ) ) ) {
+            $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'index' );
+            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
             $this->area->setCode( Area::CODE_BACKEND );
@@ -131,7 +132,8 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          * If it does not meet any route defined in modules, use default route rule
          */
         if ( $this->moduleName === null ) {
-            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, (!empty( $pathParts[0] ) ? $pathParts[0] : 'index' ) ) ) ) {
+            $this->routeName = (!empty( $pathParts[0] ) ? $pathParts[0] : 'index' );
+            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
             $this->area->setCode( Area::CODE_FRONTEND );
@@ -195,6 +197,16 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     public function setModuleName( $moduleName )
     {
         $this->moduleName = $moduleName;
+        return $this;
+    }
+
+    /**
+     * @param string $routeName
+     * @return $this
+     */
+    public function setRouteName( $routeName )
+    {
+        $this->routeName = $routeName;
         return $this;
     }
 
