@@ -77,19 +77,11 @@ class Component {
                 foreach ( File::getFolders( $dir ) as $vendor ) {
                     foreach ( File::getFolders( $dir . '/' . $vendor ) as $module ) {
                         $prefix = $vendor . '\\' . $module . '\\';
-                        $path = $dir . '/' . $vendor . '/' . $module . '/code';
-                        $composerLoader->addPsr4( $prefix, $path );
-                    }
-                }
-            }
-
-            /**
-             * Collect components
-             */
-            foreach ( $composerLoader->getPrefixesPsr4() as $dirs ) {
-                foreach ( $dirs as $dir ) {
-                    if ( is_file( $dir . '/../registration.php' ) ) {
-                        require $dir . '/../registration.php';
+                        $path = $dir . '/' . $vendor . '/' . $module;
+                        if ( is_file( $path . DS . 'registration.php' ) ) {
+                            require $path . DS . 'registration.php';
+                            $composerLoader->addPsr4( $prefix, $path . DS . 'code' );
+                        }
                     }
                 }
             }

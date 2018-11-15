@@ -130,7 +130,7 @@ class Translator {
     {
         if ( empty( $this->langPackages = $this->cache->getData() ) ) {
             foreach ( $languageSource as $language ) {
-                $config = require $language['dir'] . DS . 'config' . DS . 'lang.php';
+                $config = require $language['dir'] . DS . 'config.php';
                 $this->langPackages[$config['code']] = [
                     'dir' => $language['dir'],
                     'code' => $config['code']
