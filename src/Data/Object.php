@@ -151,8 +151,10 @@ class Object implements \ArrayAccess {
      * @param array $data
      * @return string
      */
-    public function toString( array $data )
+    public function toString( array $data, $level = 1 )
     {
+        $prefix = str_repeat( ' ', $level * 4 );
+
         $arrString = [];
         foreach ( $data as $key => $value ) {
             switch ( strtolower( gettype( $value ) ) ) {
@@ -163,7 +165,7 @@ class Object implements \ArrayAccess {
                     break;
 
                 case 'string' :
-                    $value = str_replace( '\'', '\\\'', $value );
+                    $value = '\'' . str_replace( '\'', '\\\'', $value ) . '\'';
                     break;
 
                 case 'null' :
@@ -175,13 +177,13 @@ class Object implements \ArrayAccess {
                     break;
 
                 case 'array' :
-                    $value = $this->toString( $value );
+                    $value = $this->toString( $value, $level + 1 );
                     break;
             }
-            $arrString[] = sprintf( '\'%s\' => %s', str_replace( '\'', '\\\'', $key ), $value );
+            $arrString[] = $prefix . sprintf( '\'%s\' => %s', str_replace( '\'', '\\\'', $key ), $value );
         }
 
-        return '[ ' . implode( ', ', $arrString ) . ' ]';
+        return sprintf( "[\n%s\n%s]", implode( ",\n", $arrString ), str_repeat( ' ', ( $level - 1 ) * 4 ) );
     }
 
     /**

@@ -22,6 +22,12 @@ class Component {
     const CACHE_NAME = 'components';
 
     /**
+     * paths of app folders
+     */
+    const DIR_APP_MODULES = DIR_APP . DS . 'modules';
+    const DIR_APP_THEMES = DIR_APP . DS . 'themes';
+
+    /**
      * types
      */
     const TYPE_LANG = 'lang';

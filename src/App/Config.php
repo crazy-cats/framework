@@ -7,6 +7,8 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\App\Setup\Wizard;
+
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -16,13 +18,14 @@ namespace CrazyCat\Framework\App;
 class Config extends \CrazyCat\Framework\Data\Object {
 
     const DIR = DIR_APP . DS . 'config';
+    const FILE = self::DIR . DS . 'env.php';
 
-    public function __construct()
+    public function __construct( Wizard $wizard )
     {
-        if ( !is_file( self::DIR . DS . 'env.php' ) ) {
-            throw new \Exception( 'Config file does not exist.' );
+        if ( !is_file( self::FILE ) ) {
+            $wizard->launch();
         }
-        parent::__construct( require self::DIR . DS . 'env.php' );
+        parent::__construct( require self::FILE );
     }
 
 }
