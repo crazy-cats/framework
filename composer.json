@@ -1,17 +1,24 @@
 {
     "name": "crazycat/framework",
     "description": "Framework of CrazyCat platform",
-    "version": "0.0.1",
     "type": "crazycat-library",
     "license": [
         "proprietary"
+    ],
+    "authors": [
+        {
+            "name": "Bruce Z",
+            "email": "zengliwei@163.com",
+            "homepage": "http://crazy-cat.co",
+            "role": "Developer"
+        }
     ],
     "require": {
         "php": ">5.6.0",
         "monolog/monolog": "1.0.*",
         "symfony/console": "*",
-        "crazycat/language-en_us": "dev-master",
-        "crazycat/module-index": "dev-master"
+        "crazycat/language-en_us": "~1.0",
+        "crazycat/module-index": "~1.0"
     },
     "autoload": {
         "psr-4": {
