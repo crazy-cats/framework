@@ -9,6 +9,7 @@ namespace CrazyCat\Framework\App\Setup;
 
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component;
 use CrazyCat\Framework\Data\Object;
 
@@ -24,7 +25,6 @@ class Wizard {
      * @var \CrazyCat\Framework\App\Area
      */
     private $area;
-    private $cliInput;
 
     public function __construct( Area $area )
     {
@@ -45,7 +45,7 @@ class Wizard {
         elseif ( $settings === null ) {
             echo sprintf( 'Please set %s: ', $path );
 
-            $input = fgets( $this->cliInput );
+            $input = fgets( STDIN );
             if ( ( $input = trim( $input ) ) != '' ) {
                 $settings = $input;
             }
@@ -55,9 +55,12 @@ class Wizard {
         }
     }
 
+    /**
+     * @return void
+     */
     private function setupFromCli()
     {
-        $this->cliInput = fopen( 'php://stdin', 'r' );
+        echo "Follow the wizard to complete minimum configuration which will store at `app/config/env.php`.\n\n";
 
         $envSettins = [
             'global' => [
@@ -78,17 +81,22 @@ class Wizard {
             ]
         ];
         $this->getInputSettings( $envSettins );
-
-        fclose( $this->cliInput );
-
         file_put_contents( Config::FILE, sprintf( "<?php\nreturn %s;", ( new Object )->toString( $envSettins ) ) );
+
+        echo "\n";
     }
 
+    /**
+     * @return void
+     */
     private function setupFromHttp()
     {
-        die( 'Hello world' );
+        exit( 'Please run `index.php` in CLI to complete the setup.' );
     }
 
+    /**
+     * @return void
+     */
     public function launch()
     {
         foreach ( [ Config::DIR, Component::DIR_APP_MODULES, Component::DIR_APP_THEMES ] as $dir ) {
@@ -103,6 +111,19 @@ class Wizard {
         else {
             $this->setupFromHttp();
         }
+    }
+
+    /**
+     * This method is run on `post-create-project-cmd` event which
+     *      dispatched after composer `create-project` command executed.
+     * 
+     * @return void
+     */
+    static public function install()
+    {
+        require 'definitions';
+
+        ObjectManager::getInstance()->get( self::class )->launch();
     }
 
 }

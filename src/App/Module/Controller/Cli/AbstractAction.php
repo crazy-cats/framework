@@ -64,6 +64,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @see https://symfony.com/doc/3.4/console/style.html
      */
     abstract protected function run( InputInterface $input, OutputInterface $output );
 }
