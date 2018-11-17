@@ -256,11 +256,11 @@ class MySql extends AbstractAdapter {
         $sqlOptions = sprintf( 'ENGINE=%s DEFAULT CHARSET=%s', $engine, $charset );
 
         $tbl = $this->getTableName( $table );
-        if ( !$this->pdo->exec( sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
-                        ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) ) ) ) {
-            echo sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
-                        ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) );
-            list(,, $errorInfo ) = $this->pdo->errorInfo();
+        $sql = sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
+                ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) );
+        $statement = $this->pdo->prepare( $sql );
+        if ( !$statement->execute() ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( $errorInfo );
         }
     }
