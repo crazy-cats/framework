@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Module\Controller\Cli;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,7 +28,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      * @param \Symfony\Component\Console\Command\Command $command
      * @return $this
      */
-    public function setCommand( $command )
+    public function setCommand( Command $command )
     {
         $this->command = $command;
 
@@ -59,7 +60,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     /**
      * @param \Symfony\Component\Console\Command\Command $command
      */
-    abstract protected function configure( $command );
+    abstract protected function configure( Command $command );
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input

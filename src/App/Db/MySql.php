@@ -228,11 +228,51 @@ class MySql extends AbstractAdapter {
 
     /**
      * @param string $table
+     * @param array $columns [ attribute => value ]  attributes: name, type, length, unsign, null, default
+     * @param array $indexes [ 'columns' => [], 'type' => xxx, 'name' => xxx ]
+     * @param array $options [ 'engine' => xxx, 'charset' => xxx ]
+     */
+    public function createTable( $table, array $columns, array $indexes = [], array $options = [] )
+    {
+        $sqlColumns = implode( ",\n", array_map( function( $column ) {
+                    $name = $this->getTableName( $column['name'] );
+                    $type = $column['type'];
+                    $length = isset( $column['length'] ) ? $column['length'] : '';
+                    $unsign = ( isset( $column['unsign'] ) && $column['unsign'] ) ? 'UNSIGNED' : '';
+                    $default = isset( $column['default'] ) ? $column['default'] : 'NULL';
+                    $null = ( isset( $column['null'] ) && $column['null'] ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
+                    return sprintf( '`%s` %s(%d) %s %s', $name, $type, $length, $unsign, $null );
+                }, $columns ) );
+
+        $sqlIndexes = implode( ",\n", array_map( function( $index ) {
+                    $columns = implode( '`, `', $index['columns'] );
+                    $type = isset( $index['type'] ) ? $index['type'] : '';
+                    $name = !empty( $index['name'] ) ? $index['name'] : strtoupper( implode( '_', $index['columns'] ) );
+                    return sprintf( 'ADD %s KEY `%s` ( `%s` )', $type, $name, $columns );
+                }, $indexes ) );
+
+        $engine = isset( $options['engine'] ) ? $options['engine'] : 'InnoDB';
+        $charset = isset( $options['charset'] ) ? $options['charset'] : 'utf8';
+        $sqlOptions = sprintf( 'ENGINE=%s DEFAULT CHARSET=%s', $engine, $charset );
+
+        $tbl = $this->getTableName( $table );
+        if ( !$this->pdo->exec( sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
+                        ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) ) ) ) {
+            echo sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
+                        ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) );
+            list(,, $errorInfo ) = $this->pdo->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
+    }
+
+    /**
+     * @param string $table
      * @return string
      */
     public function getTableName( $table )
     {
-        return $this->tblPrefix . $table;
+        return ( $this->tblPrefix === '' ) ? $table :
+                ( ( strpos( $table, $this->tblPrefix ) === 0 ) ? $table : ( $this->tblPrefix . $table) );
     }
 
 }

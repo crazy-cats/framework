@@ -60,7 +60,7 @@ class Wizard {
      */
     private function setupFromCli()
     {
-        echo "Follow the wizard to complete minimum configuration which will store at `app/config/env.php`.\n\n";
+        echo "\nFollow the wizard to complete minimum configuration which will store at `app/config/env.php`.\n\n";
 
         $envSettins = [
             'global' => [
