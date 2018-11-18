@@ -18,6 +18,25 @@ class MySql extends AbstractAdapter {
     const TYPE = 'mysql';
 
     /**
+     * Column types
+     */
+    const COL_TYPE_INT = 'int';
+    const COL_TYPE_TINYINT = 'tinyint';
+    const COL_TYPE_DOUBLE = 'double';
+    const COL_TYPE_VARCHAR = 'varchar';
+    const COL_TYPE_TEXT = 'text';
+    const COL_TYPE_MEDIUMTEXT = 'mediumtext';
+    const COL_TYPE_DATETIME = 'datetime';
+
+    /**
+     * Index types
+     */
+    const INDEX_NORMAL = '';
+    const INDEX_PRIMARY = 'PRIMARY';
+    const INDEX_UNIQUE = 'UNIQUE';
+    const INDEX_FULLTEXT = 'FULLTEXT';
+
+    /**
      * @var \PDO
      */
     private $pdo;
