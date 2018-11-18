@@ -143,23 +143,19 @@ class Manager {
 
             $moduleConfig = $this->getModulesConfig();
 
-            /**
-             * Create module config file with all modules enabled
-             *     at first time running the application.
-             */
-            if ( empty( $moduleConfig ) ) {
-                $this->updateModulesConfig( array_map( function() {
-                            return true;
-                        }, $moduleSource ) );
-            }
-
             $modulesData = [ 'enabled' => [], 'disabled' => [] ];
             foreach ( $moduleSource as $data ) {
                 /* @var $module \CrazyCat\Framework\App\Module */
                 $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
-                $module->setData( 'enabled', isset( $moduleConfig[$data['name']] ) ? $moduleConfig[$data['name']] : true  );
-                if ( $module->getData( 'enabled' ) ) {
+                if ( !isset( $moduleConfig[$data['name']] ) ) {
+                    $moduleConfig[$data['name']] = [
+                        'enabled' => true
+                    ];
+                }
+                $module->setData( 'enabled', $moduleConfig[$data['name']]['enabled'] );
+                if ( $moduleConfig[$data['name']]['enabled'] ) {
                     $modulesData['enabled'][$module->getData( 'name' )] = $module->getData();
+                    $module->upgrade( $moduleConfig[$data['name']] );
                 }
                 else {
                     $modulesData['disabled'][$module->getData( 'name' )] = $module->getData();
@@ -168,6 +164,8 @@ class Manager {
             }
             $this->processDependency( $modulesData['enabled'] );
             $this->cache->setData( $modulesData )->save();
+
+            $this->updateModulesConfig( $moduleConfig );
         }
         else {
             foreach ( $modulesData as $moduleGroupData ) {

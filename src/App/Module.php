@@ -25,6 +25,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     private $configRules = [
         'namespace' => [ 'required' => true, 'type' => 'string' ],
+        'version' => [ 'required' => true, 'type' => 'string' ],
         'depends' => [ 'required' => true, 'type' => 'array' ],
         'events' => [ 'required' => false, 'type' => 'array' ],
         'routes' => [ 'required' => false, 'type' => 'array' ]
@@ -146,6 +147,19 @@ class Module extends \CrazyCat\Framework\Data\Object {
         }
 
         return $actions;
+    }
+
+    /**
+     * @return void
+     */
+    public function upgrade( &$moduleConfig )
+    {
+        if ( (!isset( $moduleConfig['version'] ) ||
+                version_compare( $moduleConfig['version'], $this->data['config']['version'] ) < 0 ) &&
+                class_exists( ( $setupClass = $this->data['config']['namespace'] . '\Setup\Upgrade' ) ) ) {
+            $this->objectManager->get( $setupClass )->execute();
+        }
+        $moduleConfig['version'] = $this->data['config']['version'];
     }
 
     /**

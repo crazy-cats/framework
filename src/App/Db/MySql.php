@@ -265,6 +265,17 @@ class MySql extends AbstractAdapter {
         }
     }
 
+    public function addColumn( $table, $column )
+    {
+        $name = $this->getTableName( $column['name'] );
+        $type = $column['type'];
+        $length = isset( $column['length'] ) ? $column['length'] : '';
+        $unsign = ( isset( $column['unsign'] ) && $column['unsign'] ) ? 'UNSIGNED' : '';
+        $default = isset( $column['default'] ) ? $column['default'] : 'NULL';
+        $null = ( isset( $column['null'] ) && $column['null'] ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
+        sprintf( "ALTER TABLE `%s` ADD `%s` %s(%d) NULL DEFAULT NULL COMMENT 'test';", $table, $name, $type, $length );
+    }
+
     /**
      * @param string $table
      * @return string
