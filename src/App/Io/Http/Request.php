@@ -129,7 +129,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          */
         if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
             if ( empty( $pathParts[2] ) || empty( $pathParts[3] ) || empty( $pathParts[4] ) ) {
-                throw new \Exception( 'Undefined route.' );
+                throw new \Exception( 'Route undefined.' );
             }
             $this->routeName = empty( $pathParts[2] );
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_API, $this->routeName ) ) ) {
