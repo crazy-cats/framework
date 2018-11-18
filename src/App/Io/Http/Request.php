@@ -119,25 +119,25 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
-            $this->area->setCode( Area::CODE_BACKEND );
             $this->controllerName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
             $this->actionName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
+            $this->area->setCode( Area::CODE_BACKEND );
         }
 
         /**
          * Check whether it routes to API
          */
         if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
-            if ( empty( $pathParts[2] ) ) {
+            if ( empty( $pathParts[2] ) || empty( $pathParts[3] ) || empty( $pathParts[4] ) ) {
                 throw new \Exception( 'Undefined route.' );
             }
             $this->routeName = empty( $pathParts[2] );
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_API, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
+            $this->controllerName = $pathParts[3];
+            $this->actionName = $pathParts[4];
             $this->area->setCode( Area::CODE_API );
-            $this->controllerName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
-            $this->actionName = !empty( $pathParts[4] ) ? $pathParts[4] : 'index';
         }
 
         /**
@@ -153,9 +153,9 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
-            $this->area->setCode( Area::CODE_FRONTEND );
             $this->controllerName = !empty( $pathParts[1] ) ? $pathParts[1] : 'index';
             $this->actionName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
+            $this->area->setCode( Area::CODE_FRONTEND );
         }
 
         return $this->getResponse();
