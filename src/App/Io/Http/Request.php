@@ -21,6 +21,7 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
+    const API_ROUTE = 'rest/V1';
     const BACKEND_ROUTE_NAME = 'backend';
 
     /**
@@ -113,7 +114,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          * Check whether it routes to back-end
          */
         $pathParts = explode( '/', $this->path );
-        if ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) {
+        if ( ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) ) {
             $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'index' );
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
@@ -121,6 +122,22 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             $this->area->setCode( Area::CODE_BACKEND );
             $this->controllerName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
             $this->actionName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
+        }
+
+        /**
+         * Check whether it routes to API
+         */
+        if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
+            if ( empty( $pathParts[2] ) ) {
+                throw new \Exception( 'Undefined route.' );
+            }
+            $this->routeName = empty( $pathParts[2] );
+            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_API, $this->routeName ) ) ) {
+                throw new \Exception( 'System can not find matched route.' );
+            }
+            $this->area->setCode( Area::CODE_API );
+            $this->controllerName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
+            $this->actionName = !empty( $pathParts[4] ) ? $pathParts[4] : 'index';
         }
 
         /**
