@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
+use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\Data\Object;
 
 /**
@@ -37,6 +38,8 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
         if ( !$verifyObj->getData( 'token_validated' ) ) {
             throw new \Exception( 'You do not have permission to access the resource.' );
         }
+
+        $this->request->getResponse()->setType( Response::TYPE_JSON );
 
         parent::execute();
     }
