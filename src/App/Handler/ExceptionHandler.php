@@ -67,7 +67,7 @@ class ExceptionHandler {
     {
         if ( $this->area->getCode() == Area::CODE_API ) {
             $this->httpResponse->setType( HttpResponse::TYPE_JSON )
-                    ->setData( [ 'error' => true, 'message' => $exception->getMessage() . "\n" . $exception->getTraceAsString() ] )
+                    ->setData( [ 'error' => true, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString() ] )
                     ->send();
         }
         else {
