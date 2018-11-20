@@ -154,10 +154,9 @@ class Module extends \CrazyCat\Framework\Data\Object {
      */
     public function upgrade( &$moduleConfig )
     {
-        if ( (!isset( $moduleConfig['version'] ) ||
-                version_compare( $moduleConfig['version'], $this->data['config']['version'] ) < 0 ) &&
-                class_exists( ( $setupClass = $this->data['config']['namespace'] . '\Setup\Upgrade' ) ) ) {
-            $this->objectManager->get( $setupClass )->execute();
+        if ( class_exists( ( $setupClass = $this->data['config']['namespace'] . '\Setup\Upgrade' ) ) ) {
+            $currentVersion = isset( $moduleConfig['version'] ) ? $moduleConfig['version'] : null;
+            $this->objectManager->get( $setupClass )->execute( $currentVersion );
         }
         $moduleConfig['version'] = $this->data['config']['version'];
     }

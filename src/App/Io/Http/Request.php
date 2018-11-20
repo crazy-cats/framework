@@ -40,6 +40,11 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     protected $eventManager;
 
     /**
+     * @var array
+     */
+    protected $headers;
+
+    /**
      * @var \CrazyCat\Framework\App\Module\Manager
      */
     protected $moduleManager;
@@ -95,6 +100,24 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     }
 
     /**
+     * @param array $pathParts
+     * @param int $startPos
+     * @return void
+     */
+    protected function pushPathParamsToRequest( array $pathParts, $startPos )
+    {
+        if ( !isset( $pathParts[$startPos] ) ) {
+            return;
+        }
+        for ( $pos = $startPos; $pos < count( $pathParts ); $pos += 2 ) {
+            $key = $pathParts[$pos];
+            if ( !isset( $this->requestData[$key] ) ) {
+                $this->requestData[$key] = isset( $pathParts[$pos + 1] ) ? $pathParts[$pos + 1] : null;
+            }
+        }
+    }
+
+    /**
      * @return void
      */
     public function process()
@@ -122,6 +145,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             $this->controllerName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
             $this->actionName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
             $this->area->setCode( Area::CODE_BACKEND );
+            $this->pushPathParamsToRequest( $pathParts, 4 );
         }
 
         /**
@@ -156,6 +180,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             $this->controllerName = !empty( $pathParts[1] ) ? $pathParts[1] : 'index';
             $this->actionName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
             $this->area->setCode( Area::CODE_FRONTEND );
+            $this->pushPathParamsToRequest( $pathParts, 3 );
         }
 
         return $this->getResponse();
@@ -205,6 +230,28 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     {
         $this->requestData[$key] = $value;
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function getHeader( $name )
+    {
+        if ( $this->headers === null ) {
+            if ( function_exists( 'getallheaders' ) ) {
+                $this->headers = getallheaders();
+            }
+            else {
+                $this->headers = [];
+                foreach ( filter_input_array( INPUT_SERVER ) as $name => $value ) {
+                    if ( substr( $name, 0, 5 ) == 'HTTP_' ) {
+                        $this->headers[str_replace( ' ', '-', ucwords( strtolower( str_replace( '_', ' ', substr( $name, 5 ) ) ) ) )] = $value;
+                    }
+                }
+            }
+        }
+        return isset( $this->headers[$name] ) ? $this->headers[$name] : null;
     }
 
     /**

@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Model;
+namespace CrazyCat\Framework\App\Module\Setup;
 
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 
@@ -28,7 +28,8 @@ abstract class AbstractUpgrade {
     }
 
     /**
+     * @param string|null $currentVersion
      * @return void
      */
-    abstract public function execute();
+    abstract public function execute( $currentVersion );
 }
