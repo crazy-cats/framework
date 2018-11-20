@@ -16,6 +16,7 @@ namespace CrazyCat\Framework\App\Io\Http;
 class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
 
     const TYPE_JSON = 'application/json';
+    const TYPE_XML = 'application/xml';
     const TYPE_PAGE = 'text/html';
     const TYPE_PLAIN = 'text/plain';
     const TYPE_REDIRECT = 'redirect';
@@ -98,7 +99,6 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
             case self::TYPE_JSON :
                 $this->body = json_encode( $this->data );
 
-            case self::TYPE_PAGE :
             case self::TYPE_PLAIN :
                 header( 'Content-Type: ' . $this->type . '; charset=utf-8' );
                 break;

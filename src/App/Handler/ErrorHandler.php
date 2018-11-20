@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Handler;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Io\Http\Response as HttpResponse;
 use CrazyCat\Framework\App\Logger;
 
 /**
@@ -24,13 +25,19 @@ class ErrorHandler {
     private $area;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\Http\Response
+     */
+    private $httpResponse;
+
+    /**
      * @var \CrazyCat\Framework\App\Logger
      */
     private $logger;
 
-    public function __construct( Area $area, Logger $logger )
+    public function __construct( HttpResponse $httpResponse, Area $area, Logger $logger )
     {
         $this->area = $area;
+        $this->httpResponse = $httpResponse;
         $this->logger = $logger;
     }
 
@@ -65,7 +72,9 @@ class ErrorHandler {
     private function processHttpError( $errno, $errstr, $errfile, $errline )
     {
         if ( $this->area->getCode() == Area::CODE_API ) {
-            exit( json_encode( [ 'error' => true, 'message' => $errstr ] ) );
+            $this->httpResponse->setType( HttpResponse::TYPE_JSON )
+                    ->setData( [ 'error' => true, 'message' => $errstr ] )
+                    ->send();
         }
         else {
             echo $this->logError( sprintf( "\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr ) );
