@@ -155,7 +155,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             if ( empty( $pathParts[2] ) || empty( $pathParts[3] ) || empty( $pathParts[4] ) ) {
                 throw new \Exception( 'Route undefined.' );
             }
-            $this->routeName = empty( $pathParts[2] );
+            $this->routeName = $pathParts[2];
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_API, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }

@@ -64,7 +64,12 @@ class ErrorHandler {
      */
     private function processHttpError( $errno, $errstr, $errfile, $errline )
     {
-        echo $this->logError( sprintf( "\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr ) );
+        if ( $this->area->getCode() == Area::CODE_API ) {
+            exit( json_encode( [ 'error' => true, 'message' => $errstr ] ) );
+        }
+        else {
+            echo $this->logError( sprintf( "\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr ) );
+        }
     }
 
     /**

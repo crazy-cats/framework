@@ -58,7 +58,12 @@ class ExceptionHandler {
      */
     private function processHttpException( $exception )
     {
-        echo $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() );
+        if ( $this->area->getCode() == Area::CODE_API ) {
+            exit( json_encode( [ 'error' => true, 'message' => $exception->getMessage() ] ) );
+        }
+        else {
+            echo $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() );
+        }
     }
 
     /**
