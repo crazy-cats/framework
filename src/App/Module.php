@@ -7,7 +7,6 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\Utility\File;
 
 /**

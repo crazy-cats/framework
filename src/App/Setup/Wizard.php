@@ -76,8 +76,15 @@ class Wizard {
                     ]
                 ]
             ],
+            'api' => [
+                'token' => md5( date( 'Y-m-d H:i:s' ) . rand( 1000, 9999 ) )
+            ],
             'backend' => [
-                'route' => null
+                'route' => null,
+                'theme' => 'default'
+            ],
+            'frontend' => [
+                'theme' => 'default'
             ]
         ];
         $this->getInputSettings( $envSettins );

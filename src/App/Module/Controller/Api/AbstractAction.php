@@ -7,8 +7,9 @@
 
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
-use CrazyCat\Framework\App\Io\Http\Response;
-use CrazyCat\Framework\Data\Object;
+use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\App\Io\Http\Request;
+use CrazyCat\Framework\App\ObjectManager;
 
 /**
  * @category CrazyCat
@@ -16,17 +17,30 @@ use CrazyCat\Framework\Data\Object;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\Frontend\AbstractAction {
+abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
+
+    /**
+     * @var \CrazyCat\Framework\App\Io\Http\Request
+     */
+    protected $request;
+
+    public function __construct( Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    {
+        parent::__construct( $eventManager, $objectManager );
+
+        $this->request = $request;
+    }
 
     /**
      * @return void
      */
     public function execute()
     {
+        $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
+
         if ( !( $auth = $this->request->getHeader( 'Authorization' ) ) ) {
             throw new \Exception( 'You do not have permission to access the resource.' );
         }
-
         $verifyObj = new Object( [ 'token_validated' => false ] );
         foreach ( preg_split( '/\s*,\s*/', $auth ) as $authStr ) {
             list( $type, $token ) = preg_split( '/\s+/', $authStr );
@@ -39,9 +53,12 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
             throw new \Exception( 'You do not have permission to access the resource.' );
         }
 
-        $this->request->getResponse()->setType( Response::TYPE_JSON );
-
-        parent::execute();
+        $this->run();
+        $this->request->getResponse()->setType( Response::TYPE_JSON )->send();
     }
 
+    /**
+     * @return void
+     */
+    abstract protected function run();
 }

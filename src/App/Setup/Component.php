@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Setup;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\Utility\File;
@@ -83,11 +84,27 @@ class Component {
                 foreach ( File::getFolders( $dir ) as $vendor ) {
                     foreach ( File::getFolders( $dir . '/' . $vendor ) as $module ) {
                         $prefix = $vendor . '\\' . $module . '\\';
-                        $path = $dir . '/' . $vendor . '/' . $module;
+                        $path = $dir . DS . $vendor . DS . $module;
                         if ( is_file( $path . DS . 'registration.php' ) ) {
                             require $path . DS . 'registration.php';
                             $composerLoader->addPsr4( $prefix, $path . DS . 'code' );
                         }
+                    }
+                }
+            }
+
+            /**
+             * Collect themes of which source code are in `app/themes`,
+             *     only backend and frontend area have themes.
+             */
+            foreach ( [ Area::CODE_BACKEND, Area::CODE_FRONTEND ] as $areaCode ) {
+                $dir = self::DIR_APP_THEMES . DS . $areaCode;
+                if ( !is_dir( $dir ) ) {
+                    mkdir( $dir, 0755, true );
+                }
+                foreach ( File::getFolders( $dir ) as $path ) {
+                    if ( is_file( $dir . DS . $path . DS . 'registration.php' ) ) {
+                        require $dir . DS . $path . DS . 'registration.php';
                     }
                 }
             }
@@ -118,6 +135,18 @@ class Component {
             'dir' => $dir,
             'name' => $name
         ];
+    }
+
+    /**
+     * @param string $type
+     * @return array
+     */
+    public function getComponents( $type )
+    {
+        if ( !isset( $this->components[$type] ) ) {
+            throw new \Exception( sprintf( 'Component type `%s` does not exist.', $type ) );
+        }
+        return $this->components[$type];
     }
 
 }
