@@ -86,7 +86,7 @@ class Manager {
                 $theme = $this->objectManager->create( Theme::class, [ 'data' => $themeInfo ] );
                 $themeArea = $theme->getData( 'config' )['area'];
                 $themesData[$themeArea][$theme->getData( 'name' )] = $theme->getData();
-                $this->themes[$themeArea][$module->getData( 'name' )] = $theme;
+                $this->themes[$themeArea][$theme->getData( 'name' )] = $theme;
             }
             $this->cache->setData( $themesData )->save();
         }

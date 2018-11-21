@@ -80,7 +80,7 @@ class Theme extends \CrazyCat\Framework\Data\Object {
              * Use alias as theme name because the unique component
              *     name does not make sence for a theme.
              */
-            $this->setData( 'name', $data['config']['alias'] );
+            $data['name'] = $data['config']['alias'];
         }
 
         return $data;
