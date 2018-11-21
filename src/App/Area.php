@@ -25,7 +25,7 @@ class Area {
     /**
      * @var string
      */
-    private $code;
+    private $code = self::CODE_GLOBAL;
 
     /**
      * @var array

@@ -9,6 +9,7 @@ namespace CrazyCat\Framework\App;
 
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
 /**
  * @category CrazyCat
@@ -20,6 +21,11 @@ class Translator {
 
     const CACHE_LANG_NAME = 'languages';
     const CACHE_TRANSLATIONS_NAME = 'translations';
+
+    /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    private $area;
 
     /**
      * @var \CrazyCat\Framework\App\Cache\Factory
@@ -42,6 +48,11 @@ class Translator {
     private $moduleManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Theme\Manager
+     */
+    private $themeManager;
+
+    /**
      * @var string
      */
     private $langCode = 'en_US';
@@ -51,11 +62,13 @@ class Translator {
      */
     private $langPackages = [];
 
-    public function __construct( CacheFactory $cacheFactory, ModuleManager $moduleManager )
+    public function __construct( Area $area, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager )
     {
+        $this->area = $area;
         $this->cache = $cacheFactory->create( self::CACHE_LANG_NAME );
         $this->cacheFactory = $cacheFactory;
         $this->moduleManager = $moduleManager;
+        $this->themeManager = $themeManager;
     }
 
     /**
@@ -83,11 +96,13 @@ class Translator {
 
     private function getTranslations( $langCode )
     {
-        if ( !isset( $this->translationsCaches[$langCode] ) ) {
-            $this->translationsCaches[$langCode] = $this->cacheFactory->create( self::CACHE_TRANSLATIONS_NAME . '-' . $langCode );
+        $cacheKey = $this->area->getCode() . '-' . $langCode;
+
+        if ( !isset( $this->translationsCaches[$cacheKey] ) ) {
+            $this->translationsCaches[$cacheKey] = $this->cacheFactory->create( self::CACHE_TRANSLATIONS_NAME . '-' . $cacheKey );
         }
 
-        if ( empty( $this->translationsCaches[$langCode]->getData() ) ) {
+        if ( empty( $this->translationsCaches[$cacheKey]->getData() ) ) {
             $translations = [];
 
             /**
@@ -104,10 +119,17 @@ class Translator {
                 $translations = array_merge( $translations, $this->collectTranslations( $module->getData( 'dir' ) . DS . 'i18n', $langCode ) );
             }
 
-            $this->translationsCaches[$langCode]->setData( $translations )->save();
+            /**
+             * Translations in theme
+             */
+            if ( ( $theme = $this->themeManager->getCurrentTheme() ) !== null ) {
+                $translations = array_merge( $translations, $this->collectTranslations( $theme->getData( 'dir' ) . DS . 'i18n', $langCode ) );
+            }
+
+            $this->translationsCaches[$cacheKey]->setData( $translations )->save();
         }
 
-        return $this->translationsCaches[$langCode]->getData();
+        return $this->translationsCaches[$cacheKey]->getData();
     }
 
     /**

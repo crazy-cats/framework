@@ -132,7 +132,17 @@ class App {
 
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+
+        /**
+         * Translations will be collected on the first usage of `translate` method,
+         *     so no need to worry about the area code here.
+         */
         $this->translator->init( $components[ComponentSetup::TYPE_LANG] );
+
+        /**
+         * The IO factory creates a suitable request object for runtime environment,
+         *     area code is specified in `process` method of the object.
+         */
         $this->request = $this->ioFactory->create( $areaCode );
         $this->request->process();
 
