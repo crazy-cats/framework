@@ -9,6 +9,7 @@ namespace CrazyCat\Framework\App\Module\Controller\Frontend;
 
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
+use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
@@ -26,6 +27,11 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     protected $request;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\Http\Response
+     */
+    protected $response;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
@@ -35,7 +41,25 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
         parent::__construct( $eventManager, $objectManager );
 
         $this->request = $request;
+        $this->response = $request->getResponse();
         $this->themeManager = $themeManager;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Theme\Page
+     */
+    protected function getPage()
+    {
+        return $this->themeManager->getCurrentTheme()->getPage();
+    }
+
+    /**
+     * @return void
+     */
+    protected function render()
+    {
+        $this->response->setType( Response::TYPE_PAGE )
+                ->setBody( $this->getPage()->getHtml() );
     }
 
     /**
@@ -46,7 +70,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
         $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
         $this->themeManager->init();
         $this->run();
-        $this->request->getResponse()->send();
+        $this->response->send();
     }
 
     /**

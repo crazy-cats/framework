@@ -24,11 +24,17 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     protected $request;
 
+    /**
+     * @var \CrazyCat\Framework\App\Io\Http\Response
+     */
+    protected $response;
+
     public function __construct( Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $eventManager, $objectManager );
 
         $this->request = $request;
+        $this->response = $request->getResponse();
     }
 
     /**
@@ -54,7 +60,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
         }
 
         $this->run();
-        $this->request->getResponse()->setType( Response::TYPE_JSON )->send();
+        $this->response->setType( Response::TYPE_JSON )->send();
     }
 
     /**

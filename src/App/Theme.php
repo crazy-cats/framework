@@ -7,6 +7,8 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\App\Theme\Page;
+
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -25,9 +27,21 @@ class Theme extends \CrazyCat\Framework\Data\Object {
         'alias' => [ 'required' => true, 'type' => 'string' ]
     ];
 
-    public function __construct( array $data )
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    private $objectManager;
+
+    /**
+     * @var \CrazyCat\Framework\App\Theme\Page
+     */
+    private $page;
+
+    public function __construct( ObjectManager $objectManager, array $data )
     {
         parent::__construct( $this->init( $data ) );
+
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -77,13 +91,24 @@ class Theme extends \CrazyCat\Framework\Data\Object {
             $data['config'] = $this->verifyConfig( $data );
 
             /**
-             * Use alias as theme name because the unique component
+             * Use alias as theme name, because the unique component
              *     name does not make sence for a theme.
              */
             $data['name'] = $data['config']['alias'];
         }
 
         return $data;
+    }
+
+    /**
+     * @var \CrazyCat\Framework\App\Theme\Page
+     */
+    public function getPage()
+    {
+        if ( $this->page === null ) {
+            $this->page = $this->objectManager->create( Page::class );
+        }
+        return $this->page;
     }
 
 }
