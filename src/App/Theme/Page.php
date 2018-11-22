@@ -11,6 +11,7 @@ use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Theme;
+use CrazyCat\Framework\App\Url;
 
 /**
  * @category CrazyCat
@@ -41,6 +42,11 @@ class Page extends \CrazyCat\Framework\Data\Object {
     private $theme;
 
     /**
+     * @var \CrazyCat\Framework\App\Url
+     */
+    private $url;
+
+    /**
      * @var array|null
      */
     private $layout;
@@ -50,7 +56,7 @@ class Page extends \CrazyCat\Framework\Data\Object {
      */
     private $sectionsHtml;
 
-    public function __construct( ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
+    public function __construct( Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
     {
         parent::__construct();
 
@@ -58,6 +64,7 @@ class Page extends \CrazyCat\Framework\Data\Object {
         $this->objectManager = $objectManager;
         $this->request = $request;
         $this->theme = $theme;
+        $this->url = $url;
     }
 
     /**
@@ -110,8 +117,7 @@ class Page extends \CrazyCat\Framework\Data\Object {
         foreach ( $blocksLayout as $sectionName => $blocks ) {
             $this->sectionsHtml[$sectionName] = '';
             foreach ( $blocks as $blockInfo ) {
-                $block = $this->objectManager->create( $blockInfo['class'], [ 'data' => isset( $blockInfo['data'] ) ? $blockInfo['data'] : [] ] );
-                $this->sectionsHtml[$sectionName] .= $block->toHtml();
+                $this->sectionsHtml[$sectionName] .= $this->objectManager->create( $blockInfo['class'], [ 'data' => isset( $blockInfo['data'] ) ? $blockInfo['data'] : [] ] )->toHtml();
             }
         }
     }
