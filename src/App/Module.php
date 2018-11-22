@@ -173,14 +173,6 @@ class Module extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return string[]
-     */
-    public function getBlocks()
-    {
-        return [];
-    }
-
-    /**
      * @param string $areaCode
      * @param string $controllerName
      * @param string $actionName

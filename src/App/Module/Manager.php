@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Module;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Module;
@@ -22,6 +23,11 @@ class Manager {
 
     const CACHE_NAME = 'modules';
     const CONFIG_FILE = Config::DIR . DS . 'modules.php';
+
+    /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    private $area;
 
     /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache
@@ -48,8 +54,9 @@ class Manager {
      */
     private $objectManager;
 
-    public function __construct( Config $config, CacheFactory $cacheFactory, ObjectManager $objectManager )
+    public function __construct( Area $area, Config $config, CacheFactory $cacheFactory, ObjectManager $objectManager )
     {
+        $this->area = $area;
         $this->cache = $cacheFactory->create( self::CACHE_NAME );
         $this->config = $config;
         $this->objectManager = $objectManager;
@@ -147,6 +154,7 @@ class Manager {
             foreach ( $moduleSource as $data ) {
                 /* @var $module \CrazyCat\Framework\App\Module */
                 $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
+                $namespace = $module->getData( 'config' )['namespace'];
                 if ( !isset( $moduleConfig[$data['name']] ) ) {
                     $moduleConfig[$data['name']] = [
                         'enabled' => true
@@ -154,13 +162,13 @@ class Manager {
                 }
                 $module->setData( 'enabled', $moduleConfig[$data['name']]['enabled'] );
                 if ( $moduleConfig[$data['name']]['enabled'] ) {
-                    $modulesData['enabled'][$module->getData( 'name' )] = $module->getData();
+                    $modulesData['enabled'][$namespace] = $module->getData();
                     $module->upgrade( $moduleConfig[$data['name']] );
                 }
                 else {
-                    $modulesData['disabled'][$module->getData( 'name' )] = $module->getData();
+                    $modulesData['disabled'][$namespace] = $module->getData();
                 }
-                $this->modules[$module->getData( 'name' )] = $module;
+                $this->modules[$namespace] = $module;
             }
             $this->processDependency( $modulesData['enabled'] );
             $this->cache->setData( $modulesData )->save();
@@ -170,7 +178,7 @@ class Manager {
         else {
             foreach ( $modulesData as $moduleGroupData ) {
                 foreach ( $moduleGroupData as $moduleData ) {
-                    $this->modules[$moduleData['name']] = $this->objectManager->create( Module::class, [ 'data' => $moduleData ] );
+                    $this->modules[$moduleData['config']['namespace']] = $this->objectManager->create( Module::class, [ 'data' => $moduleData ] );
                 }
             }
         }
@@ -193,19 +201,38 @@ class Manager {
             $this->enabledModules = [];
             $modulesData = $this->cache->getData();
             foreach ( $modulesData['enabled'] as $moduleData ) {
-                $this->enabledModules[] = $this->modules[$moduleData['name']];
+                $this->enabledModules[] = $this->modules[$moduleData['config']['namespace']];
             }
         }
         return $this->enabledModules;
     }
 
     /**
-     * @param string $name
+     * @param string $namespace
      * @return \CrazyCat\Framework\App\Module|null
      */
-    public function getModule( $name )
+    public function getModule( $namespace )
     {
-        return isset( $this->modules[$name] ) ? $this->modules[$name] : null;
+        return isset( $this->modules[$namespace] ) ? $this->modules[$namespace] : null;
+    }
+
+    /**
+     * @param string $routeName
+     * @param string|null $areaCode
+     * @return \CrazyCat\Framework\App\Module|null
+     */
+    public function getModuleByRoute( $routeName, $areaCode = null )
+    {
+        if ( $areaCode === null ) {
+            $areaCode = $this->area->getCode();
+        }
+        foreach ( $this->getEnabledModules() as $module ) {
+            if ( isset( $module->getData( 'config' )['routes'][$areaCode] ) &&
+                    $module->getData( 'config' )['routes'][$areaCode] == $routeName ) {
+                return $module;
+            }
+        }
+        return null;
     }
 
 }

@@ -132,4 +132,18 @@ class Manager {
         return $this->currentTheme;
     }
 
+    /**
+     * @param string $themeName
+     * @return $this
+     */
+    public function setCurrentTheme( $themeName )
+    {
+        if ( !isset( $this->themes[$this->area->getCode()][$themeName] ) ) {
+            throw new \Exception( 'Specified theme does not exist.' );
+        }
+        $this->currentTheme = $this->themes[$this->area->getCode()][$themeName];
+
+        return $this;
+    }
+
 }

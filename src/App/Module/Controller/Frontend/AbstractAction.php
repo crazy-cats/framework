@@ -22,6 +22,11 @@ use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
 
     /**
+     * @var array|null
+     */
+    protected $layout;
+
+    /**
      * @var \CrazyCat\Framework\App\Io\Http\Request
      */
     protected $request;
@@ -46,11 +51,23 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Theme\Page
+     * @param string $themeName
+     * @return $this
      */
-    protected function getPage()
+    protected function setTheme( $themeName )
     {
-        return $this->themeManager->getCurrentTheme()->getPage();
+        $this->themeManager->setCurrentTheme( $themeName );
+        return $this;
+    }
+
+    /**
+     * @param array $layout
+     * @return $this
+     */
+    protected function setLayout( array $layout )
+    {
+        $this->layout = $layout;
+        return $this;
     }
 
     /**
@@ -58,8 +75,11 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     protected function render()
     {
-        $this->response->setType( Response::TYPE_PAGE )
-                ->setBody( $this->getPage()->getHtml() );
+        $page = $this->themeManager->getCurrentTheme()->getPage();
+        if ( $this->layout !== null ) {
+            $page->setLayout( $this->layout );
+        }
+        $this->response->setType( Response::TYPE_PAGE )->setBody( $page->toHtml() );
     }
 
     /**

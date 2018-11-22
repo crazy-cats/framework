@@ -106,7 +106,7 @@ class Theme extends \CrazyCat\Framework\Data\Object {
     public function getPage()
     {
         if ( $this->page === null ) {
-            $this->page = $this->objectManager->create( Page::class );
+            $this->page = $this->objectManager->create( Page::class, [ 'theme' => $this ] );
         }
         return $this->page;
     }
