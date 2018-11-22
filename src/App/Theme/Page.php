@@ -18,7 +18,7 @@ use CrazyCat\Framework\App\Theme;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Page {
+class Page extends \CrazyCat\Framework\Data\Object {
 
     /**
      * @var \CrazyCat\Framework\App\Module\Manager
@@ -43,10 +43,17 @@ class Page {
     /**
      * @var array|null
      */
-    protected $layout;
+    private $layout;
+
+    /**
+     * @var string[]
+     */
+    private $sectionsHtml;
 
     public function __construct( ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
     {
+        parent::__construct();
+
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
         $this->request = $request;
@@ -85,7 +92,28 @@ class Page {
      */
     private function mergeLayout( array $layoutA, array $layoutB )
     {
-        return array_merge( $layoutA, $layoutB );
+        $blocksA = empty( $layoutA['blocks'] ) ? [] : $layoutA['blocks'];
+        $blocksB = empty( $layoutB['blocks'] ) ? [] : $layoutB['blocks'];
+
+        return [
+            'template' => empty( $layoutB['template'] ) ? ( empty( $layoutA['template'] ) ? '1column' : $layoutA['template'] ) : $layoutB['template'],
+            'blocks' => array_merge_recursive( $blocksA, $blocksB )
+        ];
+    }
+
+    /**
+     * @param array $blocksLayout
+     * @return void
+     */
+    private function prepareBlocks( array $blocksLayout )
+    {
+        foreach ( $blocksLayout as $sectionName => $blocks ) {
+            $this->sectionsHtml[$sectionName] = '';
+            foreach ( $blocks as $blockInfo ) {
+                $block = $this->objectManager->create( $blockInfo['class'], [ 'data' => isset( $blockInfo['data'] ) ? $blockInfo['data'] : [] ] );
+                $this->sectionsHtml[$sectionName] .= $block->toHtml();
+            }
+        }
     }
 
     /**
@@ -99,14 +127,52 @@ class Page {
     }
 
     /**
+     * @param string $sectionName
+     * @return string
+     */
+    public function getSectionHtml( $sectionName )
+    {
+        return isset( $this->sectionsHtml[$sectionName] ) ? $this->sectionsHtml[$sectionName] : '';
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function getThemeUrl( $path )
+    {
+        return $path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLayoutName( $separator = '_' )
+    {
+        return $this->request->getRouteName() .
+                $separator .
+                $this->request->getControllerName() .
+                $separator .
+                $this->request->getActionName();
+    }
+
+    /**
      * @return string
      */
     public function toHtml()
     {
-        $layoutName = sprintf( '%s_%s_%s', $this->request->getRouteName(), $this->request->getControllerName(), $this->request->getActionName() );
-        $layout = $this->mergeLayout( $this->getLayoutFromFile( 'default' ), $this->getLayoutFromFile( $layoutName ) );
+        $layout = $this->mergeLayout( $this->getLayoutFromFile( 'default' ), $this->getLayoutFromFile( $this->getLayoutName() ) );
+        if ( $this->layout !== null ) {
+            $layout = $this->mergeLayout( $layout, $this->layout );
+        }
+        $this->prepareBlocks( $layout['blocks'] );
 
-        return '';
+        ob_start();
+        $templateFile = $this->theme->getData( 'dir' ) . DS . 'view' . DS . 'templates' . DS . $layout['template'] . '.php';
+        if ( is_file( $templateFile ) ) {
+            include $templateFile;
+        }
+        return ob_get_clean();
     }
 
 }

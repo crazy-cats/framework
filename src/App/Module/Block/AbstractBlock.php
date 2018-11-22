@@ -16,7 +16,7 @@ use CrazyCat\Framework\App\Module\Manager as ModuleManager;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-abstract class Block extends \CrazyCat\Framework\App\Theme\Block {
+abstract class AbstractBlock extends \CrazyCat\Framework\App\Theme\Block {
 
     /**
      * @var \CrazyCat\Framework\App\Module\Manager

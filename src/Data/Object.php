@@ -16,6 +16,11 @@ namespace CrazyCat\Framework\Data;
 class Object implements \ArrayAccess {
 
     /**
+     * @var string[]
+     */
+    static private $underscoreCache;
+
+    /**
      * @var array
      */
     protected $data = [];
@@ -23,6 +28,47 @@ class Object implements \ArrayAccess {
     public function __construct( array $data = [] )
     {
         $this->data = $data;
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    private function underscore( $name )
+    {
+        if ( isset( self::$underscoreCache[$name] ) ) {
+            return self::$underscoreCache[$name];
+        }
+        $result = strtolower( trim( preg_replace( '/([A-Z]|[0-9]+)/', "_$1", $name ), '_' ) );
+        self::$underscoreCache[$name] = $result;
+        return $result;
+    }
+
+    /**
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public function __call( $method, $args )
+    {
+        switch ( substr( $method, 0, 3 ) ) {
+
+            case 'get':
+                $key = $this->underscore( substr( $method, 3 ) );
+                return $this->getData( $key );
+
+            case 'set':
+                $key = $this->underscore( substr( $method, 3 ) );
+                $value = isset( $args[0] ) ? $args[0] : null;
+                return $this->setData( $key, $value );
+
+            case 'has':
+                $key = $this->underscore( substr( $method, 3 ) );
+                return isset( $this->_data[$key] );
+
+            default :
+                throw new \Exception( sprintf( 'Invalid method %s::%s', get_class( $this ), $method ) );
+        }
     }
 
     /**

@@ -16,3 +16,8 @@ function __( $text, $variables = [] )
 {
     return App::getInstance()->getTranslator()->translate( $text, $variables );
 }
+
+function htmlEscape( $str )
+{
+    return htmlspecialchars( $str, ENT_QUOTES );
+}

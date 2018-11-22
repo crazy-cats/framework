@@ -102,7 +102,7 @@ class Manager {
         if ( !isset( $this->themes[$this->area->getCode()][$themeName] ) ) {
             throw new \Exception( 'Specified theme does not exist.' );
         }
-        $this->currentTheme = $this->themes[$themeArea][$themeName];
+        $this->currentTheme = $this->themes[$this->area->getCode()][$themeName];
     }
 
     /**
