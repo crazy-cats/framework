@@ -138,7 +138,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          */
         $pathParts = explode( '/', $this->path );
         if ( ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) ) {
-            $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'index' );
+            $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'admin' );
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }

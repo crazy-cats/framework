@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Theme\Page;
 use CrazyCat\Framework\App\Url;
 
@@ -30,6 +31,11 @@ class Theme extends \CrazyCat\Framework\Data\Object {
     ];
 
     /**
+     * @var \CrazyCat\Framework\App\Module\Manager
+     */
+    private $moduleManager;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     private $objectManager;
@@ -44,10 +50,11 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      */
     private $url;
 
-    public function __construct( Url $url, ObjectManager $objectManager, array $data )
+    public function __construct( Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, array $data )
     {
         parent::__construct( $this->init( $data ) );
 
+        $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
         $this->url = $url;
     }
@@ -109,7 +116,7 @@ class Theme extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @var \CrazyCat\Framework\App\Theme\Page
+     * @return \CrazyCat\Framework\App\Theme\Page
      */
     public function getPage()
     {
@@ -120,23 +127,55 @@ class Theme extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
+     * @param string $targetFile
+     * @param string $sourceFile
+     */
+    private function generateStaticFile( $targetFile, $sourceFile )
+    {
+        if ( is_file( $sourceFile ) ) {
+            $targetDir = dirname( $targetFile );
+            if ( !is_dir( $targetDir ) ) {
+                mkdir( $targetDir, 0755, true );
+            }
+            symlink( $sourceFile, $targetFile );
+        }
+    }
+
+    /**
      * @param string $path
      * @return string
      */
     public function getStaticUrl( $path )
     {
-        $targetFile = self::DIR_STATIC . DS . $this->getData( 'config' )['area'] . DS . $this->getData( 'name' ) . DS . $path;
-        if ( !is_file( $targetFile ) ) {
-            $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path;
-            if ( is_file( $sourceFile ) ) {
-                $targetDir = dirname( $targetFile );
-                if ( !is_dir( $targetDir ) ) {
-                    mkdir( $targetDir, 0755, true );
-                }
-                symlink( $sourceFile, $targetFile );
+        $themeArea = $this->getData( 'config' )['area'];
+        $themeName = $this->getData( 'name' );
+
+        /**
+         * Static files in module
+         */
+        if ( ( $pos = strpos( $path, '::' ) ) !== false &&
+                ( $module = $this->moduleManager->getModule( trim( substr( $path, 0, $pos ) ) ) ) ) {
+            $orgPath = $path;
+            $path = str_replace( [ '\\', '::' ], '/', $path );
+            $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path;
+            if ( !is_file( $targetFile ) ) {
+                $sourceFile = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $orgPath, $pos + 2 );
+                $this->generateStaticFile( $targetFile, $sourceFile );
             }
         }
-        return $this->url->getBaseUrl() . 'static/' . $this->getData( 'config' )['area'] . '/' . $this->getData( 'name' ) . '/' . $path;
+
+        /**
+         * Static files in theme
+         */
+        else {
+            $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path;
+            if ( !is_file( $targetFile ) ) {
+                $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path;
+                $this->generateStaticFile( $targetFile, $sourceFile );
+            }
+        }
+
+        return $this->url->getBaseUrl() . 'static/' . $themeArea . '/' . $themeName . '/' . $path;
     }
 
 }
