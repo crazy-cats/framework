@@ -133,6 +133,14 @@ class Translator {
     }
 
     /**
+     * @return string
+     */
+    public function getLangCode()
+    {
+        return $this->langCode;
+    }
+
+    /**
      * @param string $langCode
      * @return $this
      */
