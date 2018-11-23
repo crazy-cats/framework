@@ -147,7 +147,7 @@ class Page extends \CrazyCat\Framework\Data\Object {
      */
     public function getThemeUrl( $path )
     {
-        return $path;
+        return $this->theme->getStaticUrl( $path );
     }
 
     /**

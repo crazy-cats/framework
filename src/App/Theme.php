@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App;
 
 use CrazyCat\Framework\App\Theme\Page;
+use CrazyCat\Framework\App\Url;
 
 /**
  * @category CrazyCat
@@ -17,6 +18,7 @@ use CrazyCat\Framework\App\Theme\Page;
  */
 class Theme extends \CrazyCat\Framework\Data\Object {
 
+    const DIR_STATIC = DIR_PUB . DS . 'static';
     const FILE_CONFIG = 'config' . DS . 'theme.php';
 
     /**
@@ -37,11 +39,17 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      */
     private $page;
 
-    public function __construct( ObjectManager $objectManager, array $data )
+    /**
+     * @var \CrazyCat\Framework\App\Url
+     */
+    private $url;
+
+    public function __construct( Url $url, ObjectManager $objectManager, array $data )
     {
         parent::__construct( $this->init( $data ) );
 
         $this->objectManager = $objectManager;
+        $this->url = $url;
     }
 
     /**
@@ -109,6 +117,26 @@ class Theme extends \CrazyCat\Framework\Data\Object {
             $this->page = $this->objectManager->create( Page::class, [ 'theme' => $this ] );
         }
         return $this->page;
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function getStaticUrl( $path )
+    {
+        $targetFile = self::DIR_STATIC . DS . $this->getData( 'config' )['area'] . DS . $this->getData( 'name' ) . DS . $path;
+        if ( !is_file( $targetFile ) ) {
+            $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path;
+            if ( is_file( $sourceFile ) ) {
+                $targetDir = dirname( $targetFile );
+                if ( !is_dir( $targetDir ) ) {
+                    mkdir( $targetDir, 0755, true );
+                }
+                symlink( $sourceFile, $targetFile );
+            }
+        }
+        return $this->url->getBaseUrl() . 'static/' . $this->getData( 'config' )['area'] . '/' . $this->getData( 'name' ) . '/' . $path;
     }
 
 }
