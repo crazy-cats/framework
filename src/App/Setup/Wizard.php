@@ -64,7 +64,12 @@ class Wizard {
 
         $envSettins = [
             'global' => [
-                'cache' => 'file',
+                'cache' => [
+                    'type' => 'file',
+                ],
+                'session' => [
+                    'type' => 'file',
+                ],
                 'db' => [
                     'default' => [
                         'type' => 'mysql',
