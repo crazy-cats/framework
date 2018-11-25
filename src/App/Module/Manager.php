@@ -185,6 +185,20 @@ class Manager {
     }
 
     /**
+     * @return array
+     */
+    public function collectDependencyInjections()
+    {
+        $di = [];
+        foreach ( $this->getEnabledModules() as $module ) {
+            if ( is_file( $module->getData( 'dir' ) . DS . 'config' . DS . 'di.php' ) ) {
+                $di = array_merge( $di, require ( $module->getData( 'dir' ) . DS . 'config' . DS . 'di.php' ) );
+            }
+        }
+        return $di;
+    }
+
+    /**
      * @return \CrazyCat\Framework\App\Module[]
      */
     public function getAllModules()

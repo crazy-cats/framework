@@ -15,6 +15,8 @@ namespace CrazyCat\Framework\App;
  */
 class ObjectManager {
 
+    const CACHE_DI_NAME = 'di';
+
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
@@ -24,6 +26,11 @@ class ObjectManager {
      * @var array
      */
     private $singletons = [];
+
+    /**
+     * @var array
+     */
+    private $preferences = [];
 
     /**
      * Get object manager singleton
@@ -72,6 +79,14 @@ class ObjectManager {
     }
 
     /**
+     * @param array $preferences
+     */
+    public function collectPreferences( array $preferences )
+    {
+        $this->preferences = array_merge( $this->preferences, $preferences );
+    }
+
+    /**
      * @param string $className
      * @param array $argumentArr
      * @return objec
@@ -81,6 +96,9 @@ class ObjectManager {
         $cacheName = trim( $className, '\\' );
         if ( $cacheName == self::class ) {
             return self::getInstance();
+        }
+        if ( isset( $this->preferences[$cacheName] ) ) {
+            return $this->get( $this->preferences[$cacheName], $argumentArr );
         }
         if ( !isset( $this->singletons[$cacheName] ) ) {
             $this->singletons[$cacheName] = $this->create( $className, $argumentArr );

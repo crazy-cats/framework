@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\Handler\ErrorHandler;
@@ -26,12 +27,15 @@ use CrazyCat\Framework\App\Translator;
  */
 class App {
 
-    const DIR = __DIR__;
-
     /**
      * @var \CrazyCat\Framework\App\Area
      */
     private $area;
+
+    /**
+     * @var \CrazyCat\Framework\App\Cache\Factory
+     */
+    private $cacheFactory;
 
     /**
      * @var \CrazyCat\Framework\Setup\Components
@@ -87,9 +91,10 @@ class App {
         return App\ObjectManager::getInstance()->get( self::class );
     }
 
-    public function __construct( ExceptionHandler $exceptionHandler, ErrorHandler $errorHandler, DbManager $dbManager, Area $area, IoFactory $ioFactory, Translator $translator, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager )
+    public function __construct( CacheFactory $cacheFactory, ExceptionHandler $exceptionHandler, ErrorHandler $errorHandler, DbManager $dbManager, Area $area, IoFactory $ioFactory, Translator $translator, ModuleManager $moduleManager, ComponentSetup $componentSetup, Config $config, ObjectManager $objectManager )
     {
         $this->area = $area;
+        $this->cacheFactory = $cacheFactory;
         $this->componentSetup = $componentSetup;
         $this->config = $config;
         $this->dbManager = $dbManager;
@@ -132,6 +137,16 @@ class App {
 
         $components = $this->componentSetup->init( $composerLoader, ROOT );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+
+        /**
+         * Dependency Injections
+         */
+        $cacheDependencyInjections = $this->cacheFactory->create( ObjectManager::CACHE_DI_NAME );
+        if ( empty( $dependencyInjections = $cacheDependencyInjections->getData() ) ) {
+            $dependencyInjections = $this->moduleManager->collectDependencyInjections();
+            $cacheDependencyInjections->setData( $dependencyInjections )->save();
+        }
+        $this->objectManager->collectPreferences( $dependencyInjections );
 
         /**
          * Translations will be collected on the first usage of `translate` method,
