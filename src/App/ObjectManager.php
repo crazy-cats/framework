@@ -52,6 +52,10 @@ class ObjectManager {
     public function create( $className, $argumentArr = [] )
     {
         $class = '\\' . trim( $className, '\\' );
+        if ( isset( $this->preferences[$class] ) ) {
+            return $this->create( $this->preferences[$class], $argumentArr );
+        }
+
         $reflectionClass = new \ReflectionClass( $class );
 
         if ( !( $constructor = $reflectionClass->getConstructor() ) ) {
