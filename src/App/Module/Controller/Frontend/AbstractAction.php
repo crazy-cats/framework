@@ -9,8 +9,8 @@ namespace CrazyCat\Framework\App\Module\Controller\Frontend;
 
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
-use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\App\ObjectManager;
+use CrazyCat\Framework\App\Session\Frontend as Session;
 use CrazyCat\Framework\App\Session\Messenger;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
@@ -20,88 +20,18 @@ use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
+abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractViewAction {
 
     /**
-     * @var array|null
+     * @var \CrazyCat\Framework\App\Session\Frontend
      */
-    protected $layout;
+    protected $session;
 
-    /**
-     * @var \CrazyCat\Framework\App\Io\Http\Request
-     */
-    protected $request;
-
-    /**
-     * @var \CrazyCat\Framework\App\Io\Http\Response
-     */
-    protected $response;
-
-    /**
-     * @var \CrazyCat\Framework\App\Session\Messenger
-     */
-    protected $messenger;
-
-    /**
-     * @var \CrazyCat\Framework\App\Theme\Manager
-     */
-    protected $themeManager;
-
-    public function __construct( Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Session $session, Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $eventManager, $objectManager );
+        parent::__construct( $messenger, $themeManager, $request, $eventManager, $objectManager );
 
-        $this->request = $request;
-        $this->response = $request->getResponse();
-        $this->messenger = $messenger;
-        $this->themeManager = $themeManager;
+        $this->session = $session;
     }
 
-    /**
-     * @param string $themeName
-     * @return $this
-     */
-    protected function setTheme( $themeName )
-    {
-        $this->themeManager->setCurrentTheme( $themeName );
-        return $this;
-    }
-
-    /**
-     * @param array $layout
-     * @return $this
-     */
-    protected function setLayout( array $layout )
-    {
-        $this->layout = $layout;
-        return $this;
-    }
-
-    /**
-     * @return void
-     */
-    protected function render()
-    {
-        $page = $this->themeManager->getCurrentTheme()->getPage();
-        if ( $this->layout !== null ) {
-            $page->setLayout( $this->layout );
-        }
-        $this->response->setType( Response::TYPE_PAGE )->setBody( $page->toHtml() );
-    }
-
-    /**
-     * @return void
-     */
-    public function execute()
-    {
-        $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
-        $this->themeManager->init();
-        $this->run();
-        $this->response->send();
-    }
-
-    /**
-     * @return void
-     */
-    abstract protected function run();
 }
