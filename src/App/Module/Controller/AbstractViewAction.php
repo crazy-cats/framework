@@ -78,6 +78,16 @@ abstract class AbstractViewAction extends AbstractAction {
     }
 
     /**
+     * @param string $layoutFile
+     * @return $this
+     */
+    protected function setLayoutFile( $layoutFile )
+    {
+        $this->layout = $this->themeManager->getCurrentTheme()->getPage()->getLayoutFromFile( $layoutFile );
+        return $this;
+    }
+
+    /**
      * @return void
      */
     protected function render()

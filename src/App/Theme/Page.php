@@ -68,29 +68,6 @@ class Page extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @param string $layoutName
-     * @return array
-     */
-    private function getLayoutFromFile( $layoutName )
-    {
-        $layoutFile = $this->theme->getData( 'dir' ) . DS . 'view' . DS . 'layouts' . DS . $layoutName . '.php';
-        if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
-            return $layout;
-        }
-
-        list( $routeName ) = explode( '_', $layoutName );
-        $areaCode = $this->theme->getData( 'config' )['area'];
-        if ( ( $module = $this->moduleManager->getModuleByRoute( $routeName, $areaCode ) ) ) {
-            $layoutFile = $module->getData( 'dir' ) . DS . 'view' . DS . $areaCode . DS . 'layouts' . DS . $layoutName . '.php';
-            if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
-                return $layout;
-            }
-        }
-
-        return [];
-    }
-
-    /**
      * Layout B cover layout A
      * 
      * @param array $layoutA
@@ -120,6 +97,29 @@ class Page extends \CrazyCat\Framework\Data\Object {
                 $this->sectionsHtml[$sectionName] .= $this->objectManager->create( $blockInfo['class'], [ 'data' => isset( $blockInfo['data'] ) ? $blockInfo['data'] : [] ] )->toHtml();
             }
         }
+    }
+
+    /**
+     * @param string $layoutName
+     * @return array
+     */
+    public function getLayoutFromFile( $layoutName )
+    {
+        $layoutFile = $this->theme->getData( 'dir' ) . DS . 'view' . DS . 'layouts' . DS . $layoutName . '.php';
+        if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
+            return $layout;
+        }
+
+        list( $routeName ) = explode( '_', $layoutName );
+        $areaCode = $this->theme->getData( 'config' )['area'];
+        if ( ( $module = $this->moduleManager->getModuleByRoute( $routeName, $areaCode ) ) ) {
+            $layoutFile = $module->getData( 'dir' ) . DS . 'view' . DS . $areaCode . DS . 'layouts' . DS . $layoutName . '.php';
+            if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
+                return $layout;
+            }
+        }
+
+        return [];
     }
 
     /**

@@ -23,6 +23,8 @@ class Storage {
     public function __construct( $namespace )
     {
         $this->namespace = $namespace;
+
+        $_SESSION[$this->namespace] = [];
     }
 
     /**

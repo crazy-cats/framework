@@ -15,6 +15,10 @@ namespace CrazyCat\Framework\App\Module\Model;
  */
 abstract class AbstractModel {
 
+    /**
+     * @var string
+     */
     protected $table;
 
+    abstract protected function init();
 }

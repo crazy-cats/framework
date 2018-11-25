@@ -18,12 +18,18 @@ use CrazyCat\Framework\App\ObjectManager;
 abstract class AbstractSession {
 
     /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    protected $objectManager;
+
+    /**
      * @var \CrazyCat\Framework\App\Session\Storage
      */
     protected $storage;
 
     public function __construct( ObjectManager $objectManager, Manager $manager )
     {
+        $this->objectManager = $objectManager;
         $this->storage = $objectManager->create( Storage::class, [ 'namespace' => static::NAME ] );
 
         $manager->init();
