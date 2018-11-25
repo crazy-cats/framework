@@ -7,16 +7,14 @@
 
 namespace CrazyCat\Framework\App\Session;
 
-use CrazyCat\Framework\App\Area;
-
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Backend extends AbstractSession {
+class Site extends AbstractSession {
 
-    const NAME = Area::CODE_BACKEND;
+    const NAME = 'site';
 
 }

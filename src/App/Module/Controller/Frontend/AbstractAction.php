@@ -11,6 +11,7 @@ use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\App\ObjectManager;
+use CrazyCat\Framework\App\Session\Site as Session;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
 /**
@@ -37,16 +38,22 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     protected $response;
 
     /**
+     * @var \CrazyCat\Framework\App\Session\Site
+     */
+    protected $session;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
 
-    public function __construct( ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Session $session, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $eventManager, $objectManager );
 
         $this->request = $request;
         $this->response = $request->getResponse();
+        $this->session = $session;
         $this->themeManager = $themeManager;
     }
 
