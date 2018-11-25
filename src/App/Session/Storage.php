@@ -23,7 +23,10 @@ class Storage {
     public function __construct( $namespace )
     {
         $this->namespace = $namespace;
+    }
 
+    public function init()
+    {
         $_SESSION[$this->namespace] = [];
     }
 
@@ -32,7 +35,7 @@ class Storage {
      */
     public function getData( $key )
     {
-        return $_SESSION[$this->namespace][$key];
+        return isset( $_SESSION[$this->namespace][$key] ) ? $_SESSION[$this->namespace][$key] : null;
     }
 
     /**

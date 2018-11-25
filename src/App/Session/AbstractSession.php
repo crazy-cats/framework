@@ -33,6 +33,7 @@ abstract class AbstractSession {
         $this->storage = $objectManager->create( Storage::class, [ 'namespace' => static::NAME ] );
 
         $manager->init();
+        $this->storage->init();
     }
 
 }
