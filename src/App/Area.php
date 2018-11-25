@@ -28,6 +28,11 @@ class Area {
     private $code = self::CODE_GLOBAL;
 
     /**
+     * @var string
+     */
+    private $hashCode;
+
+    /**
      * @var array
      */
     private $allowedCodes = [
@@ -66,6 +71,17 @@ class Area {
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHashCode()
+    {
+        if ( !isset( $this->hashCode[$this->code] ) ) {
+            $this->hashCode[$this->code] = md5( $this->code );
+        }
+        return $this->hashCode[$this->code];
     }
 
     /**

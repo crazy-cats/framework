@@ -65,10 +65,10 @@ class Wizard {
         $envSettins = [
             'global' => [
                 'cache' => [
-                    'type' => 'file',
+                    'type' => 'files'
                 ],
                 'session' => [
-                    'type' => 'file',
+                    'type' => 'files'
                 ],
                 'db' => [
                     'default' => [
@@ -86,10 +86,16 @@ class Wizard {
             ],
             'backend' => [
                 'route' => null,
-                'theme' => 'default'
+                'theme' => 'default',
+                'cookies' => [
+                    'duration' => 3600
+                ]
             ],
             'frontend' => [
-                'theme' => 'default'
+                'theme' => 'default',
+                'cookies' => [
+                    'duration' => 3600
+                ]
             ]
         ];
         $this->getInputSettings( $envSettins );

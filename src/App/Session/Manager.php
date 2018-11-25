@@ -7,7 +7,11 @@
 
 namespace CrazyCat\Framework\App\Session;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Cookies;
+use CrazyCat\Framework\App\Io\Http\Request;
+use CrazyCat\Framework\App\ObjectManager;
 
 /**
  * @category CrazyCat
@@ -17,91 +21,90 @@ use CrazyCat\Framework\App\Config;
  */
 class Manager {
 
-    const DIR = DIR_VAR . DS . 'session';
     const SESSION_NAME = 'SID';
 
     /**
-     * Session types
+     * @var \CrazyCat\Framework\App\Area
      */
-    const TYPE_DATABASE = 'database';
-    const TYPE_FILES = 'files';
-    const TYPE_MEMCACHE = 'memcache';
-    const TYPE_REDIS = 'redis';
+    private $area;
 
     /**
      * @var \CrazyCat\Framework\App\Config
      */
     private $config;
 
-    public function __construct( Config $config )
+    /**
+     * @var \CrazyCat\Framework\App\Cookies
+     */
+    private $cookies;
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    private $objectManager;
+
+    /**
+     * @var \CrazyCat\Framework\App\Io\Http\Request
+     */
+    private $request;
+
+    public function __construct( Request $request, Area $area, Cookies $cookies, Config $config, ObjectManager $objectManager )
     {
+        $this->area = $area;
         $this->config = $config;
+        $this->cookies = $cookies;
+        $this->objectManager = $objectManager;
+        $this->request = $request;
     }
 
+    /**
+     * @return string
+     */
+    private function generateSessionId()
+    {
+        $sessionId = $this->request->getParam( self::SESSION_NAME ) ?: $this->cookies->getData( self::SESSION_NAME );
+        if ( $sessionId === null || strpos( $sessionId, $this->area->getHashCode() ) !== 0 ) {
+            return uniqid( $this->area->getHashCode() );
+        }
+        return $sessionId;
+    }
+
+    /**
+     * @return void
+     */
     public function init()
     {
         if ( session_status() === PHP_SESSION_ACTIVE ) {
             return;
         }
+        $config = $this->config->getData( Area::CODE_GLOBAL )['session'];
 
+        switch ( $config['type'] ) {
+
+            case SaveHandler\Files::TYPE :
+                $saveHandler = SaveHandler\Files::class;
+                break;
+
+            case SaveHandler\Memcache::TYPE :
+                $saveHandler = SaveHandler\Memcache::class;
+                break;
+
+            case SaveHandler\Files::TYPE :
+                $saveHandler = SaveHandler\Database::class;
+                break;
+
+            case SaveHandler\Redis::TYPE :
+                $saveHandler = SaveHandler\Redis::class;
+                break;
+
+            default :
+                throw new \Exception( 'Invalidated session type.' );
+        }
+
+        session_set_save_handler( $this->objectManager->get( $saveHandler, [ 'config' => $config, 'areaCode' => $this->area->getCode() ] ) );
         session_name( self::SESSION_NAME );
-
-        switch ( $this->config->getData( 'session' )['type'] ) {
-
-            case self::TYPE_DATABASE :
-                $this->initDatabase();
-                break;
-
-            case self::TYPE_FILES :
-                $this->initFiles();
-                break;
-
-            case self::TYPE_MEMCACHE :
-                $this->initMemcache();
-                break;
-
-            case self::TYPE_REDIS :
-                $this->initRedis();
-                break;
-        }
-
+        session_id( $this->generateSessionId() );
         session_start();
-    }
-
-    /**
-     * @return void
-     */
-    private function initDatabase()
-    {
-        
-    }
-
-    /**
-     * @return void
-     */
-    private function initFiles()
-    {
-        if ( !is_dir( self::DIR ) ) {
-            mkdir( self::DIR, 0755, true );
-        }
-        session_module_name( self::TYPE_FILES );
-        session_save_path( self::DIR );
-    }
-
-    /**
-     * @return void
-     */
-    private function initMemcache()
-    {
-        
-    }
-
-    /**
-     * @return void
-     */
-    private function initRedis()
-    {
-        
     }
 
     /**

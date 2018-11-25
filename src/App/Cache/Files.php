@@ -13,7 +13,7 @@ namespace CrazyCat\Framework\App\Cache;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class File extends AbstractCache {
+class Files extends AbstractCache {
 
     const DIR = DIR_VAR . DS . 'cache';
 

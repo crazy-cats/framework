@@ -21,11 +21,6 @@ use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
  */
 abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\Frontend\AbstractAction {
 
-    /**
-     * @var \CrazyCat\Framework\App\Session\Backend
-     */
-    protected $session;
-
     public function __construct( Session $session, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $themeManager, $request, $eventManager, $objectManager );

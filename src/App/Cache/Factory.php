@@ -34,13 +34,13 @@ class Factory {
      */
     public function create( $name )
     {
-        $settings = $this->config->getData( Area::CODE_GLOBAL )['cache'];
-        switch ( $settings['type'] ) {
+        $config = $this->config->getData( Area::CODE_GLOBAL )['cache'];
+        switch ( $config['type'] ) {
             default:
-                $className = File::class;
+                $className = Files::class;
                 break;
         }
-        return $this->objectManager->create( $className, [ 'name' => $name, 'config' => isset( $settings['config'] ) ? $settings['config'] : [] ] );
+        return $this->objectManager->create( $className, [ 'name' => $name, 'config' => $config ] );
     }
 
 }
