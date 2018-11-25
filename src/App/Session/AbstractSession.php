@@ -29,18 +29,4 @@ abstract class AbstractSession {
         $manager->init();
     }
 
-    /**
-     * @param string $key
-     * @param boolean $clear
-     * @return mixed
-     */
-    public function getData( $key, $clear = false )
-    {
-        $data = $this->storage->getData( $key );
-        if ( $clear ) {
-            $this->storage->unsetData( $key );
-        }
-        return $data;
-    }
-
 }
