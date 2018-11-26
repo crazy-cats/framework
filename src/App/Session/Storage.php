@@ -27,14 +27,19 @@ class Storage {
 
     public function init()
     {
-        $_SESSION[$this->namespace] = [];
+        if ( !isset( $_SESSION[$this->namespace] ) ) {
+            $_SESSION[$this->namespace] = [];
+        }
     }
 
     /**
      * @param string $key
      */
-    public function getData( $key )
+    public function getData( $key = null )
     {
+        if ( $key === null ) {
+            return $_SESSION[$this->namespace];
+        }
         return isset( $_SESSION[$this->namespace][$key] ) ? $_SESSION[$this->namespace][$key] : null;
     }
 

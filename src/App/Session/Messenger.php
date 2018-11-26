@@ -43,7 +43,7 @@ class Messenger extends AbstractSession {
      */
     public function addSuccess( $message )
     {
-        $this->storage->setData( self::TYPE_SUCCESS, $message );
+        $this->addMessage( $message, self::TYPE_SUCCESS );
         return $this;
     }
 
@@ -53,7 +53,7 @@ class Messenger extends AbstractSession {
      */
     public function addError( $message )
     {
-        $this->storage->setData( self::TYPE_ERROR, $message );
+        $this->addMessage( $message, self::TYPE_ERROR );
         return $this;
     }
 

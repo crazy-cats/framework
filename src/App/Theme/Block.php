@@ -40,6 +40,11 @@ class Block extends \CrazyCat\Framework\Data\Object {
      */
     protected $themeManager;
 
+    /**
+     * @var string
+     */
+    protected $template;
+
     public function __construct( Area $area, ModuleManager $moduleManager, ThemeManager $themeManager, EventManager $eventManager, array $data = [] )
     {
         parent::__construct( $data );
@@ -48,6 +53,10 @@ class Block extends \CrazyCat\Framework\Data\Object {
         $this->eventManager = $eventManager;
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
+
+        if ( !empty( $data['template'] ) ) {
+            $this->template = $data['template'];
+        }
     }
 
     /**
@@ -73,8 +82,12 @@ class Block extends \CrazyCat\Framework\Data\Object {
      */
     public function toHtml()
     {
+        if ( empty( $this->template ) ) {
+            return '';
+        }
+
         ob_start();
-        include $this->getAbsTemplatePath( $this->getData( 'template' ) );
+        include $this->getAbsTemplatePath( $this->template );
         return ob_get_clean();
     }
 
