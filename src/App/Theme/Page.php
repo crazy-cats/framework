@@ -165,6 +165,22 @@ class Page extends \CrazyCat\Framework\Data\Object {
     /**
      * @return string
      */
+    public function getCssScripts()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getJsScripts()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
     public function toHtml()
     {
         $layout = $this->mergeLayout( $this->getLayoutFromFile( 'default' ), $this->getLayoutFromFile( $this->getLayoutName() ) );
@@ -174,7 +190,7 @@ class Page extends \CrazyCat\Framework\Data\Object {
         $this->prepareBlocks( $layout['blocks'] );
 
         ob_start();
-        $templateFile = $this->theme->getData( 'dir' ) . DS . 'view' . DS . 'templates' . DS . $layout['template'] . '.php';
+        $templateFile = $this->theme->getData( 'dir' ) . DS . 'view/templates/pages' . DS . $layout['template'] . '.php';
         if ( is_file( $templateFile ) ) {
             include $templateFile;
         }

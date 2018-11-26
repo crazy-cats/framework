@@ -66,7 +66,7 @@ class Block extends \CrazyCat\Framework\Data\Object {
     protected function getAbsTemplatePath( $template )
     {
         list( $namespace, $filePath ) = explode( '::', $template );
-        if ( is_file( $file = $this->themeManager->getCurrentTheme()->getData( 'dir' ) . DS . 'view' . DS . 'templates' . DS . str_replace( '\\', DS, $namespace ) . DS . $filePath . '.php' ) ) {
+        if ( is_file( $file = $this->themeManager->getCurrentTheme()->getData( 'dir' ) . DS . 'view/templates/blocks' . DS . str_replace( '\\', DS, $namespace ) . DS . $filePath . '.php' ) ) {
             return $file;
         }
         if ( ( $module = $this->moduleManager->getModule( $namespace ) ) ) {
