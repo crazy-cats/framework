@@ -36,4 +36,10 @@ abstract class AbstractSession {
         $this->storage->init();
     }
 
+    public function destroy()
+    {
+        $_SESSION = [];
+        session_destroy();
+    }
+
 }

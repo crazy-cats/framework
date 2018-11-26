@@ -75,4 +75,10 @@ abstract class AbstractAdapter {
      * @param array $conditions
      */
     abstract public function delete( $table, array $conditions = [] );
+
+    /**
+     * @param string $table
+     * @return string
+     */
+    abstract public function getTableName( $table );
 }

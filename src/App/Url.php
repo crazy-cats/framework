@@ -63,7 +63,7 @@ class Url {
         $realPath = ( ( $num = count( $parts ) ) < 3 ) ?
                 ( $tmp . str_repeat( '/index', 3 - $num ) ) :
                 ( $parts[0] . '/' . $parts[1] . '/' . $parts[2] );
-        return $this->getBaseUrl() . $this->config->getData( 'backend' )['route'] . '/' . $realPath . '?' . http_build_query( $params );
+        return $this->getBaseUrl() . $this->config->getData( 'backend' )['route'] . '/' . $realPath . ( empty( $params ) ? '' : ( '?' . http_build_query( $params ) ) );
     }
 
     /**
@@ -78,7 +78,7 @@ class Url {
         $realPath = ( ( $num = count( $parts ) ) < 3 ) ?
                 ( $tmp . str_repeat( '/index', 3 - $num ) ) :
                 ( $parts[0] . '/' . $parts[1] . '/' . $parts[2] );
-        return $this->getBaseUrl() . $realPath . '?' . http_build_query( $params );
+        return $this->getBaseUrl() . $realPath . ( empty( $params ) ? '' : ( '?' . http_build_query( $params ) ) );
     }
 
     /**

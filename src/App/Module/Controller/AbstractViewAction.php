@@ -24,11 +24,6 @@ use CrazyCat\Framework\App\Url;
 abstract class AbstractViewAction extends AbstractAction {
 
     /**
-     * @var array|null
-     */
-    protected $layout;
-
-    /**
      * @var \CrazyCat\Framework\App\Io\Http\Request
      */
     protected $request;
@@ -53,6 +48,31 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     protected $url;
 
+    /**
+     * @var array|null
+     */
+    protected $layout;
+
+    /**
+     * @var string|null
+     */
+    protected $pageTitle;
+
+    /**
+     * @var string|null
+     */
+    protected $metaKeywords;
+
+    /**
+     * @var string|null
+     */
+    protected $metaDescription;
+
+    /**
+     * @var string|null
+     */
+    protected $metaRobots;
+
     public function __construct( Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $eventManager, $objectManager );
@@ -62,6 +82,46 @@ abstract class AbstractViewAction extends AbstractAction {
         $this->messenger = $messenger;
         $this->themeManager = $themeManager;
         $this->url = $url;
+    }
+
+    /**
+     * @param string $pageTitle
+     * @return $this
+     */
+    protected function setPageTitle( $pageTitle )
+    {
+        $this->pageTitle = $pageTitle;
+        return $this;
+    }
+
+    /**
+     * @param array $metaKeywords
+     * @return $this
+     */
+    protected function setMetaKeywords( array $metaKeywords )
+    {
+        $this->metaKeywords = implode( ', ', $metaKeywords );
+        return $this;
+    }
+
+    /**
+     * @param string $metaDescription
+     * @return $this
+     */
+    protected function setMetaDescription( $metaDescription )
+    {
+        $this->metaDescription = $metaDescription;
+        return $this;
+    }
+
+    /**
+     * @param string $metaRobots
+     * @return $this
+     */
+    protected function setMetaRobots( $metaRobots )
+    {
+        $this->metaRobots = $metaRobots;
+        return $this;
     }
 
     /**
@@ -102,6 +162,18 @@ abstract class AbstractViewAction extends AbstractAction {
         $page = $this->themeManager->getCurrentTheme()->getPage();
         if ( $this->layout !== null ) {
             $page->setLayout( $this->layout );
+        }
+        if ( $this->pageTitle !== null ) {
+            $page->setData( 'page_title', $this->pageTitle );
+        }
+        if ( $this->metaKeywords !== null ) {
+            $page->setData( 'meta_keywords', $this->metaKeywords );
+        }
+        if ( $this->metaDescription !== null ) {
+            $page->setData( 'meta_description', $this->metaDescription );
+        }
+        if ( $this->metaRobots !== null ) {
+            $page->setData( 'meta_robots', $this->metaRobots );
         }
         $this->response->setType( Response::TYPE_PAGE )->setBody( $page->toHtml() );
     }

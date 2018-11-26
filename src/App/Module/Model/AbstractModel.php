@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Model;
 
 use CrazyCat\Framework\App\Db\Manager as DbManager;
+use CrazyCat\Framework\App\EventManager;
 
 /**
  * @category CrazyCat
@@ -21,6 +22,11 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      * @var \CrazyCat\Framework\App\Db\AbstractAdapter
      */
     protected $conn;
+
+    /**
+     * @var \CrazyCat\Framework\App\EventManager
+     */
+    protected $eventManager;
 
     /**
      * @var string
@@ -37,10 +43,11 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      */
     protected $mainTable;
 
-    public function __construct( DbManager $dbManager )
+    public function __construct( EventManager $eventManager, DbManager $dbManager )
     {
         $this->construct();
         $this->conn = $dbManager->getConnection( $this->connName );
+        $this->eventManager = $eventManager;
 
         parent::__construct();
     }
@@ -82,6 +89,26 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
         $table = $this->conn->getTableName( $this->mainTable );
         $fieldName = ( $field === null ) ? $this->idFieldName : $field;
         return $this->setData( $this->conn->fetchRow( sprintf( 'SELECT * FROM `%s` WHERE `%s` = ?', $table, $fieldName ), [ $id ] ) );
+    }
+
+    /**
+     * @return $this
+     */
+    public function save()
+    {
+        $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
+
+        if ( $this->getData( $this->idFieldName ) ) {
+            $this->conn->update( $this->conn->getTableName( $this->mainTable ), $this->getData(), [ sprintf( '`%s` = ?', $this->idFieldName ) => $this->getData( $this->idFieldName ) ] );
+        }
+        else {
+            $id = $this->conn->insert( $this->conn->getTableName( $this->mainTable ), $this->getData() );
+            $this->setData( $this->idFieldName, $id );
+        }
+
+        $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
+
+        return $this;
     }
 
     abstract protected function construct();
