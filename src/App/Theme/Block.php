@@ -7,7 +7,10 @@
 
 namespace CrazyCat\Framework\App\Theme;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
 /**
  * @category CrazyCat
@@ -18,25 +21,61 @@ use CrazyCat\Framework\App\EventManager;
 class Block extends \CrazyCat\Framework\Data\Object {
 
     /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    protected $area;
+
+    /**
      * @var \CrazyCat\Framework\App\EventManager
      */
     protected $eventManager;
 
     /**
-     * @var string
+     * @var \CrazyCat\Framework\App\Module\Manager
      */
-    protected $template;
+    private $moduleManager;
 
-    public function __construct( EventManager $eventManager, array $data = [] )
+    /**
+     * @var \CrazyCat\Framework\App\Theme\Manager
+     */
+    protected $themeManager;
+
+    public function __construct( Area $area, ModuleManager $moduleManager, ThemeManager $themeManager, EventManager $eventManager, array $data = [] )
     {
         parent::__construct( $data );
 
+        $this->area = $area;
         $this->eventManager = $eventManager;
+        $this->moduleManager = $moduleManager;
+        $this->themeManager = $themeManager;
     }
 
+    /**
+     * @param string $template
+     * @return string
+     */
+    protected function getAbsTemplatePath( $template )
+    {
+        list( $namespace, $filePath ) = explode( '::', $template );
+        if ( is_file( $file = $this->themeManager->getCurrentTheme()->getData( 'dir' ) . DS . 'view' . DS . 'templates' . DS . str_replace( '\\', DS, $namespace ) . DS . $filePath . '.php' ) ) {
+            return $file;
+        }
+        if ( ( $module = $this->moduleManager->getModule( $namespace ) ) ) {
+            if ( is_file( $file = $module->getData( 'dir' ) . DS . 'view' . DS . $this->area->getCode() . DS . 'templates' . DS . $filePath . '.php' ) ) {
+                return $file;
+            }
+        }
+        throw new \Exception( sprintf( 'Block template file %s does not exist.', $template ) );
+    }
+
+    /**
+     * @return string
+     */
     public function toHtml()
     {
-        
+        ob_start();
+        include $this->getAbsTemplatePath( $this->getData( 'template' ) );
+        return ob_get_clean();
     }
 
 }
