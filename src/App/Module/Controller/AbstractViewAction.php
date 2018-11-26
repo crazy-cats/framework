@@ -13,6 +13,7 @@ use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Session\Messenger;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
+use CrazyCat\Framework\App\Url;
 
 /**
  * @category CrazyCat
@@ -47,7 +48,12 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     protected $themeManager;
 
-    public function __construct( Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    /**
+     * @var \CrazyCat\Framework\App\Url
+     */
+    protected $url;
+
+    public function __construct( Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $eventManager, $objectManager );
 
@@ -55,6 +61,7 @@ abstract class AbstractViewAction extends AbstractAction {
         $this->response = $request->getResponse();
         $this->messenger = $messenger;
         $this->themeManager = $themeManager;
+        $this->url = $url;
     }
 
     /**
@@ -97,6 +104,16 @@ abstract class AbstractViewAction extends AbstractAction {
             $page->setLayout( $this->layout );
         }
         $this->response->setType( Response::TYPE_PAGE )->setBody( $page->toHtml() );
+    }
+
+    /**
+     * @param string $path
+     * @param array $params
+     * @return void
+     */
+    protected function redirect( $path, $params = [] )
+    {
+        $this->response->setType( Response::TYPE_REDIRECT )->setData( $this->url->getUrl( $path, $params ) );
     }
 
     /**

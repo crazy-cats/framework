@@ -13,6 +13,7 @@ use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Session\Backend as Session;
 use CrazyCat\Framework\App\Session\Messenger;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
+use CrazyCat\Framework\App\Url;
 
 /**
  * @category CrazyCat
@@ -27,9 +28,9 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     protected $session;
 
-    public function __construct( Session $session, Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Session $session, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $messenger, $themeManager, $request, $eventManager, $objectManager );
+        parent::__construct( $url, $messenger, $themeManager, $request, $eventManager, $objectManager );
 
         $this->session = $session;
     }
