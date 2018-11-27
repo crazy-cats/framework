@@ -145,6 +145,32 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      * @param string $path
      * @return string
      */
+    public function getStaticPath( $path )
+    {
+        $themeArea = $this->getData( 'config' )['area'];
+
+        /**
+         * Static files in module
+         */
+        if ( ( $pos = strpos( $path, '::' ) ) !== false &&
+                ( $module = $this->moduleManager->getModule( trim( substr( $path, 0, $pos ) ) ) ) ) {
+            $file = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $path, $pos + 2 );
+            return is_file( $file ) ? $file : null;
+        }
+
+        /**
+         * Static files in theme
+         */
+        else {
+            $file = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path;
+            return is_file( $file ) ? $file : null;
+        }
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
     public function getStaticUrl( $path )
     {
         $themeArea = $this->getData( 'config' )['area'];

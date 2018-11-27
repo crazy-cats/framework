@@ -87,12 +87,14 @@ class Wizard {
             'backend' => [
                 'route' => null,
                 'theme' => 'default',
+                'merge_css' => false,
                 'cookies' => [
                     'duration' => 3600
                 ]
             ],
             'frontend' => [
                 'theme' => 'default',
+                'merge_css' => false,
                 'cookies' => [
                     'duration' => 3600
                 ]

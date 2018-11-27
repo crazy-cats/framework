@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Theme;
 
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
@@ -20,6 +21,11 @@ use CrazyCat\Framework\App\Url;
  * @link http://crazy-cat.co
  */
 class Page extends \CrazyCat\Framework\Data\Object {
+
+    /**
+     * @var \CrazyCat\Framework\App\Config
+     */
+    private $config;
 
     /**
      * @var \CrazyCat\Framework\App\Module\Manager
@@ -56,10 +62,21 @@ class Page extends \CrazyCat\Framework\Data\Object {
      */
     private $sectionsHtml;
 
-    public function __construct( Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
+    /**
+     * @var array
+     */
+    private $cssInfo = [ 'files' => [], 'links' => [] ];
+
+    /**
+     * @var array
+     */
+    private $jsInfo = [];
+
+    public function __construct( Config $config, Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
     {
         parent::__construct();
 
+        $this->config = $config;
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
         $this->request = $request;
@@ -79,9 +96,13 @@ class Page extends \CrazyCat\Framework\Data\Object {
         $blocksA = empty( $layoutA['blocks'] ) ? [] : $layoutA['blocks'];
         $blocksB = empty( $layoutB['blocks'] ) ? [] : $layoutB['blocks'];
 
+        $cssA = empty( $layoutA['css'] ) ? [] : $layoutA['css'];
+        $cssB = empty( $layoutB['css'] ) ? [] : $layoutB['css'];
+
         return [
             'template' => empty( $layoutB['template'] ) ? ( empty( $layoutA['template'] ) ? '1column' : $layoutA['template'] ) : $layoutB['template'],
-            'blocks' => array_merge_recursive( $blocksA, $blocksB )
+            'css' => array_merge( $cssA, $cssB ),
+            'blocks' => array_merge( $blocksA, $blocksB )
         ];
     }
 
@@ -96,6 +117,19 @@ class Page extends \CrazyCat\Framework\Data\Object {
             foreach ( $blocks as $blockInfo ) {
                 $this->sectionsHtml[$sectionName] .= $this->objectManager->create( $blockInfo['class'], [ 'data' => isset( $blockInfo['data'] ) ? $blockInfo['data'] : [] ] )->toHtml();
             }
+        }
+    }
+
+    /**
+     * @param array $cssLayout
+     * @param boolean $merge
+     * @return void
+     */
+    private function prepareCssScripts( array $cssLayout )
+    {
+        foreach ( $cssLayout as $css ) {
+            $this->cssInfo['files'][] = $this->theme->getStaticPath( $css );
+            $this->cssInfo['links'][] = $this->theme->getStaticUrl( $css );
         }
     }
 
@@ -167,7 +201,16 @@ class Page extends \CrazyCat\Framework\Data\Object {
      */
     public function getCssScripts()
     {
-        return '';
+        if ( $this->config->getData( $this->theme->getData( 'config' )['area'] )['merge_css'] ) {
+            return '';
+        }
+        else {
+            $scripts = '';
+            foreach ( $this->cssInfo['links'] as $cssLink ) {
+                $scripts .= '<link rel="stylesheet" type="text/css" media="all" href="' . $cssLink . "\" />\n";
+            }
+            return $scripts;
+        }
     }
 
     /**
@@ -187,6 +230,7 @@ class Page extends \CrazyCat\Framework\Data\Object {
         if ( $this->layout !== null ) {
             $layout = $this->mergeLayout( $layout, $this->layout );
         }
+        $this->prepareCssScripts( $layout['css'] );
         $this->prepareBlocks( $layout['blocks'] );
 
         ob_start();
