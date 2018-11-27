@@ -17,12 +17,18 @@ class Files extends AbstractCache {
 
     const DIR = DIR_VAR . DS . 'cache';
 
+    /**
+     * @return void
+     */
     protected function init()
     {
         $file = self::DIR . DS . $this->name;
         $this->data = is_file( $file ) ? json_decode( file_get_contents( $file ), true ) : [];
     }
 
+    /**
+     * @return void
+     */
     public function save()
     {
         if ( !is_dir( self::DIR ) ) {

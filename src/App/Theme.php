@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Theme\Page;
 use CrazyCat\Framework\App\Url;
@@ -19,7 +20,20 @@ use CrazyCat\Framework\App\Url;
  */
 class Theme extends \CrazyCat\Framework\Data\Object {
 
+    /**
+     * Caches of static files
+     */
+    const CACHE_STATIC_URL_NAME = 'static_url';
+    const CACHE_STATIC_FILE_NAME = 'static_file';
+
+    /**
+     * Root of static files
+     */
     const DIR_STATIC = DIR_PUB . DS . 'static';
+
+    /**
+     * Config file name
+     */
     const FILE_CONFIG = 'config' . DS . 'theme.php';
 
     /**
@@ -46,17 +60,32 @@ class Theme extends \CrazyCat\Framework\Data\Object {
     private $page;
 
     /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
+     */
+    private $staticFileCache;
+
+    /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
+     */
+    private $staticUrlCache;
+
+    /**
      * @var \CrazyCat\Framework\App\Url
      */
     private $url;
 
-    public function __construct( Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, array $data )
+    public function __construct( CacheFactory $cacheFactory, Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, array $data )
     {
         parent::__construct( $this->init( $data ) );
 
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
+        $this->staticFileCache = $cacheFactory->create( self::CACHE_STATIC_FILE_NAME );
+        $this->staticUrlCache = $cacheFactory->create( self::CACHE_STATIC_URL_NAME );
         $this->url = $url;
+
+        register_shutdown_function( [ $this->staticFileCache, 'save' ] );
+        register_shutdown_function( [ $this->staticUrlCache, 'save' ] );
     }
 
     /**
@@ -147,6 +176,10 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      */
     public function getStaticPath( $path )
     {
+        if ( ( $file = $this->staticFileCache->getData( $path ) ) ) {
+            return $file;
+        }
+
         $themeArea = $this->getData( 'config' )['area'];
 
         /**
@@ -173,6 +206,10 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      */
     public function getStaticUrl( $path )
     {
+        if ( ( $url = $this->staticUrlCache->getData( $path ) ) ) {
+            return $url;
+        }
+
         $themeArea = $this->getData( 'config' )['area'];
         $themeName = $this->getData( 'name' );
 
@@ -183,10 +220,10 @@ class Theme extends \CrazyCat\Framework\Data\Object {
                 ( $module = $this->moduleManager->getModule( trim( substr( $path, 0, $pos ) ) ) ) ) {
             $orgPath = $path;
             $path = str_replace( [ '\\', '::' ], '/', $path );
-            $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path;
-            if ( !is_file( $targetFile ) ) {
-                $sourceFile = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $orgPath, $pos + 2 );
+            if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path ) ) &&
+                    is_file( ( $sourceFile = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $orgPath, $pos + 2 ) ) ) ) {
                 $this->generateStaticFile( $targetFile, $sourceFile );
+                $this->staticFileCache->setData( $orgPath, $sourceFile );
             }
         }
 
@@ -194,14 +231,17 @@ class Theme extends \CrazyCat\Framework\Data\Object {
          * Static files in theme
          */
         else {
-            $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path;
-            if ( !is_file( $targetFile ) ) {
-                $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path;
+            if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path ) ) &&
+                    is_file( ( $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path ) ) ) {
                 $this->generateStaticFile( $targetFile, $sourceFile );
+                $this->staticFileCache->setData( $path, $sourceFile );
             }
         }
 
-        return $this->url->getBaseUrl() . 'static/' . $themeArea . '/' . $themeName . '/' . $path;
+        $url = $this->url->getBaseUrl() . 'static/' . $themeArea . '/' . $themeName . '/' . $path;
+        $this->staticUrlCache->setData( ( isset( $orgPath ) ? $orgPath : $path ), $url );
+
+        return $url;
     }
 
 }

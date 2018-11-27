@@ -67,11 +67,6 @@ class Page extends \CrazyCat\Framework\Data\Object {
      */
     private $cssInfo = [ 'files' => [], 'links' => [] ];
 
-    /**
-     * @var array
-     */
-    private $jsInfo = [];
-
     public function __construct( Config $config, Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
     {
         parent::__construct();
@@ -211,14 +206,6 @@ class Page extends \CrazyCat\Framework\Data\Object {
             }
             return $scripts;
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getJsScripts()
-    {
-        return '';
     }
 
     /**
