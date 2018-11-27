@@ -115,4 +115,12 @@ class Manager {
         return session_id();
     }
 
+    /**
+     * @return void
+     */
+    public function destroy()
+    {
+        session_destroy();
+    }
+
 }

@@ -18,6 +18,11 @@ use CrazyCat\Framework\App\ObjectManager;
 abstract class AbstractSession {
 
     /**
+     * @var \CrazyCat\Framework\App\Session\Manager
+     */
+    protected $manager;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     protected $objectManager;
@@ -29,17 +34,18 @@ abstract class AbstractSession {
 
     public function __construct( ObjectManager $objectManager, Manager $manager )
     {
+        $this->manager = $manager;
         $this->objectManager = $objectManager;
         $this->storage = $objectManager->create( Storage::class, [ 'namespace' => static::NAME ] );
 
-        $manager->init();
+        $this->manager->init();
         $this->storage->init();
     }
 
     public function destroy()
     {
-        $_SESSION = [];
-        session_destroy();
+        $this->storage->destroy();
+        $this->manager->destroy();
     }
 
 }

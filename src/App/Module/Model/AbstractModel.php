@@ -43,6 +43,11 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      */
     protected $mainTable;
 
+    /**
+     * @var string
+     */
+    protected $modelName;
+
     public function __construct( EventManager $eventManager, DbManager $dbManager )
     {
         $this->construct();
@@ -53,11 +58,14 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
+     * @param string $modelName
      * @param string $mainTable
+     * @param string $idFieldName
      * @param string $connName
      */
-    protected function init( $mainTable, $idFieldName, $connName = 'default' )
+    protected function init( $modelName, $mainTable, $idFieldName = 'id', $connName = 'default' )
     {
+        $this->modelName = $modelName;
         $this->connName = $connName;
         $this->mainTable = $mainTable;
         $this->idFieldName = $idFieldName;
@@ -86,9 +94,17 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      */
     public function load( $id, $field = null )
     {
+        $this->eventManager->dispatch( 'model_load_before', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_load_before', [ 'model' => $this ] );
+
         $table = $this->conn->getTableName( $this->mainTable );
         $fieldName = ( $field === null ) ? $this->idFieldName : $field;
-        return $this->setData( $this->conn->fetchRow( sprintf( 'SELECT * FROM `%s` WHERE `%s` = ?', $table, $fieldName ), [ $id ] ) );
+        $this->setData( $this->conn->fetchRow( sprintf( 'SELECT * FROM `%s` WHERE `%s` = ?', $table, $fieldName ), [ $id ] ) );
+
+        $this->eventManager->dispatch( 'model_load_after', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_load_after', [ 'model' => $this ] );
+
+        return $this;
     }
 
     /**
@@ -97,6 +113,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     public function save()
     {
         $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_save_before', [ 'model' => $this ] );
 
         if ( $this->getData( $this->idFieldName ) ) {
             $this->conn->update( $this->conn->getTableName( $this->mainTable ), $this->getData(), [ sprintf( '`%s` = ?', $this->idFieldName ) => $this->getData( $this->idFieldName ) ] );
@@ -107,6 +124,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
         }
 
         $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_save_after', [ 'model' => $this ] );
 
         return $this;
     }

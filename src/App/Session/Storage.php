@@ -68,4 +68,12 @@ class Storage {
         $_SESSION[$this->namespace] = [];
     }
 
+    /**
+     * @return void
+     */
+    public function destroy()
+    {
+        $_SESSION = [];
+    }
+
 }
