@@ -247,20 +247,21 @@ class MySql extends AbstractAdapter {
 
     /**
      * @param string $table
-     * @param array $columns [ attribute => value ]  attributes: name, type, length, unsign, null, default
+     * @param array $columns [ attribute => value ]  attributes: name, type, length, unsign, null, default, auto_increment
      * @param array $indexes [ 'columns' => [], 'type' => xxx, 'name' => xxx ]
      * @param array $options [ 'engine' => xxx, 'charset' => xxx ]
      */
     public function createTable( $table, array $columns, array $indexes = [], array $options = [] )
     {
         $sqlColumns = implode( ",\n", array_map( function( $column ) {
-                    $name = $this->getTableName( $column['name'] );
+                    $name = $column['name'];
                     $type = $column['type'];
                     $length = isset( $column['length'] ) ? $column['length'] : '';
                     $unsign = ( isset( $column['unsign'] ) && $column['unsign'] ) ? 'UNSIGNED' : '';
                     $default = isset( $column['default'] ) ? $column['default'] : 'NULL';
-                    $null = ( isset( $column['null'] ) && $column['null'] ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
-                    return sprintf( '`%s` %s(%d) %s %s', $name, $type, $length, $unsign, $null );
+                    $null = ( ( isset( $column['null'] ) && $column['null'] ) || !isset( $column['null'] ) ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
+                    $autoIncrement = ( isset( $column['auto_increment'] ) && $column['auto_increment'] ) ? sprintf( 'AUTO_INCREMENT, PRIMARY KEY (`%s`)', $name ) : '';
+                    return sprintf( '`%s` %s(%d) %s %s %s', $name, $type, $length, $unsign, $null, $autoIncrement );
                 }, $columns ) );
 
         $sqlIndexes = implode( ",\n", array_map( function( $index ) {
