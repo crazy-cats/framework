@@ -115,11 +115,18 @@ class App {
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Translator
+     * @param \Composer\Autoload\ClassLoader $composerLoader
+     * @return array
      */
-    public function getTranslator()
+    private function initComponents( $composerLoader )
     {
-        return $this->translator;
+        set_error_handler( [ $this->errorHandler, 'process' ] );
+        set_exception_handler( [ $this->exceptionHandler, 'process' ] );
+
+        $components = $this->componentSetup->init( $composerLoader, ROOT );
+        $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+
+        return $components;
     }
 
     /**
@@ -132,11 +139,7 @@ class App {
          */
         ini_set( 'date.timezone', 'UTC' );
 
-        set_error_handler( [ $this->errorHandler, 'process' ] );
-        set_exception_handler( [ $this->exceptionHandler, 'process' ] );
-
-        $components = $this->componentSetup->init( $composerLoader, ROOT );
-        $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+        $components = $this->initComponents( $composerLoader );
 
         /**
          * Dependency Injections
@@ -164,6 +167,37 @@ class App {
         if ( $this->request->getModuleName() ) {
             $this->moduleManager->getModule( $this->request->getModuleName() )
                     ->launch( $this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName() );
+        }
+    }
+
+    /**
+     * @param string $composerLoader
+     * @return mixed
+     */
+    public function getStatic( $composerLoader )
+    {
+        $this->initComponents( $composerLoader );
+
+        $path = filter_input( INPUT_GET, 'path' );
+        $pathArr = explode( '/', $path );
+
+        /* @var $theme \CrazyCat\Framework\App\Theme */
+        list( $areaCode, $themeName ) = $pathArr;
+        $theme = $this->objectManager->get( \CrazyCat\Framework\App\Theme\Manager::class )->init()
+                ->getTheme( $areaCode, $themeName );
+
+        /* @var $module \CrazyCat\Framework\App\Module */
+        if ( isset( $pathArr[4] ) && ( $module = $this->objectManager->get( \CrazyCat\Framework\App\Module\Manager::class )
+                ->getModule( $pathArr[2] . '\\' . $pathArr[3] ) ) ) {
+            $staticPath = $module['config']['namespace'] . '::' . substr( $path, strlen( $areaCode ) + strlen( $themeName ) + strlen( $module['config']['namespace'] ) + 3 );
+        }
+        else {
+            $staticPath = substr( $path, strlen( $areaCode ) + strlen( $themeName ) + 2 );
+        }
+
+        if ( ( $filePath = $theme->getStaticPath( $staticPath ) ) ) {
+            $theme->getStaticUrl( $staticPath );
+            readfile( $filePath );
         }
     }
 

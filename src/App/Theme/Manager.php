@@ -72,7 +72,7 @@ class Manager {
     }
 
     /**
-     * @return void
+     * @return $this
      */
     public function init()
     {
@@ -98,11 +98,7 @@ class Manager {
             }
         }
 
-        $themeName = $this->config->getData( $this->area->getCode() )['theme'];
-        if ( !isset( $this->themes[$this->area->getCode()][$themeName] ) ) {
-            throw new \Exception( 'Specified theme does not exist.' );
-        }
-        $this->currentTheme = $this->themes[$this->area->getCode()][$themeName];
+        return $this;
     }
 
     /**
@@ -125,10 +121,31 @@ class Manager {
     }
 
     /**
+     * @return \CrazyCat\Framework\App\Theme
+     */
+    public function getTheme( $areaCode, $themeName )
+    {
+        if ( !isset( $this->themes[$areaCode] ) ) {
+            throw new \Exception( 'Invalidated area code for theme.' );
+        }
+        if ( !isset( $this->themes[$areaCode][$themeName] ) ) {
+            throw new \Exception( 'Specified theme does not exist.' );
+        }
+        return $this->themes[$areaCode][$themeName];
+    }
+
+    /**
      * @return \CrazyCat\Framework\App\Theme|null
      */
     public function getCurrentTheme()
     {
+        if ( $this->currentTheme === null ) {
+            $themeName = $this->config->getData( $this->area->getCode() )['theme'];
+            if ( !isset( $this->themes[$this->area->getCode()][$themeName] ) ) {
+                throw new \Exception( 'Specified theme does not exist.' );
+            }
+            $this->currentTheme = $this->themes[$this->area->getCode()][$themeName];
+        }
         return $this->currentTheme;
     }
 

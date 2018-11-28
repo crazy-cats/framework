@@ -11,7 +11,6 @@
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-use CrazyCat\Framework\App;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Url;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
@@ -24,7 +23,7 @@ use CrazyCat\Framework\App\Translator;
  */
 function __( $text, $variables = [] )
 {
-    return App::getInstance()->getTranslator()->translate( $text, $variables );
+    return ObjectManager::getInstance()->get( Translator::class )->translate( $text, $variables );
 }
 
 /**
