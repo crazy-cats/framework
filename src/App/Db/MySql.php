@@ -247,9 +247,10 @@ class MySql extends AbstractAdapter {
 
     /**
      * @param string $table
-     * @param array $columns [ attribute => value ]  attributes: name, type, length, unsign, null, default, auto_increment
+     * @param array $columns [ [ attribute => value ] ] attributes: name, type, length, unsign, null, default, auto_increment
      * @param array $indexes [ 'columns' => [], 'type' => xxx, 'name' => xxx ]
      * @param array $options [ 'engine' => xxx, 'charset' => xxx ]
+     * @return void
      */
     public function createTable( $table, array $columns, array $indexes = [], array $options = [] )
     {
@@ -285,15 +286,27 @@ class MySql extends AbstractAdapter {
         }
     }
 
+    /**
+     * @param string $table
+     * @param array $column [ attribute => value ]  attributes: name, type, length, unsign, null, default, auto_increment
+     * @return void
+     */
     public function addColumn( $table, $column )
     {
-        $name = $this->getTableName( $column['name'] );
+        $name = $column['name'];
         $type = $column['type'];
         $length = isset( $column['length'] ) ? $column['length'] : '';
         $unsign = ( isset( $column['unsign'] ) && $column['unsign'] ) ? 'UNSIGNED' : '';
         $default = isset( $column['default'] ) ? $column['default'] : 'NULL';
-        $null = ( isset( $column['null'] ) && $column['null'] ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
-        sprintf( "ALTER TABLE `%s` ADD `%s` %s(%d) NULL DEFAULT NULL COMMENT 'test';", $table, $name, $type, $length );
+        $null = ( ( isset( $column['null'] ) && $column['null'] ) || !isset( $column['null'] ) ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
+        $comment = (!empty( $column['comment'] ) ) ? sprintf( 'COMMENT \'%s\'', $column['comment'] ) : '';
+
+        $sql = sprintf( 'ALTER TABLE `%s` ADD `%s` %s(%d) %s %s %s %s;', $this->getTableName( $table ), $name, $type, $length, $unsign, $null, $comment );
+        $statement = $this->pdo->prepare( $sql );
+        if ( !$statement->execute() ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
     }
 
     /**

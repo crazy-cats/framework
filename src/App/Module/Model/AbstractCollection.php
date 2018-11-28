@@ -34,16 +34,6 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     protected $connName = 'default';
 
     /**
-     * @var string[]
-     */
-    protected $fields = [];
-
-    /**
-     * @var array
-     */
-    protected $conditions = [];
-
-    /**
      * @var string
      */
     protected $idFieldName;
@@ -57,6 +47,31 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
      * @var string
      */
     protected $modelClass;
+
+    /**
+     * @var string[]
+     */
+    protected $fields = [];
+
+    /**
+     * @var array
+     */
+    protected $conditions = [];
+
+    /**
+     * @var array
+     */
+    protected $sortOrders = [];
+
+    /**
+     * @var int
+     */
+    protected $currentPage = 1;
+
+    /**
+     * @var int
+     */
+    protected $pageSize;
 
     /**
      * @var array
@@ -147,6 +162,57 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         foreach ( $condition as $a => $value ) {
             $this->conditions[$field][$a] = $value;
         }
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param array $dir
+     * @return $this
+     */
+    public function addOrder( $field, $dir = 'ASC' )
+    {
+        if ( isset( $this->sortOrders[$field] ) ) {
+            unset( $this->sortOrders[$field] );
+        }
+        $this->sortOrders[$field] = $field . ' ' . $dir;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPageSize()
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @param int $size
+     * @return $this
+     */
+    public function setPageSize( $size )
+    {
+        $this->pageSize = $size;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCurrentPage()
+    {
+        return $this->currentPage;
+    }
+
+    /**
+     * @param int $page
+     * @return $this
+     */
+    public function setCurrentPage( $page )
+    {
+        $this->currentPage = $page;
+        return $this;
     }
 
     /**
@@ -163,7 +229,9 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $txtConditions .= ' AND ' . $andSql;
             $binds = array_merge( $binds, $andBinds );
         }
-        foreach ( $this->conn->fetchAll( sprintf( 'SELECT `%s`, %s FROM `%s` WHERE 1=1 `%s`', $this->idFieldName, $fields, $table, $conditions ), $binds ) as $itemData ) {
+        $sortOrders = empty( $this->sortOrders ) ? '' : implode( ', ', sortOrders );
+        $limitation = $this->pageSize ? ( $this->pageSize * ( $this->currentPage - 1 ) . ', ' . $this->pageSize ) : '';
+        foreach ( $this->conn->fetchAll( sprintf( 'SELECT `%s`, %s FROM `%s` WHERE 1=1 `%s` %s %s', $this->idFieldName, $fields, $table, $conditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
         }
         return $this;
