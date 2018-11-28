@@ -74,6 +74,11 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     protected $pageSize;
 
     /**
+     * @var boolean
+     */
+    protected $loaded = false;
+
+    /**
      * @var array
      */
     protected $keyMap = [
@@ -220,7 +225,19 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
      */
     public function load()
     {
-        $fields = empty( $this->fields ) ? '*' : ( '`' . implode( '`, `', $this->fields ) . '`' );
+        if ( $this->loaded ) {
+            return $this;
+        }
+
+        if ( empty( $this->fields ) ) {
+            $fields = '*';
+        }
+        else {
+            if ( !in_array( $this->idFieldName, $this->fields ) ) {
+                array_unshift( $this->fields, $this->idFieldName );
+            }
+            $fields = '`' . implode( '`, `', $this->fields ) . '`';
+        }
         $table = $this->conn->getTableName( $this->mainTable );
         $txtConditions = '';
         $binds = [];
@@ -231,10 +248,29 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         }
         $sortOrders = empty( $this->sortOrders ) ? '' : implode( ', ', sortOrders );
         $limitation = $this->pageSize ? ( $this->pageSize * ( $this->currentPage - 1 ) . ', ' . $this->pageSize ) : '';
-        foreach ( $this->conn->fetchAll( sprintf( 'SELECT `%s`, %s FROM `%s` WHERE 1=1 `%s` %s %s', $this->idFieldName, $fields, $table, $conditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
+        foreach ( $this->conn->fetchAll( sprintf( 'SELECT %s FROM `%s` WHERE 1=1 %s %s %s', $fields, $table, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
         }
+        $this->loaded = true;
         return $this;
+    }
+
+    /**
+     * @return \Traversable
+     */
+    public function getIterator()
+    {
+        $this->load();
+        return parent::getIterator();
+    }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        $this->load();
+        return parent::count();
     }
 
     abstract protected function construct();

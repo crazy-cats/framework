@@ -48,13 +48,13 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      */
     protected $modelName;
 
-    public function __construct( EventManager $eventManager, DbManager $dbManager )
+    public function __construct( EventManager $eventManager, DbManager $dbManager, array $data = [] )
     {
         $this->construct();
         $this->conn = $dbManager->getConnection( $this->connName );
         $this->eventManager = $eventManager;
 
-        parent::__construct();
+        parent::__construct( $data );
     }
 
     /**
