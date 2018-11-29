@@ -196,7 +196,7 @@ class App {
         }
 
         if ( ( $filePath = $theme->getStaticPath( $staticPath ) ) ) {
-            $theme->getStaticUrl( $staticPath );
+            $theme->generateStaticFile( $areaCode, $themeName, $staticPath );
             readfile( $filePath );
         }
     }

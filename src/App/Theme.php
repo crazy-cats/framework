@@ -159,7 +159,7 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      * @param string $targetFile
      * @param string $sourceFile
      */
-    private function generateStaticFile( $targetFile, $sourceFile )
+    private function generateSymlink( $targetFile, $sourceFile )
     {
         if ( is_file( $sourceFile ) ) {
             $targetDir = dirname( $targetFile );
@@ -201,6 +201,40 @@ class Theme extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
+     * @param string $themeArea
+     * @param string $themeName
+     * @param string $path
+     * @return array
+     */
+    public function generateStaticFile( $themeArea, $themeName, $path )
+    {
+        /**
+         * Static files in module
+         */
+        if ( ( $pos = strpos( $path, '::' ) ) !== false &&
+                ( $module = $this->moduleManager->getModule( trim( substr( $path, 0, $pos ) ) ) ) ) {
+            $relatedFilePath = str_replace( [ '\\', '::' ], '/', $path );
+            if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath ) ) &&
+                    is_file( ( $sourceFile = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $path, $pos + 2 ) ) ) ) {
+                $this->generateSymlink( $targetFile, $sourceFile );
+            }
+        }
+
+        /**
+         * Static files in theme
+         */
+        else {
+            $relatedFilePath = $path;
+            if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath ) ) &&
+                    is_file( ( $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $relatedFilePath ) ) ) {
+                $this->generateSymlink( $targetFile, $sourceFile );
+            }
+        }
+
+        return [ $relatedFilePath, $sourceFile ];
+    }
+
+    /**
      * @param string $path
      * @return string
      */
@@ -213,33 +247,11 @@ class Theme extends \CrazyCat\Framework\Data\Object {
         $themeArea = $this->getData( 'config' )['area'];
         $themeName = $this->getData( 'name' );
 
-        /**
-         * Static files in module
-         */
-        if ( ( $pos = strpos( $path, '::' ) ) !== false &&
-                ( $module = $this->moduleManager->getModule( trim( substr( $path, 0, $pos ) ) ) ) ) {
-            $orgPath = $path;
-            $path = str_replace( [ '\\', '::' ], '/', $path );
-            if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path ) ) &&
-                    is_file( ( $sourceFile = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $orgPath, $pos + 2 ) ) ) ) {
-                $this->generateStaticFile( $targetFile, $sourceFile );
-                $this->staticFileCache->setData( $orgPath, $sourceFile );
-            }
-        }
+        list( $relatedFilePath, $sourceFile ) = $this->generateStaticFile( $themeArea, $themeName, $path );
+        $url = $this->url->getBaseUrl() . 'static/' . $themeArea . '/' . $themeName . '/' . $relatedFilePath;
 
-        /**
-         * Static files in theme
-         */
-        else {
-            if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $path ) ) &&
-                    is_file( ( $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $path ) ) ) {
-                $this->generateStaticFile( $targetFile, $sourceFile );
-                $this->staticFileCache->setData( $path, $sourceFile );
-            }
-        }
-
-        $url = $this->url->getBaseUrl() . 'static/' . $themeArea . '/' . $themeName . '/' . $path;
-        $this->staticUrlCache->setData( ( isset( $orgPath ) ? $orgPath : $path ), $url );
+        $this->staticFileCache->setData( $path, $sourceFile );
+        $this->staticUrlCache->setData( $path, $url );
 
         return $url;
     }
