@@ -50,10 +50,9 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     public function execute()
     {
-        $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
+        parent::execute();
 
         list( $input, $output ) = func_get_args();
-
         $this->run( $input, $output );
     }
 

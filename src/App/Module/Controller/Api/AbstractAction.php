@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\ObjectManager;
@@ -29,9 +30,9 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     protected $response;
 
-    public function __construct( Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $eventManager, $objectManager );
+        parent::__construct( $area, $eventManager, $objectManager );
 
         $this->request = $request;
         $this->response = $request->getResponse();
@@ -42,7 +43,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     public function execute()
     {
-        $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
+        parent::execute();
 
         if ( !( $auth = $this->request->getHeader( 'Authorization' ) ) ) {
             throw new \Exception( 'You do not have permission to access the resource.' );

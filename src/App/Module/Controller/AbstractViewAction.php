@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Module\Controller;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Io\Http\Response;
@@ -73,9 +74,9 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     protected $metaRobots;
 
-    public function __construct( Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $eventManager, $objectManager );
+        parent::__construct( $area, $eventManager, $objectManager );
 
         $this->request = $request;
         $this->response = $request->getResponse();
@@ -193,9 +194,11 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     public function execute()
     {
-        $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
+        parent::execute();
+
         $this->themeManager->init();
         $this->run();
+
         $this->response->send();
     }
 
