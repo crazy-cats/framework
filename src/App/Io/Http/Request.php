@@ -295,6 +295,19 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     }
 
     /**
+     * @param string $separator
+     * @return string
+     */
+    public function getFullPath( $separator = '_' )
+    {
+        return $this->getRouteName() .
+                $separator .
+                $this->getControllerName() .
+                $separator .
+                $this->getActionName();
+    }
+
+    /**
      * @return \CrazyCat\Framework\App\Io\Http\Response
      */
     public function getResponse()

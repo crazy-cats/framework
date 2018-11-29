@@ -110,7 +110,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
         }
 
         if ( !empty( $data['config']['events'] ) ) {
-            $this->assignEvents( $data );
+            $this->assignEvents( $data['config']['events'] );
         }
 
         return $data;

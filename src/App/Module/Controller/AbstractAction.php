@@ -48,7 +48,7 @@ abstract class AbstractAction {
     {
         $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
         $this->eventManager->dispatch( sprintf( '%s_controller_execute_before', $this->area->getCode() ), [ 'action' => $this ] );
-        $this->eventManager->dispatch( sprintf( '%s_%s_%s_execute_before', $this->request->getRouteName(), $this->request->getControllerName(), $this->request->getActionName() ), [ 'action' => $this ] );
+        $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
     }
 
 }

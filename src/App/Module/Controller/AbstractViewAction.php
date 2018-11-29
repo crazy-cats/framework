@@ -74,6 +74,11 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     protected $metaRobots;
 
+    /**
+     * @var boolean
+     */
+    protected $skipRunning = false;
+
     public function __construct( Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $area, $eventManager, $objectManager );
@@ -184,9 +189,18 @@ abstract class AbstractViewAction extends AbstractAction {
      * @param array $params
      * @return void
      */
-    protected function redirect( $path, $params = [] )
+    public function redirect( $path, $params = [] )
     {
         $this->response->setType( Response::TYPE_REDIRECT )->setData( $this->url->getUrl( $path, $params ) );
+    }
+
+    /**
+     * @return $this
+     */
+    public function skipRunning()
+    {
+        $this->skipRunning = true;
+        return $this;
     }
 
     /**
@@ -196,8 +210,10 @@ abstract class AbstractViewAction extends AbstractAction {
     {
         parent::execute();
 
-        $this->themeManager->init();
-        $this->run();
+        if ( !$this->skipRunning ) {
+            $this->themeManager->init();
+            $this->run();
+        }
 
         $this->response->send();
     }

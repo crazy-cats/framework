@@ -180,15 +180,12 @@ class Page extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
+     * @param string $separator
      * @return string
      */
     public function getLayoutName( $separator = '_' )
     {
-        return $this->request->getRouteName() .
-                $separator .
-                $this->request->getControllerName() .
-                $separator .
-                $this->request->getActionName();
+        return $this->request->getFullPath( $separator );
     }
 
     /**
