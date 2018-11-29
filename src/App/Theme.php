@@ -204,7 +204,7 @@ class Theme extends \CrazyCat\Framework\Data\Object {
      * @param string $themeArea
      * @param string $themeName
      * @param string $path
-     * @return array
+     * @return string
      */
     public function generateStaticFile( $themeArea, $themeName, $path )
     {
@@ -217,6 +217,7 @@ class Theme extends \CrazyCat\Framework\Data\Object {
             if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath ) ) &&
                     is_file( ( $sourceFile = $module->getData( 'dir' ) . DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr( $path, $pos + 2 ) ) ) ) {
                 $this->generateSymlink( $targetFile, $sourceFile );
+                $this->staticFileCache->setData( $path, $sourceFile );
             }
         }
 
@@ -228,10 +229,11 @@ class Theme extends \CrazyCat\Framework\Data\Object {
             if ( !is_file( ( $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath ) ) &&
                     is_file( ( $sourceFile = $this->getData( 'dir' ) . DS . 'view' . DS . 'web' . DS . $relatedFilePath ) ) ) {
                 $this->generateSymlink( $targetFile, $sourceFile );
+                $this->staticFileCache->setData( $path, $sourceFile );
             }
         }
 
-        return [ $relatedFilePath, $sourceFile ];
+        return $relatedFilePath;
     }
 
     /**
@@ -247,10 +249,8 @@ class Theme extends \CrazyCat\Framework\Data\Object {
         $themeArea = $this->getData( 'config' )['area'];
         $themeName = $this->getData( 'name' );
 
-        list( $relatedFilePath, $sourceFile ) = $this->generateStaticFile( $themeArea, $themeName, $path );
+        $relatedFilePath = $this->generateStaticFile( $themeArea, $themeName, $path );
         $url = $this->url->getBaseUrl() . 'static/' . $themeArea . '/' . $themeName . '/' . $relatedFilePath;
-
-        $this->staticFileCache->setData( $path, $sourceFile );
         $this->staticUrlCache->setData( $path, $url );
 
         return $url;
