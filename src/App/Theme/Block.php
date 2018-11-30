@@ -7,11 +7,6 @@
 
 namespace CrazyCat\Framework\App\Theme;
 
-use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Module\Manager as ModuleManager;
-use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
-
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -24,6 +19,11 @@ class Block extends \CrazyCat\Framework\Data\Object {
      * @var \CrazyCat\Framework\App\Area
      */
     protected $area;
+
+    /**
+     * @var \CrazyCat\Framework\App\Cache\Factory
+     */
+    protected $cacheFactory;
 
     /**
      * @var \CrazyCat\Framework\App\EventManager
@@ -45,18 +45,29 @@ class Block extends \CrazyCat\Framework\Data\Object {
      */
     protected $template;
 
-    public function __construct( Area $area, ModuleManager $moduleManager, ThemeManager $themeManager, EventManager $eventManager, array $data = [] )
+    public function __construct( Block\Context $context, array $data = [] )
     {
         parent::__construct( $data );
 
-        $this->area = $area;
-        $this->eventManager = $eventManager;
-        $this->moduleManager = $moduleManager;
-        $this->themeManager = $themeManager;
+        $this->area = $context->getArea();
+        $this->cacheFactory = $context->getCacheFactory();
+        $this->eventManager = $context->getEventManager();
+        $this->moduleManager = $context->getModuleManager();
+        $this->themeManager = $context->getThemeManager();
 
         if ( !empty( $data['template'] ) ) {
             $this->template = $data['template'];
         }
+
+        $this->init();
+    }
+
+    /**
+     * @return void
+     */
+    protected function init()
+    {
+        
     }
 
     /**
