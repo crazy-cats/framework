@@ -7,10 +7,6 @@
 
 namespace CrazyCat\Framework\App\Module\Controller;
 
-use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\ObjectManager;
-
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -34,11 +30,11 @@ abstract class AbstractAction {
      */
     protected $objectManager;
 
-    public function __construct( Area $area, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Context $context )
     {
-        $this->area = $area;
-        $this->eventManager = $eventManager;
-        $this->objectManager = $objectManager;
+        $this->area = $context->getArea();
+        $this->eventManager = $context->getEventManager();
+        $this->objectManager = $context->getObjectManager();
     }
 
     /**
@@ -48,7 +44,6 @@ abstract class AbstractAction {
     {
         $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
         $this->eventManager->dispatch( sprintf( '%s_controller_execute_before', $this->area->getCode() ), [ 'action' => $this ] );
-        $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
     }
 
 }

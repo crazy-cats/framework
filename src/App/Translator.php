@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App;
 
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
@@ -21,6 +22,7 @@ class Translator {
 
     const CACHE_LANG_NAME = 'languages';
     const CACHE_TRANSLATIONS_NAME = 'translations';
+    const REQUEST_KEY = 'lang';
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -55,18 +57,19 @@ class Translator {
     /**
      * @var string
      */
-    private $langCode = 'en_US';
+    private $langCode;
 
     /**
      * @var array
      */
     private $langPackages = [];
 
-    public function __construct( Area $area, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager )
+    public function __construct( Config $config, Area $area, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager )
     {
         $this->area = $area;
         $this->cache = $cacheFactory->create( self::CACHE_LANG_NAME );
         $this->cacheFactory = $cacheFactory;
+        $this->langCode = $config[$area->getCode()] ? $config[$area->getCode()]['lang'] : $config[Area::CODE_GLOBAL]['lang'];
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
     }
@@ -146,11 +149,19 @@ class Translator {
      */
     public function setLangCode( $langCode )
     {
-        if ( isset( $this->langPackages[$langCode] ) ) {
-            $this->langCode = $langCode;
+        if ( !isset( $this->langPackages[$langCode] ) ) {
+            throw new \Exception( 'Specified language package does not exist.' );
         }
-
+        $this->langCode = $langCode;
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLanguages()
+    {
+        return $this->langPackages;
     }
 
     /**
@@ -163,7 +174,8 @@ class Translator {
                 $config = require $language['dir'] . DS . 'config.php';
                 $this->langPackages[$config['code']] = [
                     'dir' => $language['dir'],
-                    'code' => $config['code']
+                    'code' => $config['code'],
+                    'name' => $config['name']
                 ];
             }
             $this->cache->setData( $this->langPackages )->save();

@@ -7,14 +7,8 @@
 
 namespace CrazyCat\Framework\App\Module\Controller;
 
-use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Io\Http\Response;
-use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Session\Messenger;
-use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
-use CrazyCat\Framework\App\Url;
+use CrazyCat\Framework\App\Translator;
 
 /**
  * @category CrazyCat
@@ -23,6 +17,11 @@ use CrazyCat\Framework\App\Url;
  * @link http://crazy-cat.co
  */
 abstract class AbstractViewAction extends AbstractAction {
+
+    /**
+     * @var \CrazyCat\Framework\App\Cookies
+     */
+    protected $cookies;
 
     /**
      * @var \CrazyCat\Framework\App\Io\Http\Request
@@ -43,6 +42,11 @@ abstract class AbstractViewAction extends AbstractAction {
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
+
+    /**
+     * @var \CrazyCat\Framework\App\Translator
+     */
+    protected $translator;
 
     /**
      * @var \CrazyCat\Framework\App\Url
@@ -79,15 +83,17 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     protected $skipRunning = false;
 
-    public function __construct( Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( ViewContext $context )
     {
-        parent::__construct( $area, $eventManager, $objectManager );
+        parent::__construct( $context );
 
-        $this->request = $request;
-        $this->response = $request->getResponse();
-        $this->messenger = $messenger;
-        $this->themeManager = $themeManager;
-        $this->url = $url;
+        $this->cookies = $context->getCookies();
+        $this->request = $context->getRequest();
+        $this->response = $context->getResponse();
+        $this->messenger = $context->getMessenger();
+        $this->themeManager = $context->getThemeManager();
+        $this->translator = $context->getTranslator();
+        $this->url = $context->getUrl();
     }
 
     /**
@@ -208,7 +214,16 @@ abstract class AbstractViewAction extends AbstractAction {
      */
     public function execute()
     {
+        if ( ( $langCode = $this->request->getParam( Translator::REQUEST_KEY ) ) ) {
+            $this->translator->setLangCode( $langCode );
+            $this->cookies->setData( Translator::REQUEST_KEY, $langCode );
+        }
+        elseif ( ( $langCode = $this->cookies->getData( Translator::REQUEST_KEY ) ) ) {
+            $this->translator->setLangCode( $langCode );
+        }
+
         parent::execute();
+        $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
 
         if ( !$this->skipRunning ) {
             $this->themeManager->init();

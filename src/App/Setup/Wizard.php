@@ -80,6 +80,7 @@ class Wizard {
                         'prefix' => ''
                     ]
                 ],
+                'lang' => 'en_US',
                 'production_mode' => false
             ],
             'api' => [
@@ -87,6 +88,7 @@ class Wizard {
             ],
             'backend' => [
                 'route' => null,
+                'lang' => 'en_US',
                 'theme' => 'default',
                 'merge_css' => false,
                 'cookies' => [
@@ -94,6 +96,7 @@ class Wizard {
                 ]
             ],
             'frontend' => [
+                'lang' => 'en_US',
                 'theme' => 'default',
                 'merge_css' => false,
                 'cookies' => [

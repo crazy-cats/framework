@@ -7,11 +7,6 @@
 
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
-use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Io\Http\Request;
-use CrazyCat\Framework\App\ObjectManager;
-
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -30,12 +25,12 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     protected $response;
 
-    public function __construct( Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Context $context )
     {
-        parent::__construct( $area, $eventManager, $objectManager );
+        parent::__construct( $context );
 
-        $this->request = $request;
-        $this->response = $request->getResponse();
+        $this->request = $context->getRequest();
+        $this->response = $context->getResponse();
     }
 
     /**

@@ -80,8 +80,8 @@ class Theme extends \CrazyCat\Framework\Data\Object {
 
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
-        $this->staticFileCache = $cacheFactory->create( self::CACHE_STATIC_FILE_NAME );
-        $this->staticUrlCache = $cacheFactory->create( self::CACHE_STATIC_URL_NAME );
+        $this->staticFileCache = $cacheFactory->create( $this->getData( 'config' )['area'] . '_' . self::CACHE_STATIC_FILE_NAME );
+        $this->staticUrlCache = $cacheFactory->create( $this->getData( 'config' )['area'] . '_' . self::CACHE_STATIC_URL_NAME );
         $this->url = $url;
 
         register_shutdown_function( [ $this->staticFileCache, 'save' ] );
