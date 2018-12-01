@@ -16,7 +16,7 @@ namespace CrazyCat\Framework\Data;
 class Collection implements \IteratorAggregate, \Countable {
 
     /**
-     * @var array
+     * @var \CrazyCat\Framework\Data\Object[]
      */
     protected $items = [];
 
@@ -34,6 +34,18 @@ class Collection implements \IteratorAggregate, \Countable {
     public function count()
     {
         return count( $this->items );
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $array = [];
+        foreach ( $this->items as $item ) {
+            $array[] = $item->toArray();
+        }
+        return $array;
     }
 
 }

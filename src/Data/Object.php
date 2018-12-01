@@ -45,6 +45,37 @@ class Object implements \ArrayAccess {
     }
 
     /**
+     * @param array|null $data
+     * @param array $objectHashs
+     * @return array
+     */
+    private function debug( $data = null, &$objectHashs = [] )
+    {
+        if ( $data === null ) {
+            $hash = spl_object_hash( $this );
+            if ( isset( $objectHashs[$hash] ) ) {
+                return '--- RECURSION ---';
+            }
+            $objectHashs[$hash] = true;
+            $data = $this->getData();
+        }
+
+        $result = [];
+        foreach ( $data as $key => $value ) {
+            if ( is_scalar( $value ) ) { // numeric, string, boolean etc.
+                $result[sprintf( '%s (%s)', $key, gettype( $value ) )] = $value;
+            }
+            elseif ( $value instanceof Object ) {
+                $result[sprintf( '%s (%s)', $key, get_class( $value ) )] = $value->debug( null, $objectHashs );
+            }
+            elseif ( is_array( $value ) ) {
+                $result[$key] = $this->debug( $data, $objectHashs );
+            }
+        }
+        return $result;
+    }
+
+    /**
      * @param string $method
      * @param array $args
      * @return mixed
@@ -163,37 +194,6 @@ class Object implements \ArrayAccess {
     }
 
     /**
-     * @param array|null $data
-     * @param array $objectHashs
-     * @return array
-     */
-    public function debug( $data = null, &$objectHashs = [] )
-    {
-        if ( $data === null ) {
-            $hash = spl_object_hash( $this );
-            if ( isset( $objectHashs[$hash] ) ) {
-                return '--- RECURSION ---';
-            }
-            $objectHashs[$hash] = true;
-            $data = $this->getData();
-        }
-
-        $result = [];
-        foreach ( $data as $key => $value ) {
-            if ( is_scalar( $value ) ) { // numeric, string, boolean etc.
-                $result[sprintf( '%s (%s)', $key, gettype( $value ) )] = $value;
-            }
-            elseif ( $value instanceof Object ) {
-                $result[sprintf( '%s (%s)', $key, get_class( $value ) )] = $value->debug( null, $objectHashs );
-            }
-            elseif ( is_array( $value ) ) {
-                $result[$key] = $this->debug( $data, $objectHashs );
-            }
-        }
-        return $result;
-    }
-
-    /**
      * @param array $data
      * @return string
      */
@@ -233,11 +233,50 @@ class Object implements \ArrayAccess {
     }
 
     /**
+     * @param array|null $data
+     * @return array
+     */
+    public function toArray( $data = null )
+    {
+        if ( $data === null ) {
+            $data = $this->getData();
+        }
+
+        $array = [];
+        foreach ( $data as $key => $value ) {
+            switch ( strtolower( gettype( $value ) ) ) {
+
+                case 'integer' :
+                case 'double' :
+                case 'string' :
+                case 'null' :
+                case 'boolean' :
+                    $array[$key] = $value;
+                    break;
+
+                case 'array' :
+                    $array[$key] = $this->toArray( $value );
+                    break;
+            }
+        }
+
+        return $array;
+    }
+
+    /**
      * @return string
      */
     public function __toString()
     {
         return $this->toString( $this->getData() );
+    }
+
+    /**
+     * @return array
+     */
+    public function __debuginfo()
+    {
+        return $this->debug();
     }
 
 }

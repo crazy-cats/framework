@@ -273,5 +273,23 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         return parent::count();
     }
 
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $this->load();
+
+        $itemArr = [];
+        foreach ( $this->items as $item ) {
+            $itemArr[] = $item->toArray();
+        }
+
+        return [
+            'count' => '',
+            'items' => $itemArr
+        ];
+    }
+
     abstract protected function construct();
 }
