@@ -274,6 +274,22 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     }
 
     /**
+     * @return int
+     */
+    public function getSize()
+    {
+        $table = $this->conn->getTableName( $this->mainTable );
+        $txtConditions = '';
+        $binds = [];
+        foreach ( $this->conditions as $field => $conditions ) {
+            list( $andSql, $andBinds ) = $this->parseConditions( $field, $conditions );
+            $txtConditions .= ' AND ' . $andSql;
+            $binds = array_merge( $binds, $andBinds );
+        }
+        return $this->conn->fetchOne( sprintf( 'SELECT COUNT(*) FROM `%s` WHERE 1=1 %s', $table, $txtConditions ), $binds );
+    }
+
+    /**
      * @return array
      */
     public function toArray()
@@ -286,7 +302,9 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         }
 
         return [
-            'count' => '',
+            'total' => $this->getSize(),
+            'pageSize' => $this->pageSize,
+            'currentPage' => $this->currentPage,
             'items' => $itemArr
         ];
     }
