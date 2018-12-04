@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\ObjectManager;
@@ -30,9 +31,9 @@ class Context extends \CrazyCat\Framework\App\Module\Controller\Context {
      */
     protected $response;
 
-    public function __construct( Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Request $request, Area $area, Config $config, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $area, $eventManager, $objectManager );
+        parent::__construct( $area, $config, $eventManager, $objectManager );
 
         $this->request = $request;
         $this->response = $request->getResponse();

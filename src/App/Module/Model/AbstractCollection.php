@@ -309,5 +309,8 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         ];
     }
 
+    /**
+     * @return void
+     */
     abstract protected function construct();
 }

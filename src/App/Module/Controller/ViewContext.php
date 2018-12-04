@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Controller;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Cookies;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Io\Http\Request;
@@ -60,9 +61,9 @@ class ViewContext extends Context {
      */
     protected $url;
 
-    public function __construct( Translator $translator, Cookies $cookies, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Translator $translator, Cookies $cookies, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, Config $config, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $area, $eventManager, $objectManager );
+        parent::__construct( $area, $config, $eventManager, $objectManager );
 
         $this->cookies = $cookies;
         $this->messenger = $messenger;

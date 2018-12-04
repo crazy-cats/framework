@@ -21,6 +21,11 @@ abstract class AbstractAction {
     protected $area;
 
     /**
+     * @var \CrazyCat\Framework\App\Config
+     */
+    protected $config;
+
+    /**
      * @var \CrazyCat\Framework\App\EventManager
      */
     protected $eventManager;
@@ -33,6 +38,7 @@ abstract class AbstractAction {
     public function __construct( Context $context )
     {
         $this->area = $context->getArea();
+        $this->config = $context->getConfig();
         $this->eventManager = $context->getEventManager();
         $this->objectManager = $context->getObjectManager();
     }

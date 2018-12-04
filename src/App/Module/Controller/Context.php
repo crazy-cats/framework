@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Controller;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\ObjectManager;
 
@@ -25,6 +26,11 @@ class Context {
     protected $area;
 
     /**
+     * @var \CrazyCat\Framework\App\Config
+     */
+    protected $config;
+
+    /**
      * @var \CrazyCat\Framework\App\EventManager
      */
     protected $eventManager;
@@ -34,9 +40,10 @@ class Context {
      */
     protected $objectManager;
 
-    public function __construct( Area $area, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Area $area, Config $config, EventManager $eventManager, ObjectManager $objectManager )
     {
         $this->area = $area;
+        $this->config = $config;
         $this->eventManager = $eventManager;
         $this->objectManager = $objectManager;
     }
@@ -47,6 +54,14 @@ class Context {
     public function getArea()
     {
         return $this->area;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /**
