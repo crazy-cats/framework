@@ -63,7 +63,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
-            throw new \Exception( $errorInfo );
+            throw new \Exception( sprintf( "%s\nSQL is %s", $errorInfo, $sql ) );
         }
         return $statement->fetchAll( \PDO::FETCH_ASSOC );
     }
@@ -78,7 +78,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
-            throw new \Exception( $errorInfo );
+            throw new \Exception( sprintf( "%s\nSQL is %s", $errorInfo, $sql ) );
         }
         $data = [];
         while ( list( $key, $value ) = $statement->fetch( \PDO::FETCH_NUM ) ) {
@@ -97,7 +97,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
-            throw new \Exception( $errorInfo );
+            throw new \Exception( sprintf( "%s\nSQL is %s", $errorInfo, $sql ) );
         }
         $data = [];
         while ( ( $row = $statement->fetchColumn() ) ) {
@@ -116,7 +116,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
-            throw new \Exception( $errorInfo );
+            throw new \Exception( sprintf( "%s\nSQL is %s", $errorInfo, $sql ) );
         }
         return $statement->fetch( \PDO::FETCH_ASSOC );
     }
@@ -131,7 +131,7 @@ class MySql extends AbstractAdapter {
         $statement = $this->pdo->prepare( $sql );
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
-            throw new \Exception( $errorInfo );
+            throw new \Exception( sprintf( "%s\nSQL is %s", $errorInfo, $sql ) );
         }
         return $statement->fetchColumn();
     }
