@@ -198,7 +198,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
      */
     public function setPageSize( $size )
     {
-        $this->pageSize = $size;
+        $this->pageSize = (int) $size;
         return $this;
     }
 
@@ -216,7 +216,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
      */
     public function setCurrentPage( $page )
     {
-        $this->currentPage = $page;
+        $this->currentPage = (int) $page;
         return $this;
     }
 
@@ -286,7 +286,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $txtConditions .= ' AND ' . $andSql;
             $binds = array_merge( $binds, $andBinds );
         }
-        return $this->conn->fetchOne( sprintf( 'SELECT COUNT(*) FROM `%s` WHERE 1=1 %s', $table, $txtConditions ), $binds );
+        return (int) $this->conn->fetchOne( sprintf( 'SELECT COUNT(*) FROM `%s` WHERE 1=1 %s', $table, $txtConditions ), $binds );
     }
 
     /**
