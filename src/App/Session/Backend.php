@@ -17,4 +17,22 @@ class Backend extends AbstractSession {
 
     const NAME = 'backend';
 
+    /**
+     * @return array|null
+     */
+    public function getGridBookmarks()
+    {
+        return $this->storage->getData( 'grid_bookmarks' );
+    }
+
+    /**
+     * @param array $bookmarks
+     * @return $this
+     */
+    public function setGridBookmarks( array $bookmarks )
+    {
+        $this->storage->setData( 'grid_bookmarks', $bookmarks );
+        return $this;
+    }
+
 }
