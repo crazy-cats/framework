@@ -23,7 +23,7 @@ abstract class AbstractGridAction extends AbstractAction {
     const DEFAULT_PAGE_SIZE = 20;
 
     /**
-     * @var \CrazyCat\Admin\Block\AbstractGrid
+     * @var \CrazyCat\Framework\App\Module\Block\Backend\AbstractGrid
      */
     protected $block;
 
@@ -49,10 +49,15 @@ abstract class AbstractGridAction extends AbstractAction {
     }
 
     /**
-     * @return void
+     * @param array|null $filters
+     * @return array
      */
     protected function addFilters( $filters )
     {
+        if ( empty( $filters ) ) {
+            return [];
+        }
+
         foreach ( $this->block->getFields() as $field ) {
             switch ( $field['filter']['type'] ) {
 
@@ -72,13 +77,26 @@ abstract class AbstractGridAction extends AbstractAction {
     }
 
     /**
-     * @return void
+     * @param string|null $sorting
+     * @return array
      */
     protected function addSorting( $sorting )
     {
-        list( $fieldName, $dir ) = explode( ',', $sorting );
-
-        $this->collection->addOrder( $fieldName, $dir );
+        $sortings = $this->block->getSortings();
+        if ( !empty( $sorting ) ) {
+            list( $fieldName, $dir ) = explode( ',', $sorting );
+            foreach ( $sortings as $k => $sorting ) {
+                if ( $sorting['field'] == $fieldName ) {
+                    unset( $sortings[$k] );
+                    break;
+                }
+            }
+            array_unshift( $sortings, [ 'field' => $fieldName, 'dir' => $dir ] );
+        }
+        foreach ( $sortings as $sorting ) {
+            $this->collection->addOrder( $sorting['field'], $sorting['dir'] );
+        }
+        return $sortings;
     }
 
     /**
@@ -86,13 +104,10 @@ abstract class AbstractGridAction extends AbstractAction {
      */
     protected function run()
     {
-        if ( !empty( $filters = $this->request->getParam( 'filter' ) ) ) {
-            $this->addFilters( $filters );
-        }
-
-        if ( !empty( $sorting = $this->request->getParam( 'sorting' ) ) ) {
-            $this->addSorting( $sorting );
-        }
+        $this->session->setGridBookmarks( [
+            AbstractGrid::BOOKMARK_FILTER => $this->addFilters( $this->request->getParam( 'filter' ) ),
+            AbstractGrid::BOOKMARK_SORTING => $this->addSorting( $this->request->getParam( 'sorting' ) )
+        ] );
 
         $this->collection->setPageSize( $this->request->getParam( 'limit' ) ?: self::DEFAULT_PAGE_SIZE  );
 

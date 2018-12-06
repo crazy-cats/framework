@@ -49,7 +49,7 @@ abstract class AbstractGrid extends \CrazyCat\Framework\App\Module\Block\Abstrac
     /**
      * @return array
      */
-    protected function getBookmarks()
+    public function getBookmarks()
     {
         if ( $this->bookmarks === null ) {
             $this->bookmarks = $this->session->getGridBookmarks( static::BOOKMARK_KEY ) ?:
@@ -61,7 +61,7 @@ abstract class AbstractGrid extends \CrazyCat\Framework\App\Module\Block\Abstrac
     /**
      * @return array
      */
-    protected function getFilters()
+    public function getFilters()
     {
         return $this->getBookmarks()[self::BOOKMARK_FILTER];
     }
