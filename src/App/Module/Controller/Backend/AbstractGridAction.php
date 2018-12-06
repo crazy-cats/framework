@@ -59,6 +59,9 @@ abstract class AbstractGridAction extends AbstractAction {
         }
 
         foreach ( $this->block->getFields() as $field ) {
+            if ( empty( $field['filter']['type'] ) ) {
+                continue;
+            }
             switch ( $field['filter']['type'] ) {
 
                 case AbstractGrid::FIELD_TYPE_SELECT :
