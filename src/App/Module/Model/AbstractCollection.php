@@ -246,7 +246,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $txtConditions .= ' AND ' . $andSql;
             $binds = array_merge( $binds, $andBinds );
         }
-        $sortOrders = empty( $this->sortOrders ) ? '' : implode( ', ', sortOrders );
+        $sortOrders = empty( $this->sortOrders ) ? '' : ( 'ORDER BY ' . implode( ', ', $this->sortOrders ) );
         $limitation = $this->pageSize ? ( 'LIMIT ' . $this->pageSize * ( $this->currentPage - 1 ) . ', ' . $this->pageSize ) : '';
         foreach ( $this->conn->fetchAll( sprintf( 'SELECT %s FROM `%s` WHERE 1=1 %s %s %s', $fields, $table, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
