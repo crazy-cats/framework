@@ -96,8 +96,8 @@ class Page extends \CrazyCat\Framework\Data\Object {
 
         return [
             'template' => empty( $layoutB['template'] ) ? ( empty( $layoutA['template'] ) ? '1column' : $layoutA['template'] ) : $layoutB['template'],
-            'css' => array_merge( $cssA, $cssB ),
-            'blocks' => array_merge( $blocksA, $blocksB )
+            'css' => array_merge_recursive( $cssA, $cssB ),
+            'blocks' => array_merge_recursive( $blocksA, $blocksB )
         ];
     }
 
