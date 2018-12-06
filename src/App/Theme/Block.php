@@ -89,6 +89,14 @@ class Block extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
+     * @return \CrazyCat\Framework\App\Theme\Page
+     */
+    public function getPage()
+    {
+        return $this->themeManager->getCurrentTheme()->getPage();
+    }
+
+    /**
      * @return string
      */
     public function toHtml()

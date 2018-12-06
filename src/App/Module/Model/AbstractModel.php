@@ -88,6 +88,14 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->getData( $this->idFieldName );
+    }
+
+    /**
      * @param int|string $id
      * @param string|null $field
      * @return $this
@@ -125,6 +133,24 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
 
         $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_save_after', [ 'model' => $this ] );
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function delete()
+    {
+        $this->eventManager->dispatch( 'model_delete_before', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_delete_before', [ 'model' => $this ] );
+
+        if ( ( $id = $this->getData( $this->idFieldName ) ) ) {
+            $this->conn->delete( $this->conn->getTableName( $this->mainTable ), [ sprintf( '`%s` = ?', $this->idFieldName ) => $id ] );
+        }
+
+        $this->eventManager->dispatch( 'model_delete_after', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_delete_after', [ 'model' => $this ] );
 
         return $this;
     }
