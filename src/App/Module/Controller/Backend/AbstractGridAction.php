@@ -76,6 +76,9 @@ abstract class AbstractGridAction extends AbstractAction {
      */
     protected function addSorting( $sorting )
     {
+        list( $fieldName, $dir ) = explode( ',', $sorting );
+
+        $this->collection->addOrder( $fieldName, $dir );
     }
 
     /**

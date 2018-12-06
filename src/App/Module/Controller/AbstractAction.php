@@ -31,6 +31,11 @@ abstract class AbstractAction {
     protected $eventManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Logger
+     */
+    protected $logger;
+
+    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     protected $objectManager;
@@ -40,6 +45,7 @@ abstract class AbstractAction {
         $this->area = $context->getArea();
         $this->config = $context->getConfig();
         $this->eventManager = $context->getEventManager();
+        $this->logger = $context->getLogger();
         $this->objectManager = $context->getObjectManager();
     }
 

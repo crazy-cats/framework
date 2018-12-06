@@ -11,6 +11,7 @@ use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Cookies;
 use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Session\Messenger;
@@ -61,9 +62,9 @@ class ViewContext extends Context {
      */
     protected $url;
 
-    public function __construct( Translator $translator, Cookies $cookies, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, Config $config, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Translator $translator, Cookies $cookies, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, Config $config, Logger $logger, EventManager $eventManager, ObjectManager $objectManager )
     {
-        parent::__construct( $area, $config, $eventManager, $objectManager );
+        parent::__construct( $area, $config, $logger, $eventManager, $objectManager );
 
         $this->cookies = $cookies;
         $this->messenger = $messenger;
