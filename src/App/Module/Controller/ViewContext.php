@@ -14,6 +14,7 @@ use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Logger;
 use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\ObjectManager;
+use CrazyCat\Framework\App\Registry;
 use CrazyCat\Framework\App\Session\Messenger;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Translator;
@@ -48,6 +49,11 @@ class ViewContext extends Context {
     protected $response;
 
     /**
+     * @var \CrazyCat\Framework\App\Registry
+     */
+    protected $registry;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
@@ -62,7 +68,7 @@ class ViewContext extends Context {
      */
     protected $url;
 
-    public function __construct( Translator $translator, Cookies $cookies, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, Config $config, Logger $logger, EventManager $eventManager, ObjectManager $objectManager )
+    public function __construct( Translator $translator, Cookies $cookies, Registry $registry, Url $url, Messenger $messenger, ThemeManager $themeManager, Request $request, Area $area, Config $config, Logger $logger, EventManager $eventManager, ObjectManager $objectManager )
     {
         parent::__construct( $area, $config, $logger, $eventManager, $objectManager );
 
@@ -70,6 +76,7 @@ class ViewContext extends Context {
         $this->messenger = $messenger;
         $this->request = $request;
         $this->response = $request->getResponse();
+        $this->registry = $registry;
         $this->themeManager = $themeManager;
         $this->translator = $translator;
         $this->url = $url;
@@ -105,6 +112,14 @@ class ViewContext extends Context {
     public function getResponse()
     {
         return $this->response;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Registry
+     */
+    public function getRegistry()
+    {
+        return $this->registry;
     }
 
     /**

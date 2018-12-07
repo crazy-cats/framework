@@ -34,6 +34,11 @@ abstract class AbstractViewAction extends AbstractAction {
     protected $response;
 
     /**
+     * @var \CrazyCat\Framework\App\Registry
+     */
+    protected $registry;
+
+    /**
      * @var \CrazyCat\Framework\App\Session\Messenger
      */
     protected $messenger;
@@ -88,9 +93,10 @@ abstract class AbstractViewAction extends AbstractAction {
         parent::__construct( $context );
 
         $this->cookies = $context->getCookies();
+        $this->messenger = $context->getMessenger();
         $this->request = $context->getRequest();
         $this->response = $context->getResponse();
-        $this->messenger = $context->getMessenger();
+        $this->registry = $context->getRegistry();
         $this->themeManager = $context->getThemeManager();
         $this->translator = $context->getTranslator();
         $this->url = $context->getUrl();

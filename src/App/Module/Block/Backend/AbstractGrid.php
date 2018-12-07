@@ -97,6 +97,7 @@ abstract class AbstractGrid extends \CrazyCat\Framework\App\Module\Block\Abstrac
      *         'sort' => boolean,
      *         'filter' => [
      *             'type' => string,
+     *             'options' => array,
      *             'condition' => string
      *         ]
      *     ]

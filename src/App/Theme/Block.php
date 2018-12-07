@@ -36,9 +36,19 @@ class Block extends \CrazyCat\Framework\Data\Object {
     private $moduleManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Registry
+     */
+    protected $registry;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
+
+    /**
+     * @var \CrazyCat\Framework\App\Url
+     */
+    protected $url;
 
     /**
      * @var string
@@ -53,7 +63,9 @@ class Block extends \CrazyCat\Framework\Data\Object {
         $this->cacheFactory = $context->getCacheFactory();
         $this->eventManager = $context->getEventManager();
         $this->moduleManager = $context->getModuleManager();
+        $this->registry = $context->getRegistry();
         $this->themeManager = $context->getThemeManager();
+        $this->url = $context->getUrl();
 
         if ( !empty( $data['template'] ) ) {
             $this->template = $data['template'];

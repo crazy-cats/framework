@@ -19,6 +19,8 @@ use CrazyCat\Framework\App\Io\Http\Request as HttpRequest;
  */
 class Url {
 
+    const ID_NAME = 'id';
+
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -122,6 +124,91 @@ class Url {
             unset( $params['is_frontend'] );
             return $this->getFrontendUrl( $path, $params );
         }
+    }
+
+    /**
+     * @param string $path
+     * @return array
+     */
+    public function parsePath( $path )
+    {
+        $pathArr = array_diff( explode( '/', trim( $path, '/' ) ), [ '' ] );
+
+        if ( isset( $pathArr[0] ) && $pathArr[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) {
+            $area = Area::CODE_BACKEND;
+            array_shift( $pathArr );
+        }
+        elseif ( isset( $pathArr[1] ) && ( $pathArr[0] . '/' . $pathArr[1] == HttpRequest::API_ROUTE ) ) {
+            $area = Area::CODE_API;
+            $pathArr = array_slice( $pathArr, 2 );
+        }
+        else {
+            $area = Area::CODE_FRONTEND;
+        }
+
+        list( $route, $controller, $action ) = array_pad( $pathArr, 3, 'index' );
+
+        $params = [];
+        foreach ( array_chunk( array_slice( $pathArr, 3 ), 2 ) as $row ) {
+            $params[$row[0]] = isset( $row[1] ) ? $row[1] : null;
+        }
+
+        return [
+            'area' => $area,
+            'route' => $route,
+            'controller' => $controller,
+            'action' => $action,
+            'params' => $params
+        ];
+    }
+
+    /**
+     * @param string $url
+     * @return array|false
+     */
+    public function parseUrl( $url )
+    {
+        $infoUrl = parse_url( $url );
+        $infoBaseUrl = parse_url( $this->getBaseUrl() );
+
+        if ( $infoUrl['host'] != $infoBaseUrl['host'] ) {
+            return false;
+        }
+
+        $pathUrl = !empty( $infoUrl['path'] ) ? $infoUrl['path'] : '/';
+        $pathBaseUrl = !empty( $infoBaseUrl['path'] ) ? $infoBaseUrl['path'] : '/';
+
+        if ( strpos( $pathUrl, $pathBaseUrl ) !== 0 ) {
+            return false;
+        }
+
+        return $this->parsePath( substr( $pathUrl, strlen( $pathBaseUrl ) ) );
+    }
+
+    /**
+     * @param string $url
+     * @return boolean
+     */
+    public function isCurrent( $url )
+    {
+        if ( !( $info = $this->parseUrl( $url ) ) ) {
+            return false;
+        }
+
+        if ( $this->area->getCode() == $info['area'] &&
+                $this->httpRequest->getRouteName() == $info['route'] &&
+                $this->httpRequest->getControllerName() == $info['controller'] &&
+                $this->httpRequest->getActionName() == $info['action'] ) {
+            if ( ( $this->httpRequest->getParam( self::ID_NAME ) &&
+                    isset( $info['action']['params'][self::ID_NAME] ) &&
+                    $this->httpRequest->getParam( self::ID_NAME ) == $info['action']['params'][self::ID_NAME] ) ||
+                    ( $this->httpRequest->getParam( self::ID_NAME ) === null &&
+                    empty( $info['action']['params'][self::ID_NAME] ) ) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

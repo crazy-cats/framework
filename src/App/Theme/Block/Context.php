@@ -11,7 +11,9 @@ use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Registry;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
+use CrazyCat\Framework\App\Url;
 
 /**
  * @category CrazyCat
@@ -42,17 +44,29 @@ class Context {
     private $moduleManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Registry
+     */
+    protected $registry;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
 
-    public function __construct( Area $area, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager, EventManager $eventManager )
+    /**
+     * @var \CrazyCat\Framework\App\Url
+     */
+    protected $url;
+
+    public function __construct( Area $area, Registry $registry, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager, Url $url, EventManager $eventManager )
     {
         $this->area = $area;
         $this->cacheFactory = $cacheFactory;
         $this->eventManager = $eventManager;
         $this->moduleManager = $moduleManager;
+        $this->registry = $registry;
         $this->themeManager = $themeManager;
+        $this->url = $url;
     }
 
     /**
@@ -88,11 +102,27 @@ class Context {
     }
 
     /**
+     * @return \CrazyCat\Framework\App\Registry
+     */
+    public function getRegistry()
+    {
+        return $this->registry;
+    }
+
+    /**
      * @return \CrazyCat\Framework\App\Theme\Manager
      */
     public function getThemeManager()
     {
         return $this->themeManager;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Url
+     */
+    public function getUrl()
+    {
+        return $this->url;
     }
 
 }
