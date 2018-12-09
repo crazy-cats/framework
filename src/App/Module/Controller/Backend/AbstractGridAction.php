@@ -66,13 +66,13 @@ abstract class AbstractGridAction extends AbstractAction {
 
                 case AbstractGrid::FIELD_TYPE_SELECT :
                     if ( $filters[$field['name']] != StaticVariable::NO_SELECTION ) {
-                        $this->collection->addFieldToFilter( $field['name'], [ $field['filter']['condition'] => '%' . $filters[$field['name']] . '%' ] );
+                        $this->collection->addFieldToFilter( $field['name'], [ $field['filter']['condition'] => $filters[$field['name']] ] );
                     }
                     break;
 
                 case AbstractGrid::FIELD_TYPE_TEXT :
                     if ( !empty( $filter = trim( $filters[$field['name']] ) ) ) {
-                        $this->collection->addFieldToFilter( $field['name'], [ $field['filter']['condition'] => '%' . $filter . '%' ] );
+                        $this->collection->addFieldToFilter( $field['name'], [ $field['filter']['condition'] => ( $field['filter']['condition'] == 'like' ) ? ( '%' . $filter . '%' ) : $filter ] );
                     }
                     break;
             }

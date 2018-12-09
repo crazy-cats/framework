@@ -19,6 +19,7 @@ abstract class AbstractEdit extends \CrazyCat\Framework\App\Module\Block\Abstrac
      * field types
      */
     const FIELD_TYPE_HIDDEN = 'hidden';
+    const FIELD_TYPE_MULTISELECT = 'multiselect';
     const FIELD_TYPE_PASSWORD = 'password';
     const FIELD_TYPE_SELECT = 'select';
     const FIELD_TYPE_TEXT = 'text';
