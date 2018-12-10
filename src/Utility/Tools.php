@@ -33,4 +33,30 @@ class Tools {
         return strtolower( trim( str_replace( ' ', '_', preg_replace( '/([A-Z])/', '_$1', preg_replace( '/\W+/', '_', $string ) ) ), '_' ) );
     }
 
+    /**
+     * @param array $optionsArray
+     * @return array
+     */
+    static public function toHashArray( array $optionsArray )
+    {
+        $hash = [];
+        foreach ( $optionsArray as $row ) {
+            $hash[$row['value']] = $row['label'];
+        }
+        return $hash;
+    }
+
+    /**
+     * @param array $hashArray
+     * @return array
+     */
+    static public function toOptionsArray( array $hashArray )
+    {
+        $options = [];
+        foreach ( $hashArray as $value => $label ) {
+            $options[] = [ 'label' => $label, 'value' => $value ];
+        }
+        return $options;
+    }
+
 }
