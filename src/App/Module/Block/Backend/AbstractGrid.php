@@ -59,6 +59,16 @@ abstract class AbstractGrid extends \CrazyCat\Framework\App\Module\Block\Abstrac
     }
 
     /**
+     * @param array $bookmarks
+     * @return $this
+     */
+    public function setBookmarks( array $bookmarks )
+    {
+        $this->session->setGridBookmarks( static::BOOKMARK_KEY, $bookmarks );
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getFilters()

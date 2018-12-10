@@ -20,18 +20,18 @@ class Backend extends AbstractSession {
     /**
      * @return array|null
      */
-    public function getGridBookmarks()
+    public function getGridBookmarks( $key )
     {
-        return $this->storage->getData( 'grid_bookmarks' );
+        return $this->storage->getData( 'grid_bookmarks_' . $key );
     }
 
     /**
      * @param array $bookmarks
      * @return $this
      */
-    public function setGridBookmarks( array $bookmarks )
+    public function setGridBookmarks( $key, array $bookmarks )
     {
-        $this->storage->setData( 'grid_bookmarks', $bookmarks );
+        $this->storage->setData( 'grid_bookmarks_' . $key, $bookmarks );
         return $this;
     }
 

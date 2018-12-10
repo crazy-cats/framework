@@ -52,7 +52,7 @@ abstract class AbstractGridAction extends AbstractAction {
      * @param array|null $filters
      * @return array
      */
-    protected function addFilters( $filters )
+    protected function processFilters( $filters )
     {
         if ( empty( $filters ) ) {
             return [];
@@ -77,13 +77,15 @@ abstract class AbstractGridAction extends AbstractAction {
                     break;
             }
         }
+
+        return $filters;
     }
 
     /**
      * @param string|null $sorting
      * @return array
      */
-    protected function addSorting( $sorting )
+    protected function processSorting( $sorting )
     {
         $sortings = $this->block->getSortings();
         if ( !empty( $sorting ) ) {
@@ -107,9 +109,9 @@ abstract class AbstractGridAction extends AbstractAction {
      */
     protected function run()
     {
-        $this->session->setGridBookmarks( [
-            AbstractGrid::BOOKMARK_FILTER => $this->addFilters( $this->request->getParam( 'filter' ) ),
-            AbstractGrid::BOOKMARK_SORTING => $this->addSorting( $this->request->getParam( 'sorting' ) )
+        $this->block->setBookmarks( [
+            AbstractGrid::BOOKMARK_FILTER => $this->processFilters( $this->request->getParam( 'filter' ) ),
+            AbstractGrid::BOOKMARK_SORTING => $this->processSorting( $this->request->getParam( 'sorting' ) )
         ] );
 
         $this->collection->setPageSize( $this->request->getParam( 'limit' ) ?: self::DEFAULT_PAGE_SIZE  );
