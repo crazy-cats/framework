@@ -15,6 +15,7 @@ use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Url;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Translator;
+use CrazyCat\Framework\Utility\Html;
 
 /**
  * @param string $text
@@ -85,4 +86,22 @@ function getStaticUrl( $path, $areaCode = null, $themeName = null )
 function getLangCode()
 {
     return ObjectManager::getInstance()->get( Translator::class )->getLangCode();
+}
+
+/**
+ * @return string
+ */
+function spaceString()
+{
+    return Html::spaceString();
+}
+
+/**
+ * @param array $options
+ * @param array|string|null $value
+ * @return string
+ */
+function selectOptionsHtml( array $options, $value = null )
+{
+    return Html::selectOptionsHtml( $options, $value );
 }
