@@ -35,7 +35,12 @@ class Html {
         }
         $html = '';
         foreach ( $options as $option ) {
-            $html .= sprintf( '<option value="%s"%s>%s</option>', htmlEscape( $option['value'] ), ( in_array( $option['value'], $value ) ? ' selected="selected"' : '' ), htmlEscape( $option['label'] ) );
+            if ( is_array( $option['value'] ) ) {
+                $html .= sprintf( '<optgroup label="%s">%s</optgroup>', htmlEscape( $option['label'] ), self::selectOptionsHtml( $option['value'], $value ) );
+            }
+            else {
+                $html .= sprintf( '<option value="%s"%s>%s</option>', htmlEscape( $option['value'] ), ( in_array( $option['value'], $value ) ? ' selected="selected"' : '' ), htmlEscape( $option['label'] ) );
+            }
         }
         return $html;
     }
