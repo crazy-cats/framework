@@ -96,21 +96,12 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @param int|string $id
-     * @param string|null $field
      * @return $this
      */
-    public function load( $id, $field = null )
+    protected function beforeLoad()
     {
-        $this->eventManager->dispatch( 'model_load_before', [ 'model' => $this ] );
-        $this->eventManager->dispatch( $this->modelName . '_load_before', [ 'model' => $this ] );
-
-        $table = $this->conn->getTableName( $this->mainTable );
-        $fieldName = ( $field === null ) ? $this->idFieldName : $field;
-        $this->setData( $this->conn->fetchRow( sprintf( 'SELECT * FROM `%s` WHERE `%s` = ?', $table, $fieldName ), [ $id ] ) );
-
-        $this->eventManager->dispatch( 'model_load_after', [ 'model' => $this ] );
-        $this->eventManager->dispatch( $this->modelName . '_load_after', [ 'model' => $this ] );
+        $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_save_before', [ 'model' => $this ] );
 
         return $this;
     }
@@ -118,19 +109,8 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     /**
      * @return $this
      */
-    public function save()
+    protected function afterLoad()
     {
-        $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
-        $this->eventManager->dispatch( $this->modelName . '_save_before', [ 'model' => $this ] );
-
-        if ( $this->getData( $this->idFieldName ) ) {
-            $this->conn->update( $this->conn->getTableName( $this->mainTable ), $this->getData(), [ sprintf( '`%s` = ?', $this->idFieldName ) => $this->getData( $this->idFieldName ) ] );
-        }
-        else {
-            $id = $this->conn->insert( $this->conn->getTableName( $this->mainTable ), $this->getData() );
-            $this->setData( $this->idFieldName, $id );
-        }
-
         $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_save_after', [ 'model' => $this ] );
 
@@ -140,17 +120,95 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     /**
      * @return $this
      */
-    public function delete()
+    protected function beforeSave()
+    {
+        $this->eventManager->dispatch( 'model_load_before', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_load_before', [ 'model' => $this ] );
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function afterSave()
+    {
+        $this->eventManager->dispatch( 'model_load_after', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_load_after', [ 'model' => $this ] );
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function beforeDelete()
     {
         $this->eventManager->dispatch( 'model_delete_before', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_delete_before', [ 'model' => $this ] );
 
-        if ( ( $id = $this->getData( $this->idFieldName ) ) ) {
-            $this->conn->delete( $this->conn->getTableName( $this->mainTable ), [ sprintf( '`%s` = ?', $this->idFieldName ) => $id ] );
-        }
+        return $this;
+    }
 
+    /**
+     * @return $this
+     */
+    protected function afterDelete()
+    {
         $this->eventManager->dispatch( 'model_delete_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_delete_after', [ 'model' => $this ] );
+
+        return $this;
+    }
+
+    /**
+     * @param int|string $id
+     * @param string|null $field
+     * @return $this
+     */
+    public function load( $id, $field = null )
+    {
+        $this->beforeLoad();
+
+        $table = $this->conn->getTableName( $this->mainTable );
+        $fieldName = ( $field === null ) ? $this->idFieldName : $field;
+        $this->setData( $this->conn->fetchRow( sprintf( 'SELECT * FROM `%s` WHERE `%s` = ?', $table, $fieldName ), [ $id ] ) );
+
+        $this->afterLoad();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function save()
+    {
+        $this->beforeSave();
+
+        if ( $this->getData( $this->idFieldName ) ) {
+            $this->conn->update( $this->conn->getTableName( $this->mainTable ), $this->getData(), [ sprintf( '`%s` = ?', $this->idFieldName ) => $this->getData( $this->idFieldName ) ] );
+        }
+        else {
+            $id = $this->conn->insert( $this->conn->getTableName( $this->mainTable ), $this->getData() );
+            $this->setData( $this->idFieldName, $id );
+        }
+
+        $this->afterSave();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function delete()
+    {
+        if ( ( $id = $this->getData( $this->idFieldName ) ) ) {
+            $this->beforeDelete();
+            $this->conn->delete( $this->conn->getTableName( $this->mainTable ), [ sprintf( '`%s` = ?', $this->idFieldName ) => $id ] );
+            $this->beforeDelete();
+        }
 
         return $this;
     }

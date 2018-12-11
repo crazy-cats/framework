@@ -21,6 +21,7 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
+    const AJAX_PARAM = 'ajax';
     const API_ROUTE = 'rest/V1';
     const BACKEND_ROUTE_NAME = 'backend';
 
@@ -138,13 +139,13 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          */
         $pathParts = explode( '/', $this->path );
         if ( ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) ) {
+            $this->area->setCode( Area::CODE_BACKEND );
             $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'admin' );
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
             $this->controllerName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
             $this->actionName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
-            $this->area->setCode( Area::CODE_BACKEND );
             $this->pushPathParamsToRequest( $pathParts, 4 );
         }
 
@@ -152,6 +153,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          * Check whether it routes to API
          */
         if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
+            $this->area->setCode( Area::CODE_API );
             if ( empty( $pathParts[2] ) || empty( $pathParts[3] ) || empty( $pathParts[4] ) ) {
                 throw new \Exception( 'Route undefined.' );
             }
@@ -161,7 +163,6 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
             }
             $this->controllerName = $pathParts[3];
             $this->actionName = $pathParts[4];
-            $this->area->setCode( Area::CODE_API );
         }
 
         /**
@@ -173,13 +174,13 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
          * If it does not meet any route defined in modules, use default route rule
          */
         if ( $this->moduleName === null ) {
+            $this->area->setCode( Area::CODE_FRONTEND );
             $this->routeName = (!empty( $pathParts[0] ) ? $pathParts[0] : 'index' );
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
             $this->controllerName = !empty( $pathParts[1] ) ? $pathParts[1] : 'index';
             $this->actionName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
-            $this->area->setCode( Area::CODE_FRONTEND );
             $this->pushPathParamsToRequest( $pathParts, 3 );
         }
 
@@ -234,7 +235,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
      * @param string $name
-     * @return $this
+     * @return array|null
      */
     public function getHeader( $name )
     {

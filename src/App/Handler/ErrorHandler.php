@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Handler;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Io\Http\Request as HttpRequest;
 use CrazyCat\Framework\App\Io\Http\Response as HttpResponse;
 use CrazyCat\Framework\App\Logger;
 
@@ -25,6 +26,11 @@ class ErrorHandler {
     private $area;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\Http\Request
+     */
+    private $httpRequest;
+
+    /**
      * @var \CrazyCat\Framework\App\Io\Http\Response
      */
     private $httpResponse;
@@ -34,9 +40,10 @@ class ErrorHandler {
      */
     private $logger;
 
-    public function __construct( HttpResponse $httpResponse, Area $area, Logger $logger )
+    public function __construct( HttpRequest $httpRequest, HttpResponse $httpResponse, Area $area, Logger $logger )
     {
         $this->area = $area;
+        $this->httpRequest = $httpRequest;
         $this->httpResponse = $httpResponse;
         $this->logger = $logger;
     }
@@ -71,7 +78,7 @@ class ErrorHandler {
      */
     private function processHttpError( $errno, $errstr, $errfile, $errline )
     {
-        if ( $this->area->getCode() == Area::CODE_API ) {
+        if ( $this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam( HttpRequest::AJAX_PARAM ) ) {
             $this->httpResponse->setType( HttpResponse::TYPE_JSON )
                     ->setData( [ 'error' => true, 'message' => $errstr ] )
                     ->send();

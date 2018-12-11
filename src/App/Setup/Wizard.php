@@ -84,7 +84,7 @@ class Wizard {
                 'production_mode' => false
             ],
             'api' => [
-                'token' => md5( date( 'Y-m-d H:i:s' ) . rand( 1000, 9999 ) )
+                'token' => md5( date( 'Y-m-d H:i:s' ) . uniqid() )
             ],
             'backend' => [
                 'route' => null,
