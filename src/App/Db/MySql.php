@@ -152,7 +152,7 @@ class MySql extends AbstractAdapter {
                     return '?';
                 }, $fields ) );
 
-        $statement = $this->pdo->prepare( sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s )', $table, $keyMarks, $valueMarks ) );
+        $statement = $this->pdo->prepare( sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s )', $this->getTableName( $table ), $keyMarks, $valueMarks ) );
         foreach ( array_values( $data ) as $k => $value ) {
             $statement->bindValue( $k + 1, $value );
         }
@@ -183,7 +183,7 @@ class MySql extends AbstractAdapter {
         }
 
         $k = 0;
-        $statement = $this->pdo->prepare( sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s )', $table, $keyMarks, implode( '), (', $valueMarks ) ) );
+        $statement = $this->pdo->prepare( sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s )', $this->getTableName( $table ), $keyMarks, implode( '), (', $valueMarks ) ) );
         foreach ( $data as $row ) {
             foreach ( $row as $value ) {
                 $statement->bindValue( ++$k, $value );
@@ -215,7 +215,7 @@ class MySql extends AbstractAdapter {
                 $binds[] = $bind;
             }
         }
-        $statement = $this->pdo->prepare( sprintf( 'UPDATE `%s` SET %s WHERE 1=1 %s', $table, $updateMarks, $conditionSql ) );
+        $statement = $this->pdo->prepare( sprintf( 'UPDATE `%s` SET %s WHERE 1=1 %s', $this->getTableName( $table ), $updateMarks, $conditionSql ) );
 
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
@@ -237,7 +237,7 @@ class MySql extends AbstractAdapter {
                 $binds[] = $bind;
             }
         }
-        $statement = $this->pdo->prepare( sprintf( 'DELETE FROM `%s` WHERE 1=1 %s', $table, $conditionSql ) );
+        $statement = $this->pdo->prepare( sprintf( 'DELETE FROM `%s` WHERE 1=1 %s', $this->getTableName( $table ), $conditionSql ) );
 
         if ( !$statement->execute( $binds ) ) {
             list(,, $errorInfo ) = $statement->errorInfo();
@@ -259,10 +259,10 @@ class MySql extends AbstractAdapter {
                     $type = $column['type'];
                     $length = isset( $column['length'] ) ? $column['length'] : '';
                     $unsign = ( isset( $column['unsign'] ) && $column['unsign'] ) ? 'UNSIGNED' : '';
-                    $default = isset( $column['default'] ) ? $column['default'] : 'NULL';
-                    $null = ( ( isset( $column['null'] ) && $column['null'] ) || !isset( $column['null'] ) ) ? ( 'DEFAULT ' . $default ) : 'NOT NULL';
+                    $null = ( isset( $column['null'] ) && !$column['null'] ) ? 'NOT NULL' : '';
+                    $default = isset( $column['default'] ) ? sprintf( 'DEFAULT \'%s\'', $column['default'] ) : ( $null );
                     $autoIncrement = ( isset( $column['auto_increment'] ) && $column['auto_increment'] ) ? sprintf( 'AUTO_INCREMENT, PRIMARY KEY (`%s`)', $name ) : '';
-                    return sprintf( '`%s` %s(%d) %s %s %s', $name, $type, $length, $unsign, $null, $autoIncrement );
+                    return sprintf( '`%s` %s(%d) %s %s %s', $name, $type, $length, $unsign, $default, $autoIncrement );
                 }, $columns ) );
 
         $sqlIndexes = implode( ",\n", array_map( function( $index ) {
@@ -280,6 +280,7 @@ class MySql extends AbstractAdapter {
         $sql = sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
                 ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) );
         $statement = $this->pdo->prepare( $sql );
+
         if ( !$statement->execute() ) {
             list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( $errorInfo );
