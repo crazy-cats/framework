@@ -102,8 +102,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_save_before', [ 'model' => $this ] );
-
-        return $this;
     }
 
     /**
@@ -113,8 +111,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_save_after', [ 'model' => $this ] );
-
-        return $this;
     }
 
     /**
@@ -124,8 +120,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->eventManager->dispatch( 'model_load_before', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_load_before', [ 'model' => $this ] );
-
-        return $this;
     }
 
     /**
@@ -135,8 +129,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->eventManager->dispatch( 'model_load_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_load_after', [ 'model' => $this ] );
-
-        return $this;
     }
 
     /**
@@ -146,8 +138,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->eventManager->dispatch( 'model_delete_before', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_delete_before', [ 'model' => $this ] );
-
-        return $this;
     }
 
     /**
@@ -157,8 +147,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->eventManager->dispatch( 'model_delete_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_delete_after', [ 'model' => $this ] );
-
-        return $this;
     }
 
     /**
