@@ -73,7 +73,7 @@ class File {
      * @param string $enclosure
      * @return string[]
      */
-    static public function getCsv( $handle, $length = 0, $delimiter = ',', $enclosure = '"' )
+    static public function getCsv( $handle, $length = null, $delimiter = ',', $enclosure = '"' )
     {
         $separator = preg_quote( $delimiter );
         $quoteSymbol = preg_quote( $enclosure );
