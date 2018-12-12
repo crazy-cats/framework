@@ -11,6 +11,7 @@ use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
+use CrazyCat\Framework\Utility\File;
 
 /**
  * @category CrazyCat
@@ -87,7 +88,7 @@ class Translator {
 
         $translations = [];
         $fp = fopen( $dir . DS . $langCode . '.csv', 'r' );
-        while ( $row = fgetcsv( $fp ) ) {
+        while ( $row = File::getCsv( $fp ) ) {
             if ( count( $row ) >= 2 ) {
                 $translations[$row[0]] = $row[1];
             }
