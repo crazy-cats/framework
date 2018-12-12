@@ -136,8 +136,18 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         }
         else {
             foreach ( $conditions as $symbol => $value ) {
-                $sql .= sprintf( $this->keyMap[$symbol], $field );
-                $binds[] = $value;
+                if ( in_array( $symbol, [ 'in', 'nin' ] ) ) {
+                    $mask = '';
+                    foreach ( $value as $val ) {
+                        $mask .= ', ?';
+                        $binds[] = $val;
+                    }
+                    $sql .= sprintf( strtr( $this->keyMap[$symbol], [ '?' => ltrim( $mask, ', ' ) ] ), $field );
+                }
+                else {
+                    $sql .= sprintf( $this->keyMap[$symbol], $field );
+                    $binds[] = $value;
+                }
             }
         }
         return [ $sql, $binds ];
@@ -287,12 +297,28 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         $table = $this->conn->getTableName( $this->mainTable );
         $txtConditions = '';
         $binds = [];
-        foreach ( $this->conditions as $field => $conditions ) {
-            list( $andSql, $andBinds ) = $this->parseConditions( $field, $conditions );
-            $txtConditions .= ' AND ' . $andSql;
+        foreach ( $this->conditions as $conditionGroup ) {
+            list( $andSql, $andBinds ) = $this->parseConditions( $conditionGroup );
+            $txtConditions .= ' AND ( ' . $andSql . ' )';
             $binds = array_merge( $binds, $andBinds );
         }
         return (int) $this->conn->fetchOne( sprintf( 'SELECT COUNT(*) FROM `%s` WHERE 1=1 %s', $table, $txtConditions ), $binds );
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getAllIds()
+    {
+        $table = $this->conn->getTableName( $this->mainTable );
+        $txtConditions = '';
+        $binds = [];
+        foreach ( $this->conditions as $conditionGroup ) {
+            list( $andSql, $andBinds ) = $this->parseConditions( $conditionGroup );
+            $txtConditions .= ' AND ( ' . $andSql . ' )';
+            $binds = array_merge( $binds, $andBinds );
+        }
+        return $this->conn->fetchCol( sprintf( 'SELECT `%s` FROM `%s` WHERE 1=1 %s', $this->idFieldName, $table, $txtConditions ), $binds );
     }
 
     /**
