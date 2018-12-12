@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App;
 
 use CrazyCat\Framework\Utility\File;
+use CrazyCat\Framework\Utility\Tools;
 
 /**
  * @category CrazyCat
@@ -139,7 +140,7 @@ class Module extends \CrazyCat\Framework\Data\Object {
                 foreach ( File::getFolders( $dir ) as $controller ) {
                     foreach ( File::getFiles( $dir . DS . $controller ) as $action ) {
                         $action = str_replace( '.php', '', $action );
-                        $actions[$areaCode][strtolower( $routes[$areaCode] . '/' . $controller . '/' . $action )] = $namespace . '\\Controller\\' . $area . '\\' . $controller . '\\' . $action;
+                        $actions[$areaCode][strtolower( $routes[$areaCode] . '/' . Tools::strToSeparated( $controller ) . '/' . Tools::strToSeparated( $action ) )] = $namespace . '\\Controller\\' . $area . '\\' . $controller . '\\' . $action;
                     }
                 }
             }

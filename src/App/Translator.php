@@ -125,8 +125,17 @@ class Translator {
             /**
              * Translations in theme
              */
-            if ( ( $theme = $this->themeManager->getCurrentTheme() ) !== null ) {
-                $translations = array_merge( $translations, $this->collectTranslations( $theme->getData( 'dir' ) . DS . 'i18n', $langCode ) );
+            try {
+                if ( ( $theme = $this->themeManager->getCurrentTheme() ) !== null ) {
+                    $translations = array_merge( $translations, $this->collectTranslations( $theme->getData( 'dir' ) . DS . 'i18n', $langCode ) );
+                }
+            }
+            catch ( \Exception $e ) {
+                /**
+                 * In some case such as on `backend_controller_execute_before` event,
+                 *     we need to show a translated string but the theme is not initialized,
+                 *     we don't need to break the process.
+                 */
             }
 
             $this->translationsCaches[$cacheKey]->setData( $translations )->save();

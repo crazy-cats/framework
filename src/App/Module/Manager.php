@@ -125,7 +125,7 @@ class Manager {
     private function getModulesConfig()
     {
         if ( is_file( self::CONFIG_FILE ) ) {
-            $config = self::CONFIG_FILE;
+            $config = require self::CONFIG_FILE;
         }
         if ( !isset( $config ) || !is_array( $config ) || empty( $config ) ) {
             return [];
