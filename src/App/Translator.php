@@ -106,14 +106,11 @@ class Translator {
         }
 
         if ( empty( $this->translationsCaches[$cacheKey]->getData() ) ) {
-            $translations = [];
 
             /**
              * Translations in language packages
              */
-            foreach ( $this->langPackages as $package ) {
-                $translations = array_merge( $translations, $this->collectTranslations( $package['dir'] . DS . 'i18n', $langCode ) );
-            }
+            $translations = $this->collectTranslations( $this->langPackages[$langCode]['dir'] . DS . 'i18n', $langCode );
 
             /**
              * Translations in modules
