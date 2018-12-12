@@ -119,10 +119,10 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
 
     /**
      * @param string|array $field
-     * @param array|null $andConditions
+     * @param array|null $conditions
      * @return array [ sql, binds ]
      */
-    protected function parseConditions( $field, $andConditions = null )
+    protected function parseConditions( $field, $conditions = null )
     {
         $sql = '';
         $binds = [];
@@ -132,11 +132,13 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
                 $sql .= ' OR ( ' . $orSql . ' )';
                 $binds = array_merge( $binds, $orBinds );
             }
-            $sql = '( ' . ltrim( ' OR ' ) . ' )';
+            $sql = '( ' . ltrim( $sql, ' OR ' ) . ' )';
         }
-        foreach ( $andConditions as $symbol => $value ) {
-            $sql .= sprintf( $this->keyMap[$symbol], $field );
-            $binds[] = $value;
+        else {
+            foreach ( $conditions as $symbol => $value ) {
+                $sql .= sprintf( $this->keyMap[$symbol], $field );
+                $binds[] = $value;
+            }
         }
         return [ $sql, $binds ];
     }
@@ -155,17 +157,17 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     }
 
     /**
-     * @param string $field
-     * @param array $condition
+     * @param string|array $field
+     * @param array|null $conditions
      * @return $this
      */
-    public function addFieldToFilter( $field, $condition )
+    public function addFieldToFilter( $field, $conditions = null )
     {
-        if ( !isset( $this->conditions[$field] ) ) {
-            $this->conditions[$field] = [];
+        if ( is_array( $field ) ) {
+            $this->conditions[] = $field;
         }
-        foreach ( $condition as $a => $value ) {
-            $this->conditions[$field][$a] = $value;
+        else {
+            $this->conditions[] = [ [ 'field' => $field, 'conditions' => $conditions ] ];
         }
         return $this;
     }
@@ -239,11 +241,15 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $fields = '`' . implode( '`, `', $this->fields ) . '`';
         }
         $table = $this->conn->getTableName( $this->mainTable );
+        /**
+         * Structure of attribute `conditions` is like:
+         *     [ [ cond1 OR cond2 ] AND [ cond3 OR cond4 ] AND [ cond5 ] ]
+         */
         $txtConditions = '';
         $binds = [];
-        foreach ( $this->conditions as $field => $conditions ) {
-            list( $andSql, $andBinds ) = $this->parseConditions( $field, $conditions );
-            $txtConditions .= ' AND ' . $andSql;
+        foreach ( $this->conditions as $conditionGroup ) {
+            list( $andSql, $andBinds ) = $this->parseConditions( $conditionGroup );
+            $txtConditions .= ' AND ( ' . $andSql . ' )';
             $binds = array_merge( $binds, $andBinds );
         }
         $sortOrders = empty( $this->sortOrders ) ? '' : ( 'ORDER BY ' . implode( ', ', $this->sortOrders ) );
