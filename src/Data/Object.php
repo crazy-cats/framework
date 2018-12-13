@@ -119,9 +119,7 @@ class Object implements \ArrayAccess {
      */
     public function addData( array $data )
     {
-        foreach ( $data as $key => $value ) {
-            $this->data[$key] = $value;
-        }
+        $this->data = array_merge_recursive( $this->data, $data );
         return $this;
     }
 
