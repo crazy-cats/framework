@@ -7,6 +7,8 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\Data\Object;
+
 /**
  * @category CrazyCat
  * @package CrazyCat\Framework
@@ -58,7 +60,7 @@ class EventManager {
     {
         if ( !empty( $this->events[$eventName] ) ) {
             foreach ( $this->events[$eventName] as $observer ) {
-                $this->objectManager->create( $observer )->execute( $data );
+                $this->objectManager->create( $observer )->execute( new Object( $data ) );
             }
         }
     }

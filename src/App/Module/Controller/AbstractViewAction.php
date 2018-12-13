@@ -233,6 +233,7 @@ abstract class AbstractViewAction extends AbstractAction {
 
         if ( !$this->skipRunning ) {
             $this->themeManager->init();
+            $this->eventManager->dispatch( 'theme_init_after', [ 'theme_manager' => $this->themeManager ] );
             $this->run();
         }
 
