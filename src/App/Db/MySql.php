@@ -254,6 +254,8 @@ class MySql extends AbstractAdapter {
      */
     public function createTable( $table, array $columns, array $indexes = [], array $options = [] )
     {
+        $tbl = $this->getTableName( $table );
+
         $sqlColumns = implode( ",\n", array_map( function( $column ) {
                     $name = $column['name'];
                     $type = $column['type'];
@@ -264,23 +266,23 @@ class MySql extends AbstractAdapter {
                     $autoIncrement = ( isset( $column['auto_increment'] ) && $column['auto_increment'] ) ? sprintf( 'AUTO_INCREMENT, PRIMARY KEY (`%s`)', $name ) : '';
                     return sprintf( '`%s` %s(%d) %s %s %s', $name, $type, $length, $unsign, $default, $autoIncrement );
                 }, $columns ) );
-
-        $sqlIndexes = implode( ",\n", array_map( function( $index ) {
-                    $columns = implode( '`, `', $index['columns'] );
-                    $type = isset( $index['type'] ) ? $index['type'] : '';
-                    $name = !empty( $index['name'] ) ? $index['name'] : strtoupper( implode( '_', $index['columns'] ) );
-                    return sprintf( 'ADD %s KEY `%s` ( `%s` )', $type, $name, $columns );
-                }, $indexes ) );
-
         $engine = isset( $options['engine'] ) ? $options['engine'] : 'InnoDB';
         $charset = isset( $options['charset'] ) ? $options['charset'] : 'utf8';
         $sqlOptions = sprintf( 'ENGINE=%s DEFAULT CHARSET=%s', $engine, $charset );
+        $sql = sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;", $tbl, $sqlColumns, $sqlOptions );
 
-        $tbl = $this->getTableName( $table );
-        $sql = sprintf( "CREATE TABLE IF NOT EXISTS `%s` (\n%s\n) %s;\n", $tbl, $sqlColumns, $sqlOptions ) .
-                ( empty( $sqlIndexes ) ? '' : sprintf( "ALTER TABLE `%s`\n%s;", $tbl, $sqlIndexes ) );
+        if ( !empty( $indexes ) ) {
+            foreach ( array_map( function( $index ) {
+                $columns = implode( '`, `', $index['columns'] );
+                $type = isset( $index['type'] ) ? $index['type'] : '';
+                $name = !empty( $index['name'] ) ? $index['name'] : strtoupper( implode( '_', $index['columns'] ) );
+                return sprintf( 'ADD %s KEY `%s` ( `%s` )', $type, $name, $columns );
+            }, $indexes ) as $sqlIndex ) {
+                $sql .= sprintf( "\nALTER TABLE `%s` %s;", $tbl, $sqlIndex );
+            }
+        }
+
         $statement = $this->pdo->prepare( $sql );
-
         if ( !$statement->execute() ) {
             list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( $errorInfo );
