@@ -9,7 +9,7 @@ namespace CrazyCat\Framework\App\Module\Block\Backend;
 
 /**
  * @category CrazyCat
- * @package CrazyCat\Index
+ * @package CrazyCat\Core
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
@@ -25,7 +25,7 @@ abstract class AbstractEdit extends \CrazyCat\Framework\App\Module\Block\Abstrac
     const FIELD_TYPE_TEXT = 'text';
     const FIELD_TYPE_TEXTAREA = 'textarea';
 
-    protected $template = 'CrazyCat\Index::edit';
+    protected $template = 'CrazyCat\Core::edit';
 
     /**
      * @return \CrazyCat\Framework\App\Module\Model\AbstractModel

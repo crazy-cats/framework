@@ -18,7 +18,7 @@
         "monolog/monolog": "1.0.*",
         "symfony/console": "*",
         "crazycat/language-en_us": "~1.0",
-        "crazycat/module-index": "~1.0",
+        "crazycat/module-core": "~1.0",
         "crazycat/module-admin": "~1.0",
         "crazycat/theme-frontend-default": "~1.0",
         "crazycat/theme-backend-default": "~1.0"

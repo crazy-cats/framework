@@ -12,7 +12,7 @@ use CrazyCat\Framework\App\Theme\Block\Context;
 
 /**
  * @category CrazyCat
- * @package CrazyCat\Index
+ * @package CrazyCat\Core
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
@@ -27,7 +27,7 @@ abstract class AbstractGrid extends \CrazyCat\Framework\App\Module\Block\Abstrac
     const FIELD_TYPE_SELECT = 'select';
     const FIELD_TYPE_TEXT = 'text';
 
-    protected $template = 'CrazyCat\Index::grid';
+    protected $template = 'CrazyCat\Core::grid';
 
     /**
      * @var \CrazyCat\Framework\App\Session\Backend
