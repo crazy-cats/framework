@@ -88,7 +88,7 @@ class ErrorHandler {
                 throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s\n", $errline, $errfile, $errstr ) );
             }
             catch ( \Exception $e ) {
-                echo $this->logError( $e->getMessage() . $e->getTraceAsString() . "\n" );
+                echo sprintf( '<pre>%s</pre>', $this->logError( $e->getMessage() . $e->getTraceAsString() . "\n" ) );
             }
         }
     }

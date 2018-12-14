@@ -78,7 +78,7 @@ class ExceptionHandler {
                     ->send();
         }
         else {
-            echo $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() );
+            echo sprintf( '<pre>%s</pre>', $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() ) );
         }
     }
 

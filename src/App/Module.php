@@ -28,7 +28,8 @@ class Module extends \CrazyCat\Framework\Data\Object {
         'version' => [ 'required' => true, 'type' => 'string' ],
         'depends' => [ 'required' => true, 'type' => 'array' ],
         'events' => [ 'required' => false, 'type' => 'array' ],
-        'routes' => [ 'required' => false, 'type' => 'array' ]
+        'routes' => [ 'required' => false, 'type' => 'array' ],
+        'settings' => [ 'required' => false, 'type' => 'array' ]
     ];
 
     /**
