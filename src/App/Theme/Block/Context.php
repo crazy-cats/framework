@@ -10,6 +10,7 @@ namespace CrazyCat\Framework\App\Theme\Block;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Registry;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
@@ -49,6 +50,11 @@ class Context {
     protected $registry;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\Http\Request
+     */
+    protected $request;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
@@ -58,13 +64,14 @@ class Context {
      */
     protected $url;
 
-    public function __construct( Area $area, Registry $registry, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager, Url $url, EventManager $eventManager )
+    public function __construct( Area $area, Request $request, Registry $registry, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager, Url $url, EventManager $eventManager )
     {
         $this->area = $area;
         $this->cacheFactory = $cacheFactory;
         $this->eventManager = $eventManager;
         $this->moduleManager = $moduleManager;
         $this->registry = $registry;
+        $this->request = $request;
         $this->themeManager = $themeManager;
         $this->url = $url;
     }
@@ -107,6 +114,14 @@ class Context {
     public function getRegistry()
     {
         return $this->registry;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Io\Http\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 
     /**

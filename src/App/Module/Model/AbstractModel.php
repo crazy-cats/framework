@@ -195,7 +195,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
         if ( ( $id = $this->getData( $this->idFieldName ) ) ) {
             $this->beforeDelete();
             $this->conn->delete( $this->conn->getTableName( $this->mainTable ), [ sprintf( '`%s` = ?', $this->idFieldName ) => $id ] );
-            $this->beforeDelete();
+            $this->afterDelete();
         }
 
         return $this;

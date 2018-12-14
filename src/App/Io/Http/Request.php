@@ -206,11 +206,12 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
      * @param string $key
+     * @param string|null $default
      * @return mixed
      */
-    public function getParam( $key )
+    public function getParam( $key, $default = null )
     {
-        return isset( $this->requestData[$key] ) ? $this->requestData[$key] : null;
+        return isset( $this->requestData[$key] ) ? $this->requestData[$key] : $default;
     }
 
     /**

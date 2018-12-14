@@ -41,6 +41,11 @@ class Block extends \CrazyCat\Framework\Data\Object {
     protected $registry;
 
     /**
+     * @var \CrazyCat\Framework\App\Io\Http\Request
+     */
+    protected $request;
+
+    /**
      * @var \CrazyCat\Framework\App\Theme\Manager
      */
     protected $themeManager;
@@ -64,6 +69,7 @@ class Block extends \CrazyCat\Framework\Data\Object {
         $this->eventManager = $context->getEventManager();
         $this->moduleManager = $context->getModuleManager();
         $this->registry = $context->getRegistry();
+        $this->request = $context->getRequest();
         $this->themeManager = $context->getThemeManager();
         $this->url = $context->getUrl();
 
