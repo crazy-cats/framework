@@ -86,6 +86,24 @@ class Page extends \CrazyCat\Framework\Data\Object {
      * @param array $layoutB
      * @return array
      */
+    private function mergeLayoutBlocks( array $layoutA, array $layoutB )
+    {
+        foreach ( $layoutA as $sectionName => &$blockGroup ) {
+            if ( isset( $layoutB[$sectionName] ) ) {
+                $blockGroup = array_merge( $blockGroup, $layoutB[$sectionName] );
+                unset( $layoutB[$sectionName] );
+            }
+        }
+        return array_merge( $layoutA, $layoutB );
+    }
+
+    /**
+     * Layout B cover layout A
+     * 
+     * @param array $layoutA
+     * @param array $layoutB
+     * @return array
+     */
     private function mergeLayout( array $layoutA, array $layoutB )
     {
         $blocksA = empty( $layoutA['blocks'] ) ? [] : $layoutA['blocks'];
@@ -96,8 +114,8 @@ class Page extends \CrazyCat\Framework\Data\Object {
 
         return [
             'template' => empty( $layoutB['template'] ) ? ( empty( $layoutA['template'] ) ? '1column' : $layoutA['template'] ) : $layoutB['template'],
-            'css' => array_merge_recursive( $cssA, $cssB ),
-            'blocks' => array_merge_recursive( $blocksA, $blocksB )
+            'css' => array_merge( $cssA, $cssB ),
+            'blocks' => $this->mergeLayoutBlocks( $blocksA, $blocksB )
         ];
     }
 
