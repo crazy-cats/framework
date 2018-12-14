@@ -23,7 +23,6 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     const AJAX_PARAM = 'ajax';
     const API_ROUTE = 'rest/V1';
-    const BACKEND_ROUTE_NAME = 'backend';
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -140,7 +139,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
         $pathParts = explode( '/', $this->path );
         if ( ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) ) {
             $this->area->setCode( Area::CODE_BACKEND );
-            $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'admin' );
+            $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'system' ); // system is backend route name of core module
             if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
                 throw new \Exception( 'System can not find matched route.' );
             }
