@@ -96,7 +96,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return $this
+     * @return void
      */
     protected function beforeLoad()
     {
@@ -105,7 +105,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return $this
+     * @return void
      */
     protected function afterLoad()
     {
@@ -114,7 +114,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return $this
+     * @return void
      */
     protected function beforeSave()
     {
@@ -123,7 +123,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return $this
+     * @return void
      */
     protected function afterSave()
     {
@@ -132,7 +132,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return $this
+     * @return void
      */
     protected function beforeDelete()
     {
@@ -141,7 +141,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     }
 
     /**
-     * @return $this
+     * @return void
      */
     protected function afterDelete()
     {
