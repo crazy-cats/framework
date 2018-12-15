@@ -105,6 +105,15 @@ abstract class AbstractGridAction extends AbstractAction {
     }
 
     /**
+     * @param array $collectionData
+     * @return array
+     */
+    protected function processData( $collectionData )
+    {
+        return $collectionData;
+    }
+
+    /**
      * @return void
      */
     protected function run()
@@ -120,7 +129,7 @@ abstract class AbstractGridAction extends AbstractAction {
             $this->collection->setCurrentPage( $page );
         }
 
-        $this->response->setType( Response::TYPE_JSON )->setData( $this->collection->toArray() );
+        $this->response->setType( Response::TYPE_JSON )->setData( $this->processData( $this->collection->toArray() ) );
     }
 
     /**
