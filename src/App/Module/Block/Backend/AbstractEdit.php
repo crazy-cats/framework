@@ -76,10 +76,16 @@ abstract class AbstractEdit extends \CrazyCat\Framework\App\Module\Block\Abstrac
 
             case self::FIELD_TYPE_SELECT :
                 $renderer = $this->objectManager->create( SelectRenderer::class );
+                if ( isset( $field['source'] ) ) {
+                    $field['options'] = $this->objectManager->create( $field['source'] )->toOptionArray();
+                }
                 break;
 
             case self::FIELD_TYPE_MULTISELECT :
                 $renderer = $this->objectManager->create( SelectRenderer::class )->getIsMultiple( true );
+                if ( isset( $field['source'] ) ) {
+                    $field['options'] = $this->objectManager->create( $field['source'] )->toOptionArray();
+                }
                 break;
 
             case self::FIELD_TYPE_TEXT :
