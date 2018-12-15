@@ -82,7 +82,7 @@ abstract class AbstractEdit extends \CrazyCat\Framework\App\Module\Block\Abstrac
                 break;
 
             case self::FIELD_TYPE_MULTISELECT :
-                $renderer = $this->objectManager->create( SelectRenderer::class )->getIsMultiple( true );
+                $renderer = $this->objectManager->create( SelectRenderer::class )->setIsMultiple( true );
                 if ( isset( $field['source'] ) ) {
                     $field['options'] = $this->objectManager->create( $field['source'] )->toOptionArray();
                 }
@@ -97,7 +97,7 @@ abstract class AbstractEdit extends \CrazyCat\Framework\App\Module\Block\Abstrac
                 break;
         }
 
-        return $renderer->setData( [ 'field' => $field, 'value' => $this->getModel()->getData( $field['name'] ) ] )->toHtml();
+        return $renderer->addData( [ 'field' => $field, 'value' => $this->getModel()->getData( $field['name'] ) ] )->toHtml();
     }
 
     /**
@@ -107,6 +107,8 @@ abstract class AbstractEdit extends \CrazyCat\Framework\App\Module\Block\Abstrac
      *         'name' => string,
      *         'label' => string,
      *         'type' => string,
+     *         'renderer' => string,
+     *         'source' => string,
      *         'options' => array
      *     ]
      * ]
