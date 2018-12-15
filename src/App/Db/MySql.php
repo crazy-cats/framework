@@ -199,6 +199,44 @@ class MySql extends AbstractAdapter {
     /**
      * @param string $table
      * @param array $data [ key => value ]
+     * @return int
+     */
+    public function insertUpdate( $table, array $data, $updateFields )
+    {
+        $fields = array_keys( $data[0] );
+        $keyMarksTxt = implode( ', ', array_map( function ( $key ) {
+                    return '`' . $key . '`';
+                }, $fields ) );
+
+        $valueMarks = [];
+        $numFields = count( $fields );
+        for ( $i = 0; $i < count( $data ); $i ++ ) {
+            $valueMarks[] = rtrim( str_repeat( '?, ', $numFields ), ', ' );
+        }
+        $valueMarksTxt = implode( '), (', $valueMarks );
+
+        $updateMarksTxt = implode( ', ', array_map( function( $key ) {
+                    return '`' . $key . '` = VALUES( `' . $key . '` )';
+                }, $updateFields ) );
+
+        $k = 0;
+        $sql = sprintf( 'INSERT INTO `%s` ( %s ) VALUES ( %s ) ON DUPLICATE KEY UPDATE %s', $this->getTableName( $table ), $keyMarksTxt, $valueMarksTxt, $updateMarksTxt );
+        $statement = $this->pdo->prepare( $sql );
+        foreach ( $data as $row ) {
+            foreach ( $row as $value ) {
+                $statement->bindValue( ++$k, $value );
+            }
+        }
+
+        if ( !$statement->execute() ) {
+            list(,, $errorInfo ) = $statement->errorInfo();
+            throw new \Exception( $errorInfo );
+        }
+    }
+
+    /**
+     * @param string $table
+     * @param array $data [ key => value ]
      * @param array $conditions
      */
     public function update( $table, array $data, array $conditions = [] )
