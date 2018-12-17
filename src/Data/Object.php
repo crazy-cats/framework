@@ -95,11 +95,20 @@ class Object implements \ArrayAccess {
 
             case 'has':
                 $key = $this->underscore( substr( $method, 3 ) );
-                return isset( $this->_data[$key] );
+                return isset( $this->data[$key] );
 
             default :
                 throw new \Exception( sprintf( 'Invalid method %s::%s', get_class( $this ), $method ) );
         }
+    }
+
+    /**
+     * @param string $key
+     * @return boolean
+     */
+    public function hasData( $key )
+    {
+        return isset( $this->data[$key] );
     }
 
     /**
