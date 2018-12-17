@@ -14,9 +14,11 @@ use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\Handler\ErrorHandler;
 use CrazyCat\Framework\App\Handler\ExceptionHandler;
 use CrazyCat\Framework\App\Io\Factory as IoFactory;
+use CrazyCat\Framework\App\Io\Http\Response\ContentType;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
+use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Translator;
 
 /**
@@ -183,11 +185,11 @@ class App {
 
         /* @var $theme \CrazyCat\Framework\App\Theme */
         list( $areaCode, $themeName ) = $pathArr;
-        $theme = $this->objectManager->get( \CrazyCat\Framework\App\Theme\Manager::class )->init()
+        $theme = $this->objectManager->get( ThemeManager::class )->init()
                 ->getTheme( $areaCode, $themeName );
 
         /* @var $module \CrazyCat\Framework\App\Module */
-        if ( isset( $pathArr[4] ) && ( $module = $this->objectManager->get( \CrazyCat\Framework\App\Module\Manager::class )
+        if ( isset( $pathArr[4] ) && ( $module = $this->objectManager->get( ModuleManager::class )
                 ->getModule( $pathArr[2] . '\\' . $pathArr[3] ) ) ) {
             $staticPath = $module['config']['namespace'] . '::' . substr( $path, strlen( $areaCode ) + strlen( $themeName ) + strlen( $module['config']['namespace'] ) + 3 );
         }
@@ -196,6 +198,7 @@ class App {
         }
 
         if ( ( $filePath = $theme->getStaticPath( $staticPath ) ) ) {
+            header( 'Content-Type: ' . $this->objectManager->get( ContentType::class )->getByExt( pathinfo( $filePath )['extension'] ) );
             $theme->generateStaticFile( $areaCode, $themeName, $staticPath );
             readfile( $filePath );
         }
