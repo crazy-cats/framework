@@ -33,7 +33,7 @@ class Block extends \CrazyCat\Framework\Data\Object {
     /**
      * @var \CrazyCat\Framework\App\Module\Manager
      */
-    private $moduleManager;
+    protected $moduleManager;
 
     /**
      * @var \CrazyCat\Framework\App\Registry
