@@ -102,6 +102,7 @@ class Manager {
         }
 
         session_set_save_handler( $this->objectManager->get( $saveHandler, [ 'config' => $config, 'areaCode' => $this->area->getCode() ] ) );
+        session_set_cookie_params( $this->cookies->getDuration(), $this->cookies->getPath(), $this->cookies->getDomain() );
         session_name( self::SESSION_NAME );
         session_id( $this->generateSessionId() );
         session_start();

@@ -38,7 +38,7 @@ class Cookies {
     {
         $baseUrl = $url->getBaseUrl();
         if ( $area->getCode() == Area::CODE_BACKEND ) {
-            $baseUrl = $baseUrl . $config->getData( Area::CODE_BACKEND )['route'];
+            $baseUrl = $baseUrl . $config->getData( Area::CODE_BACKEND )['route'] . '/';
         }
         $urlInfo = parse_url( $baseUrl );
 
@@ -48,7 +48,32 @@ class Cookies {
     }
 
     /**
-     * @param string
+     * @return int
+     */
+    public function getDuration()
+    {
+        return $this->duration;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDomain()
+    {
+        return $this->domain;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $key
+     * @return string|null
      */
     public function getData( $key )
     {
@@ -57,17 +82,21 @@ class Cookies {
     }
 
     /**
-     * @param string
-     * @param mixed
+     * @param string $key
+     * @param string $value
+     * @param int|null $duration
      */
     public function setData( $key, $value, $duration = null )
     {
         setcookie( $key, $value, time() + ( $duration ? $duration : $this->duration ), $this->path, $this->domain );
     }
 
+    /**
+     * @param string $key
+     */
     public function unsetData( $key )
     {
-        setcookie( $key, null, time() - 3600, $this->path, $this->domain );
+        setcookie( $key, 'deleted', time() - 31536000, '/', $this->domain );
     }
 
 }
