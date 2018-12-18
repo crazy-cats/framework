@@ -50,9 +50,10 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
 
     public function __construct( EventManager $eventManager, DbManager $dbManager, array $data = [] )
     {
+        $this->eventManager = $eventManager;
+
         $this->construct();
         $this->conn = $dbManager->getConnection( $this->connName );
-        $this->eventManager = $eventManager;
 
         parent::__construct( $data );
     }
@@ -100,24 +101,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      */
     protected function beforeLoad()
     {
-        $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
-        $this->eventManager->dispatch( $this->modelName . '_save_before', [ 'model' => $this ] );
-    }
-
-    /**
-     * @return void
-     */
-    protected function afterLoad()
-    {
-        $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
-        $this->eventManager->dispatch( $this->modelName . '_save_after', [ 'model' => $this ] );
-    }
-
-    /**
-     * @return void
-     */
-    protected function beforeSave()
-    {
         $this->eventManager->dispatch( 'model_load_before', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_load_before', [ 'model' => $this ] );
     }
@@ -125,10 +108,28 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     /**
      * @return void
      */
-    protected function afterSave()
+    protected function afterLoad()
     {
         $this->eventManager->dispatch( 'model_load_after', [ 'model' => $this ] );
         $this->eventManager->dispatch( $this->modelName . '_load_after', [ 'model' => $this ] );
+    }
+
+    /**
+     * @return void
+     */
+    protected function beforeSave()
+    {
+        $this->eventManager->dispatch( 'model_save_before', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_save_before', [ 'model' => $this ] );
+    }
+
+    /**
+     * @return void
+     */
+    protected function afterSave()
+    {
+        $this->eventManager->dispatch( 'model_save_after', [ 'model' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_save_after', [ 'model' => $this ] );
     }
 
     /**
@@ -199,6 +200,14 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
         }
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModelName()
+    {
+        return $this->modelName;
     }
 
     abstract protected function construct();

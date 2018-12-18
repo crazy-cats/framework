@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Model;
 
 use CrazyCat\Framework\App\Db\Manager as DbManager;
+use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -47,6 +48,11 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
      * @var string
      */
     protected $modelClass;
+
+    /**
+     * @var string
+     */
+    protected $modelName;
 
     /**
      * @var string[]
@@ -100,9 +106,11 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         'ntoa' => "INET_NTOA(`%s`) LIKE ?",
     ];
 
-    public function __construct( ObjectManager $objectManager, DbManager $dbManager )
+    public function __construct( ObjectManager $objectManager, EventManager $eventManager, DbManager $dbManager )
     {
+        $this->eventManager = $eventManager;
         $this->objectManager = $objectManager;
+
         $this->construct();
         $this->conn = $dbManager->getConnection( $this->connName );
     }
@@ -113,6 +121,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     protected function init( $modelClass )
     {
         $this->modelClass = $modelClass;
+        $this->modelName = $this->objectManager->get( $modelClass )->getModelName();
         $this->idFieldName = $this->objectManager->get( $modelClass )->getIdFieldName();
         $this->mainTable = $this->objectManager->get( $modelClass )->getMainTable();
     }
@@ -151,6 +160,24 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             }
         }
         return [ $sql, $binds ];
+    }
+
+    /**
+     * @return void
+     */
+    protected function beforeLoad()
+    {
+        $this->eventManager->dispatch( 'collection_load_after', [ 'collection' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_collection_load_before', [ 'collection' => $this ] );
+    }
+
+    /**
+     * @return void
+     */
+    protected function afterLoad()
+    {
+        $this->eventManager->dispatch( 'collection_load_after', [ 'collection' => $this ] );
+        $this->eventManager->dispatch( $this->modelName . '_collection_load_after', [ 'collection' => $this ] );
     }
 
     /**
@@ -241,6 +268,8 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             return $this;
         }
 
+        $this->beforeLoad();
+
         if ( empty( $this->fields ) ) {
             $fields = '*';
         }
@@ -267,7 +296,10 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         foreach ( $this->conn->fetchAll( sprintf( 'SELECT %s FROM `%s` WHERE 1=1 %s %s %s', $fields, $table, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
         }
+
         $this->loaded = true;
+        $this->afterLoad();
+
         return $this;
     }
 
@@ -319,6 +351,14 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $binds = array_merge( $binds, $andBinds );
         }
         return $this->conn->fetchCol( sprintf( 'SELECT `%s` FROM `%s` WHERE 1=1 %s', $this->idFieldName, $table, $txtConditions ), $binds );
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Module\Model\AbstractModel|null
+     */
+    public function getFirstItem()
+    {
+        return $this->count() ? reset( $this->items ) : null;
     }
 
     /**
