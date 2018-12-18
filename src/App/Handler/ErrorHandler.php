@@ -79,9 +79,14 @@ class ErrorHandler {
     private function processHttpError( $errno, $errstr, $errfile, $errline )
     {
         if ( $this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam( HttpRequest::AJAX_PARAM ) ) {
-            $this->httpResponse->setType( HttpResponse::TYPE_JSON )
-                    ->setData( [ 'error' => true, 'message' => $errstr ] )
-                    ->send();
+            try {
+                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s\n", $errline, $errfile, $errstr ) );
+            }
+            catch ( \Exception $e ) {
+                $this->httpResponse->setType( HttpResponse::TYPE_JSON )
+                        ->setData( [ 'error' => true, 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString() ] )
+                        ->send();
+            }
         }
         else {
             try {
