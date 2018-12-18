@@ -197,6 +197,14 @@ abstract class AbstractViewAction extends AbstractAction {
     }
 
     /**
+     * @return \CrazyCat\Framework\App\Io\Http\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
      * @param string $path
      * @param array $params
      * @return void
