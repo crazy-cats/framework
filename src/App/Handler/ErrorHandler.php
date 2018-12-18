@@ -84,7 +84,7 @@ class ErrorHandler {
             }
             catch ( \Exception $e ) {
                 $this->httpResponse->setType( HttpResponse::TYPE_JSON )
-                        ->setData( [ 'error' => true, 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString() ] )
+                        ->setData( [ 'error' => true, 'message' => $errstr, 'trace' => $e->getMessage() . "\n" . $e->getTraceAsString() ] )
                         ->send();
             }
         }
@@ -93,7 +93,7 @@ class ErrorHandler {
                 throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s\n", $errline, $errfile, $errstr ) );
             }
             catch ( \Exception $e ) {
-                echo sprintf( '<pre>%s</pre>', $this->logError( $e->getMessage() . $e->getTraceAsString() . "\n" ) );
+                echo sprintf( '<pre>%s</pre>', $this->logError( $e->getMessage() . "\n" . $e->getTraceAsString() . "\n" ) );
             }
         }
     }
