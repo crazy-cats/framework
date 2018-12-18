@@ -240,6 +240,11 @@ abstract class AbstractViewAction extends AbstractAction {
         $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
 
         if ( !$this->skipRunning ) {
+            /**
+             * Theme manager initialization does NOT include setting current theme.
+             *     We need to do something before executing the specified view action,
+             *     such as setting current theme, initializing language etc..
+             */
             $this->themeManager->init();
             $this->eventManager->dispatch( 'themes_init_after', [ 'theme_manager' => $this->themeManager ] );
             $this->run();
