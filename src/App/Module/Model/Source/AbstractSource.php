@@ -72,7 +72,15 @@ abstract class AbstractSource {
     public function getLabel( $value )
     {
         $tmp = $this->toHashArray();
-        return isset( $tmp[$value] ) ? $tmp[$value] : null;
+        if ( is_array( $value ) ) {
+            foreach ( $value as &$v ) {
+                $v = isset( $tmp[$v] ) ? $tmp[$v] : null;
+            }
+            return implode( ', ', $value );
+        }
+        else {
+            return isset( $tmp[$value] ) ? $tmp[$value] : null;
+        }
     }
 
 }
