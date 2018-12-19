@@ -22,7 +22,7 @@ abstract class AbstractLangModel extends AbstractModel {
     /**
      * @var array
      */
-    static protected $langFields;
+    static protected $langFields = [];
 
     /**
      * @var \CrazyCat\Framework\App\Translator
@@ -60,8 +60,9 @@ abstract class AbstractLangModel extends AbstractModel {
         parent::init( $modelName, $mainTable, $idFieldName, $connName );
 
         $this->langTable = $this->mainTable . '_lang';
-        if ( static::$langFields === null ) {
-            static::$langFields = array_diff( $this->conn->getAllColumns( $this->langTable ), [ $this->idFieldName, $this->langFieldName ] );
+
+        if ( !isset( self::$langFields[static::class] ) ) {
+            self::$langFields[static::class] = $this->conn->getAllColumns( $this->langTable );
         }
     }
 
@@ -106,13 +107,13 @@ abstract class AbstractLangModel extends AbstractModel {
 
         $data = $this->getData();
         $dataFields = array_keys( $data );
-        $langFields = array_intersect( static::$langFields, $dataFields );
+        $langFields = array_intersect( self::$langFields[static::class], $dataFields );
         $mainValues = $langValues = [];
         foreach ( $data as $field => $value ) {
             if ( in_array( $field, $langFields ) ) {
                 $langValues[$field] = $value;
             }
-            else if ( in_array( $field, static::$mainFields ) ) {
+            else if ( in_array( $field, self::$mainFields[static::class] ) ) {
                 $mainValues[$field] = $value;
             }
         }

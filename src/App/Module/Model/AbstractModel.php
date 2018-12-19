@@ -21,7 +21,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     /**
      * @var array
      */
-    static protected $mainFields;
+    static protected $mainFields = [];
 
     /**
      * @var \CrazyCat\Framework\App\Db\AbstractAdapter
@@ -86,8 +86,8 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
 
         $this->conn = $this->dbManager->getConnection( $this->connName );
 
-        if ( static::$mainFields === null ) {
-            static::$mainFields = $this->conn->getAllColumns( $this->mainTable );
+        if ( !isset( self::$mainFields[static::class] ) ) {
+            self::$mainFields[static::class] = $this->conn->getAllColumns( $this->mainTable );
         }
     }
 
@@ -196,7 +196,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
 
         $data = $this->getData();
         foreach ( array_keys( $data ) as $key ) {
-            if ( !in_array( $key, static::$mainFields ) ) {
+            if ( !in_array( $key, self::$mainFields[static::class] ) ) {
                 unset( $data[$key] );
             }
         }
