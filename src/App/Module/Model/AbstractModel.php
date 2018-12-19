@@ -19,6 +19,11 @@ use CrazyCat\Framework\App\EventManager;
 abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
 
     /**
+     * @var array
+     */
+    static protected $mainFields;
+
+    /**
      * @var \CrazyCat\Framework\App\Db\AbstractAdapter
      */
     protected $conn;
@@ -80,6 +85,10 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
         $this->mainTable = $mainTable;
 
         $this->conn = $this->dbManager->getConnection( $this->connName );
+
+        if ( static::$mainFields === null ) {
+            static::$mainFields = $this->conn->getAllColumns( $this->mainTable );
+        }
     }
 
     /**
@@ -185,11 +194,17 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     {
         $this->beforeSave();
 
-        if ( $this->getData( $this->idFieldName ) ) {
-            $this->conn->update( $this->conn->getTableName( $this->mainTable ), $this->getData(), [ sprintf( '`%s` = ?', $this->idFieldName ) => $this->getData( $this->idFieldName ) ] );
+        $data = $this->getData();
+        foreach ( array_keys( $data ) as $key ) {
+            if ( !in_array( $key, static::$mainFields ) ) {
+                unset( $data[$key] );
+            }
+        }
+        if ( !empty( $data[$this->idFieldName] ) ) {
+            $this->conn->update( $this->conn->getTableName( $this->mainTable ), $data, [ sprintf( '`%s` = ?', $this->idFieldName ) => $data[$this->idFieldName] ] );
         }
         else {
-            $id = $this->conn->insert( $this->conn->getTableName( $this->mainTable ), $this->getData() );
+            $id = $this->conn->insert( $this->conn->getTableName( $this->mainTable ), $data );
             $this->setData( $this->idFieldName, $id );
         }
 

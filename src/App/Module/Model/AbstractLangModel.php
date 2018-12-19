@@ -104,20 +104,21 @@ abstract class AbstractLangModel extends AbstractModel {
     {
         $this->beforeSave();
 
-        $dataFields = array_keys( $this->data );
+        $data = $this->getData();
+        $dataFields = array_keys( $data );
         $langFields = array_intersect( static::$langFields, $dataFields );
         $mainValues = $langValues = [];
-        foreach ( $this->data as $field => $value ) {
+        foreach ( $data as $field => $value ) {
             if ( in_array( $field, $langFields ) ) {
                 $langValues[$field] = $value;
             }
-            else {
+            else if ( in_array( $field, static::$mainFields ) ) {
                 $mainValues[$field] = $value;
             }
         }
 
-        if ( $this->getData( $this->idFieldName ) ) {
-            $this->conn->update( $this->mainTable, $mainValues, [ sprintf( '`%s` = ?', $this->idFieldName ) => $this->getData( $this->idFieldName ) ] );
+        if ( !empty( $data[$this->idFieldName] ) ) {
+            $this->conn->update( $this->mainTable, $mainValues, [ sprintf( '`%s` = ?', $this->idFieldName ) => $data[$this->idFieldName] ] );
         }
         else {
             $id = $this->conn->insert( $this->mainTable, $mainValues );
