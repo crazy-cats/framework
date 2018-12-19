@@ -113,12 +113,15 @@ abstract class AbstractViewAction extends AbstractAction {
     }
 
     /**
-     * @param array $metaKeywords
+     * @param string|array $metaKeywords
      * @return $this
      */
-    protected function setMetaKeywords( array $metaKeywords )
+    protected function setMetaKeywords( $metaKeywords )
     {
-        $this->metaKeywords = implode( ', ', $metaKeywords );
+        if ( !is_array( $metaKeywords ) ) {
+            $metaKeywords = preg_split( '/,\s*/', $metaKeywords );
+        }
+        $this->metaKeywords = implode( ', ', array_unique( $metaKeywords ) );
         return $this;
     }
 
