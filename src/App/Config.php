@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Setup\Wizard;
 
 /**
@@ -20,12 +21,31 @@ class Config extends \CrazyCat\Framework\Data\Object {
     const DIR = DIR_APP . DS . 'config';
     const FILE = self::DIR . DS . 'env.php';
 
-    public function __construct( Wizard $wizard )
+    /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    private $area;
+
+    public function __construct( Area $area, Wizard $wizard )
     {
         if ( !is_file( self::FILE ) ) {
             $wizard->launch();
         }
         parent::__construct( require self::FILE );
+
+        $this->area = $area;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue( $path, $scope = null )
+    {
+        if ( $scope === null ) {
+            $scope = $this->area->getCode();
+        }
+        $config = $this->getData( $scope );
+        return isset( $config[$path] ) ? $config[$path] : null;
     }
 
 }
