@@ -304,6 +304,15 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     }
 
     /**
+     * @return \CrazyCat\Framework\Data\Object|null
+     */
+    public function getItemById( $id )
+    {
+        $this->load();
+        return parent::getItemById( $id );
+    }
+
+    /**
      * @return \Traversable
      */
     public function getIterator()

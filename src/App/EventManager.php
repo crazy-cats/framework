@@ -41,7 +41,10 @@ class EventManager {
         if ( !isset( $this->events[$eventName] ) ) {
             $this->events[$eventName] = [];
         }
-        $this->events[$eventName][] = $observer;
+        if ( !is_array( $observer ) ) {
+            $observer = [ $observer ];
+        }
+        $this->events[$eventName] = array_merge( $this->events[$eventName], $observer );
     }
 
     /**
@@ -59,7 +62,7 @@ class EventManager {
     public function dispatch( $eventName, array $data = [] )
     {
         if ( !empty( $this->events[$eventName] ) ) {
-            foreach ( $this->events[$eventName] as $observer ) {
+            foreach ( array_unique( $this->events[$eventName] ) as $observer ) {
                 $this->objectManager->create( $observer )->execute( new Object( $data ) );
             }
         }

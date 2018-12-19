@@ -21,6 +21,14 @@ class Collection implements \IteratorAggregate, \Countable {
     protected $items = [];
 
     /**
+     * @return \CrazyCat\Framework\Data\Object|null
+     */
+    public function getItemById( $id )
+    {
+        return isset( $this->items[$id] ) ? $this->items[$id] : null;
+    }
+
+    /**
      * @return \Traversable
      */
     public function getIterator()
