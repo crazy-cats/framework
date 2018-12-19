@@ -1,6 +1,6 @@
 {
     "name": "crazycat/framework",
-    "description": "Framework of CrazyCat platform",
+    "description": "CrazyCat Framework",
     "type": "crazycat-library",
     "license": [
         "proprietary"
