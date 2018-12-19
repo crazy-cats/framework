@@ -88,22 +88,22 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
      * @var array
      */
     protected $keyMap = [
-        'eq' => "`%s` = ?",
-        'neq' => "`%s` != ?",
-        'like' => "`%s` LIKE ?",
-        'nlike' => "`%s` NOT LIKE ?",
-        'in' => "`%s` IN(?)",
-        'nin' => "`%s` NOT IN(?)",
-        'is' => "`%s` IS ?",
-        'notnull' => "`%s` IS NOT NULL",
-        'null' => "`%s` IS NULL",
-        'gt' => "`%s` > ?",
-        'lt' => "`%s` < ?",
-        'gteq' => "`%s` >= ?",
-        'lteq' => "`%s` <= ?",
-        'finset' => "FIND_IN_SET(?, `%s`)",
-        'regexp' => "`%s` REGEXP ?",
-        'ntoa' => "INET_NTOA(`%s`) LIKE ?",
+        'eq' => "%s = ?",
+        'neq' => "%s != ?",
+        'like' => "%s LIKE ?",
+        'nlike' => "%s NOT LIKE ?",
+        'in' => "%s IN(?)",
+        'nin' => "%s NOT IN(?)",
+        'is' => "%s IS ?",
+        'notnull' => "%s IS NOT NULL",
+        'null' => "%s IS NULL",
+        'gt' => "%s > ?",
+        'lt' => "%s < ?",
+        'gteq' => "%s >= ?",
+        'lteq' => "%s <= ?",
+        'finset' => "FIND_IN_SET(?, %s)",
+        'regexp' => "%s REGEXP ?",
+        'ntoa' => "INET_NTOA(%s) LIKE ?",
     ];
 
     public function __construct( ObjectManager $objectManager, EventManager $eventManager, DbManager $dbManager )
@@ -151,10 +151,10 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
                         $mask .= ', ?';
                         $binds[] = $val;
                     }
-                    $sql .= sprintf( strtr( $this->keyMap[$symbol], [ '?' => ltrim( $mask, ', ' ) ] ), $field );
+                    $sql .= sprintf( strtr( $this->keyMap[$symbol], [ '?' => ltrim( $mask, ', ' ) ] ), ( '`' . $field . '`' ) );
                 }
                 else {
-                    $sql .= sprintf( $this->keyMap[$symbol], $field );
+                    $sql .= sprintf( $this->keyMap[$symbol], ( '`' . $field . '`' ) );
                     $binds[] = $value;
                 }
             }
@@ -293,7 +293,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
         }
         $sortOrders = empty( $this->sortOrders ) ? '' : ( 'ORDER BY ' . implode( ', ', $this->sortOrders ) );
         $limitation = $this->pageSize ? ( 'LIMIT ' . $this->pageSize * ( $this->currentPage - 1 ) . ', ' . $this->pageSize ) : '';
-        foreach ( $this->conn->fetchAll( sprintf( 'SELECT %s FROM `%s` WHERE 1=1 %s %s %s', $fields, $table, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
+        foreach ( $this->conn->fetchAll( sprintf( 'SELECT %s FROM `%s` AS `main` WHERE 1=1 %s %s %s', $fields, $table, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
         }
 
@@ -334,7 +334,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $txtConditions .= ' AND ( ' . $andSql . ' )';
             $binds = array_merge( $binds, $andBinds );
         }
-        return (int) $this->conn->fetchOne( sprintf( 'SELECT COUNT(*) FROM `%s` WHERE 1=1 %s', $table, $txtConditions ), $binds );
+        return (int) $this->conn->fetchOne( sprintf( 'SELECT COUNT(*) FROM `%s` AS `main` WHERE 1=1 %s', $table, $txtConditions ), $binds );
     }
 
     /**
@@ -350,7 +350,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
             $txtConditions .= ' AND ( ' . $andSql . ' )';
             $binds = array_merge( $binds, $andBinds );
         }
-        return $this->conn->fetchCol( sprintf( 'SELECT `%s` FROM `%s` WHERE 1=1 %s', $this->idFieldName, $table, $txtConditions ), $binds );
+        return $this->conn->fetchCol( sprintf( 'SELECT `%s` FROM `%s` AS `main` WHERE 1=1 %s', $this->idFieldName, $table, $txtConditions ), $binds );
     }
 
     /**

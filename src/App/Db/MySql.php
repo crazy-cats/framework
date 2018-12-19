@@ -200,7 +200,7 @@ class MySql extends AbstractAdapter {
 
     /**
      * @param string $table
-     * @param array $data [ key => value ]
+     * @param array $data [ [ key => value ], [ key => value ], ... ]
      * @return int
      */
     public function insertUpdate( $table, array $data, $updateFields )
@@ -352,6 +352,15 @@ class MySql extends AbstractAdapter {
             list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( sprintf( "%s, SQL is:\n%s", $errorInfo, $sql ) );
         }
+    }
+
+    /**
+     * @param string $table
+     * @return array
+     */
+    public function getAllColumns( $table )
+    {
+        return $this->fetchCol( sprintf( 'SHOW COLUMNS FROM `%s`;', $this->getTableName( $table ) ) );
     }
 
     /**

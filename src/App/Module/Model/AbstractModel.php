@@ -24,6 +24,11 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
     protected $conn;
 
     /**
+     * @var \CrazyCat\Framework\App\Db\Manager
+     */
+    protected $dbManager;
+
+    /**
      * @var \CrazyCat\Framework\App\EventManager
      */
     protected $eventManager;
@@ -50,10 +55,10 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
 
     public function __construct( EventManager $eventManager, DbManager $dbManager, array $data = [] )
     {
+        $this->dbManager = $dbManager;
         $this->eventManager = $eventManager;
 
         $this->construct();
-        $this->conn = $dbManager->getConnection( $this->connName );
 
         parent::__construct( $data );
     }
@@ -63,13 +68,18 @@ abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
      * @param string $mainTable
      * @param string $idFieldName
      * @param string $connName
+     * @return void
      */
-    protected function init( $modelName, $mainTable, $idFieldName = 'id', $connName = 'default' )
+    protected function init()
     {
+        list( $modelName, $mainTable, $idFieldName, $connName ) = array_pad( func_get_args(), 4, null );
+
+        $this->connName = $connName ?: 'default';
+        $this->idFieldName = $idFieldName ?: 'id';
         $this->modelName = $modelName;
-        $this->connName = $connName;
         $this->mainTable = $mainTable;
-        $this->idFieldName = $idFieldName;
+
+        $this->conn = $this->dbManager->getConnection( $this->connName );
     }
 
     /**
