@@ -178,6 +178,9 @@ abstract class AbstractViewAction extends AbstractAction {
     protected function render()
     {
         $page = $this->themeManager->getCurrentTheme()->getPage();
+
+        $this->eventManager->dispatch( 'page_render_before', [ 'page' => $page, 'action' => $this ] );
+
         if ( $this->layout !== null ) {
             $page->setLayout( $this->layout );
         }
@@ -193,6 +196,7 @@ abstract class AbstractViewAction extends AbstractAction {
         if ( $this->metaRobots !== null ) {
             $page->setData( 'meta_robots', $this->metaRobots );
         }
+
         $this->response->setType( Response::TYPE_PAGE )->setBody( $page->toHtml() );
     }
 
