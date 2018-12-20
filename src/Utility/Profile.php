@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\Utility;
 
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -60,19 +61,20 @@ class Profile {
      * @param array|null $profiles
      * @return string
      */
-    static private function getResultHtml( $profiles, $level = 1 )
+    static private function getResultHtml( $profiles, $level = 0 )
     {
         $html = '';
         $now = microtime( true );
         $nowUsedMemory = memory_get_usage();
         foreach ( $profiles as $profile ) {
+            $spaces = str_repeat( '&nbsp;', 4 * $level );
             $usedTime = ( ( isset( $profile['end_at'] ) ? $profile['end_at'] : $now ) - $profile['start_at'] ) * 1000;
             $usedMemory = ( ( isset( $profile['end_used_memory'] ) ? $profile['end_used_memory'] : $nowUsedMemory ) - $profile['start_used_memory'] );
-            $html .= sprintf( '<tr class="level-%d"><td>Start <span class="profile">%s</span></td><td>%s</td><td>%s</td></tr>', $level, $profile['title'], $usedTime, $usedMemory );
+            $html .= sprintf( '<tr><td>%sStart <span class="profile">%s</span></td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
             if ( !empty( $profile['children'] ) ) {
                 $html .= self::getResultHtml( $profile['children'], $level + 1 );
             }
-            $html .= sprintf( '<tr class="level-%d"><td>End <span class="profile">%s</span></td><td>%s</td><td>%s</td></tr>', $level, $profile['title'], $usedTime, $usedMemory );
+            $html .= sprintf( '<tr><td>%sEnd <span class="profile">%s</span></td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
         }
         return $html;
     }
@@ -82,14 +84,15 @@ class Profile {
      */
     static public function printProfiles()
     {
-        if ( !ObjectManager::getInstance()->get( Config::class )->getValue( 'profile' ) ) {
+        if ( !ObjectManager::getInstance()->get( Config::class )->getValue( 'profile' ) ||
+                ObjectManager::getInstance()->get( Request::class )->getParam( Request::AJAX_PARAM ) ) {
             return;
         }
         echo sprintf( '<table class="profiles"><thead><tr>' .
                 '<th>Profile Name</th>' .
                 '<th>Used Time (ms)</th>' .
                 '<th>Used Memory (byte)</th></tr></thead>' .
-                '<tbody>%s</tbody></table>', self::getResultHtml( self::getNestingProfiles() ) );
+                '<tbody>%s</tbody><tfoot><tr><td colspan="3">&nbsp;</td></tr></tfoot></table>', self::getResultHtml( self::getNestingProfiles() ) );
     }
 
     /**
