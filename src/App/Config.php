@@ -45,7 +45,13 @@ class Config extends \CrazyCat\Framework\Data\Object {
             $scope = $this->area->getCode();
         }
         $config = $this->getData( $scope );
-        return isset( $config[$path] ) ? $config[$path] : null;
+
+        if ( isset( $config[$path] ) ) {
+            return $config[$path];
+        }
+
+        $globalConfig = $this->getData( Area::CODE_GLOBAL );
+        return isset( $globalConfig[$path] ) ? $globalConfig[$path] : null;
     }
 
 }
