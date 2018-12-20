@@ -136,40 +136,52 @@ class App {
      */
     public function run( $composerLoader, $areaCode = null )
     {
+        profile_start( 'Run APP' );
+
         /**
          * Use UTC time as system time, for calculation and storage
          */
         ini_set( 'date.timezone', 'UTC' );
 
+        profile_start( 'Initializing Components' );
         $components = $this->initComponents( $composerLoader );
+        profile_end( 'Initializing Components' );
 
         /**
          * Dependency Injections
          */
+        profile_start( 'Initializing Dependency Injections' );
         $cacheDependencyInjections = $this->cacheFactory->create( ObjectManager::CACHE_DI_NAME );
         if ( empty( $dependencyInjections = $cacheDependencyInjections->getData() ) ) {
             $dependencyInjections = $this->moduleManager->collectDependencyInjections();
             $cacheDependencyInjections->setData( $dependencyInjections )->save();
         }
         $this->objectManager->collectPreferences( $dependencyInjections );
+        profile_end( 'Initializing Dependency Injections' );
 
         /**
          * Translations will be collected on the first usage of `translate` method,
          *     so no need to worry about the area code here.
          */
+        profile_start( 'Initializing Translator' );
         $this->translator->init( $components[ComponentSetup::TYPE_LANG] );
+        profile_end( 'Initializing Translator' );
 
         /**
          * The IO factory creates a suitable request object for runtime environment,
          *     area code is specified in `process` method of the object.
          */
+        profile_start( 'Process Request' );
         $this->request = $this->ioFactory->create( $areaCode );
         $this->request->process();
+        profile_end( 'Process Request' );
 
         if ( $this->request->getModuleName() ) {
             $this->moduleManager->getModule( $this->request->getModuleName() )
                     ->launch( $this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName() );
         }
+
+        profile_end( 'Run APP' );
     }
 
     /**

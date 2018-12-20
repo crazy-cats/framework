@@ -16,6 +16,7 @@ use CrazyCat\Framework\App\Url;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Translator;
 use CrazyCat\Framework\Utility\Html;
+use CrazyCat\Framework\Utility\Profile;
 
 /**
  * @param string $text
@@ -104,4 +105,22 @@ function spaceString()
 function selectOptionsHtml( array $options, $value = null )
 {
     return Html::selectOptionsHtml( $options, $value );
+}
+
+/**
+ * @param string $name
+ * @return void
+ */
+function profile_start( $name )
+{
+    Profile::start( $name );
+}
+
+/**
+ * @param string $name
+ * @return void
+ */
+function profile_end( $name )
+{
+    Profile::end( $name );
 }

@@ -108,7 +108,7 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
                 break;
         }
 
-        exit( $this->body );
+        echo $this->body;
     }
 
 }
