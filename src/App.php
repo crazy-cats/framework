@@ -125,8 +125,13 @@ class App {
         set_error_handler( [ $this->errorHandler, 'process' ] );
         set_exception_handler( [ $this->exceptionHandler, 'process' ] );
 
-        $components = $this->componentSetup->init( $composerLoader, ROOT );
+        profile_start( 'Collect components' );
+        $components = $this->componentSetup->init( $composerLoader );
+        profile_end( 'Collect components' );
+
+        profile_start( 'Initializing modules' );
         $this->moduleManager->init( $components[ComponentSetup::TYPE_MODULE] );
+        profile_end( 'Initializing modules' );
 
         return $components;
     }

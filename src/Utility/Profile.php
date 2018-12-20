@@ -70,11 +70,14 @@ class Profile {
             $spaces = str_repeat( '&nbsp;', 4 * $level );
             $usedTime = ( ( isset( $profile['end_at'] ) ? $profile['end_at'] : $now ) - $profile['start_at'] ) * 1000;
             $usedMemory = ( ( isset( $profile['end_used_memory'] ) ? $profile['end_used_memory'] : $nowUsedMemory ) - $profile['start_used_memory'] );
-            $html .= sprintf( '<tr><td>%s<span class="profile">%s</span> start</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], '-', '-' );
             if ( !empty( $profile['children'] ) ) {
-                $html .= self::getResultHtml( $profile['children'], $level + 1 );
+                $html .= sprintf( '<tr><td>%s<span>%s</span> start</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], '-', '-' ) .
+                        self::getResultHtml( $profile['children'], $level + 1 ) .
+                        sprintf( '<tr><td>%s<span>%s</span> end</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
             }
-            $html .= sprintf( '<tr><td>%s<span class="profile">%s</span> end</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
+            else {
+                $html .= sprintf( '<tr><td>%s<span>%s</span></td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
+            }
         }
         return $html;
     }
@@ -109,8 +112,7 @@ class Profile {
 
         self::$profiles[implode( '/', self::$currentProfileNames )] = [
             'start_at' => microtime( true ),
-            'start_used_memory' => memory_get_usage(),
-            'start_real_used_memory' => memory_get_usage( true )
+            'start_used_memory' => memory_get_usage()
         ];
     }
 
@@ -127,7 +129,6 @@ class Profile {
         $path = implode( '/', self::$currentProfileNames );
         self::$profiles[$path]['end_at'] = microtime( true );
         self::$profiles[$path]['end_used_memory'] = memory_get_usage();
-        self::$profiles[$path]['end_real_used_memory'] = memory_get_usage( true );
 
         array_pop( self::$currentProfileNames );
     }

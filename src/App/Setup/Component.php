@@ -75,7 +75,7 @@ class Component {
     {
         $cache = $this->cacheFactory->create( self::CACHE_NAME );
 
-        if ( $forceGenerate || !( $this->components = $cache->getData() ) ) {
+        if ( $forceGenerate || !( $components = $cache->getData() ) ) {
 
             /**
              * Add modules of which source codes are in `app/modules` as Psr4 packages
@@ -113,6 +113,12 @@ class Component {
              * Store in cache
              */
             $cache->setData( $this->components )->save();
+        }
+        else {
+            foreach ( $components[self::TYPE_MODULE] as $namespace => $component ) {
+                $composerLoader->addPsr4( $namespace . '\\', $component['dir'] . DS . 'code' );
+            }
+            $this->components = $components;
         }
 
         return $this->components;
