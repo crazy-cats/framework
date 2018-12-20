@@ -80,7 +80,7 @@ class ErrorHandler {
     {
         if ( $this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam( HttpRequest::AJAX_PARAM ) ) {
             try {
-                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s\n", $errline, $errfile, $errstr ) );
+                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s", $errline, $errfile, $errstr ) );
             }
             catch ( \Exception $e ) {
                 $this->httpResponse->setType( HttpResponse::TYPE_JSON )
@@ -90,7 +90,7 @@ class ErrorHandler {
         }
         else {
             try {
-                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s\n", $errline, $errfile, $errstr ) );
+                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s", $errline, $errfile, $errstr ) );
             }
             catch ( \Exception $e ) {
                 echo sprintf( '<pre>%s</pre>', $this->logError( $e->getMessage() . "\n" . $e->getTraceAsString() . "\n" ) );

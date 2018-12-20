@@ -18,7 +18,7 @@ class Object implements \ArrayAccess {
     /**
      * @var string[]
      */
-    static private $underscoreCache;
+    static protected $underscoreCache;
 
     /**
      * @var array
@@ -34,7 +34,7 @@ class Object implements \ArrayAccess {
      * @param string $name
      * @return string
      */
-    private function underscore( $name )
+    protected function underscore( $name )
     {
         if ( isset( self::$underscoreCache[$name] ) ) {
             return self::$underscoreCache[$name];
@@ -49,7 +49,7 @@ class Object implements \ArrayAccess {
      * @param array $objectHashs
      * @return array
      */
-    private function debug( $data = null, &$objectHashs = [] )
+    protected function debug( $data = null, &$objectHashs = [] )
     {
         if ( $data === null ) {
             $hash = spl_object_hash( $this );
@@ -73,6 +73,27 @@ class Object implements \ArrayAccess {
             }
         }
         return $result;
+    }
+
+    /**
+     * @param array $a
+     * @param array $b
+     * @return array
+     */
+    protected function mergeData( $a, $b )
+    {
+        foreach ( $b as $key => $value ) {
+            if ( !isset( $a[$key] ) || $a[$key] === null ) {
+                $a[$key] = $value;
+            }
+            else if ( is_array( $value ) && is_array( $a[$key] ) ) {
+                $a[$key] = $this->mergeData( $a[$key], $value );
+            }
+            else if ( gettype( $a[$key] ) == gettype( $value ) ) {
+                $a[$key] = $value;
+            }
+        }
+        return $a;
     }
 
     /**
@@ -128,7 +149,7 @@ class Object implements \ArrayAccess {
      */
     public function addData( array $data )
     {
-        $this->data = array_merge_recursive( $this->data, $data );
+        $this->data = $this->mergeData( $this->data, $data );
         return $this;
     }
 
