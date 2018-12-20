@@ -70,11 +70,11 @@ class Profile {
             $spaces = str_repeat( '&nbsp;', 4 * $level );
             $usedTime = ( ( isset( $profile['end_at'] ) ? $profile['end_at'] : $now ) - $profile['start_at'] ) * 1000;
             $usedMemory = ( ( isset( $profile['end_used_memory'] ) ? $profile['end_used_memory'] : $nowUsedMemory ) - $profile['start_used_memory'] );
-            $html .= sprintf( '<tr><td>%sStart <span class="profile">%s</span></td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
+            $html .= sprintf( '<tr><td>%s<span class="profile">%s</span> start</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], '-', '-' );
             if ( !empty( $profile['children'] ) ) {
                 $html .= self::getResultHtml( $profile['children'], $level + 1 );
             }
-            $html .= sprintf( '<tr><td>%sEnd <span class="profile">%s</span></td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
+            $html .= sprintf( '<tr><td>%s<span class="profile">%s</span> end</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
         }
         return $html;
     }

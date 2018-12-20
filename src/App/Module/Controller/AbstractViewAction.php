@@ -243,8 +243,10 @@ abstract class AbstractViewAction extends AbstractAction {
             $this->translator->setLangCode( $langCode );
         }
 
+        profile_start( 'Execute action before' );
         parent::execute();
         $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
+        profile_end( 'Execute action before' );
 
         if ( !$this->skipRunning ) {
             /**
@@ -252,9 +254,15 @@ abstract class AbstractViewAction extends AbstractAction {
              *     We need to do something before executing the specified view action,
              *     such as setting current theme, initializing language etc..
              */
+            profile_start( 'Initializing themes' );
             $this->themeManager->init();
+            profile_end( 'Initializing themes' );
+
             $this->eventManager->dispatch( 'themes_init_after', [ 'theme_manager' => $this->themeManager ] );
+
+            profile_start( 'Execute action' );
             $this->run();
+            profile_end( 'Execute action' );
         }
 
         $this->response->send();

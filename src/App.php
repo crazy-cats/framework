@@ -143,38 +143,38 @@ class App {
          */
         ini_set( 'date.timezone', 'UTC' );
 
-        profile_start( 'Initializing Components' );
+        profile_start( 'Initializing components' );
         $components = $this->initComponents( $composerLoader );
-        profile_end( 'Initializing Components' );
+        profile_end( 'Initializing components' );
 
         /**
          * Dependency Injections
          */
-        profile_start( 'Initializing Dependency Injections' );
+        profile_start( 'Initializing dependency injections' );
         $cacheDependencyInjections = $this->cacheFactory->create( ObjectManager::CACHE_DI_NAME );
         if ( empty( $dependencyInjections = $cacheDependencyInjections->getData() ) ) {
             $dependencyInjections = $this->moduleManager->collectDependencyInjections();
             $cacheDependencyInjections->setData( $dependencyInjections )->save();
         }
         $this->objectManager->collectPreferences( $dependencyInjections );
-        profile_end( 'Initializing Dependency Injections' );
+        profile_end( 'Initializing dependency injections' );
 
         /**
          * Translations will be collected on the first usage of `translate` method,
          *     so no need to worry about the area code here.
          */
-        profile_start( 'Initializing Translator' );
+        profile_start( 'Initializing translator' );
         $this->translator->init( $components[ComponentSetup::TYPE_LANG] );
-        profile_end( 'Initializing Translator' );
+        profile_end( 'Initializing translator' );
 
         /**
          * The IO factory creates a suitable request object for runtime environment,
          *     area code is specified in `process` method of the object.
          */
-        profile_start( 'Process Request' );
+        profile_start( 'Process request' );
         $this->request = $this->ioFactory->create( $areaCode );
         $this->request->process();
-        profile_end( 'Process Request' );
+        profile_end( 'Process request' );
 
         if ( $this->request->getModuleName() ) {
             $this->moduleManager->getModule( $this->request->getModuleName() )
