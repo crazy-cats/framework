@@ -19,6 +19,8 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Profile {
 
+    const PATH_SEPARATOR = '|||';
+
     /**
      * @var array
      */
@@ -49,10 +51,11 @@ class Profile {
     static private function getNestingProfiles()
     {
         $profiles = [];
+        $dx = strlen( self::PATH_SEPARATOR );
         foreach ( self::$profiles as $path => $profile ) {
-            $profile['title'] = self::getName( strrpos( $path, '/' ) !== false ? substr( $path, strrpos( $path, '/' ) + 1 ) : $path );
+            $profile['title'] = self::getName( strrpos( $path, self::PATH_SEPARATOR ) !== false ? substr( $path, strrpos( $path, self::PATH_SEPARATOR ) + $dx ) : $path );
             $profile['children'] = [];
-            eval( '$profiles[\'' . implode( '\'][\'children\'][\'', explode( '/', $path ) ) . '\'] = $profile;' );
+            eval( '$profiles[\'' . implode( '\'][\'children\'][\'', explode( self::PATH_SEPARATOR, $path ) ) . '\'] = $profile;' );
         }
         return $profiles;
     }
@@ -114,7 +117,7 @@ class Profile {
         $realName = $name . '_' . self::$profileNames[$name] ++;
         array_push( self::$currentProfileNames, $realName );
 
-        self::$profiles[implode( '/', self::$currentProfileNames )] = [
+        self::$profiles[implode( self::PATH_SEPARATOR, self::$currentProfileNames )] = [
             'start_at' => microtime( true ),
             'start_used_memory' => memory_get_usage()
         ];
@@ -134,7 +137,7 @@ class Profile {
             throw new \Exception( sprintf( 'Not an expected end name `%s`.', $name ) );
         }
 
-        $path = implode( '/', self::$currentProfileNames );
+        $path = implode( self::PATH_SEPARATOR, self::$currentProfileNames );
         self::$profiles[$path]['end_at'] = microtime( true );
         self::$profiles[$path]['end_used_memory'] = memory_get_usage();
 
