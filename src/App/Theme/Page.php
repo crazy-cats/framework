@@ -127,8 +127,10 @@ class Page extends \CrazyCat\Framework\Data\Object {
     {
         foreach ( $blocksLayout as $sectionName => $blocks ) {
             $this->sectionsHtml[$sectionName] = '';
-            foreach ( $blocks as $blockInfo ) {
-                $this->sectionsHtml[$sectionName] .= $this->objectManager->create( $blockInfo['class'], [ 'data' => isset( $blockInfo['data'] ) ? $blockInfo['data'] : [] ] )->toHtml();
+            foreach ( $blocks as $blockName => $blockInfo ) {
+                $data = isset( $blockInfo['data'] ) ? $blockInfo['data'] : [];
+                $data['name'] = $blockName;
+                $this->sectionsHtml[$sectionName] .= $this->objectManager->create( $blockInfo['class'], [ 'data' => $data ] )->toHtml();
             }
         }
     }

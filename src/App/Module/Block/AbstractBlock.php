@@ -14,5 +14,16 @@ namespace CrazyCat\Framework\App\Module\Block;
  * @link http://crazy-cat.co
  */
 abstract class AbstractBlock extends \CrazyCat\Framework\App\Theme\Block {
-    
+
+    public function toHtml()
+    {
+        $profileName = 'Render block: ' . $this->getData( 'name' );
+
+        profile_start( $profileName );
+        $html = parent::toHtml();
+        profile_end( $profileName );
+
+        return $html;
+    }
+
 }
