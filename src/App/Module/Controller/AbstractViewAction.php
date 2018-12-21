@@ -243,10 +243,8 @@ abstract class AbstractViewAction extends AbstractAction {
             $this->translator->setLangCode( $langCode );
         }
 
-        profile_start( 'Execute action before' );
         parent::execute();
         $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
-        profile_end( 'Execute action before' );
 
         if ( !$this->skipRunning ) {
             /**

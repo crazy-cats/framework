@@ -67,16 +67,16 @@ class Profile {
         $now = microtime( true );
         $nowUsedMemory = memory_get_usage();
         foreach ( $profiles as $profile ) {
-            $spaces = str_repeat( '&nbsp;', 4 * $level );
+            $spaces = str_repeat( '>&nbsp;&nbsp;&nbsp;', $level );
             $usedTime = ( ( isset( $profile['end_at'] ) ? $profile['end_at'] : $now ) - $profile['start_at'] ) * 1000;
             $usedMemory = ( ( isset( $profile['end_used_memory'] ) ? $profile['end_used_memory'] : $nowUsedMemory ) - $profile['start_used_memory'] );
             if ( !empty( $profile['children'] ) ) {
-                $html .= sprintf( '<tr><td>%s<span>%s</span> start</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], '-', '-' ) .
+                $html .= sprintf( '<tr><td class="name">%s<span>%s</span> start</td><td class="time">%s</td><td class="memory">%s</td></tr>', $spaces, $profile['title'], '-', '-' ) .
                         self::getResultHtml( $profile['children'], $level + 1 ) .
-                        sprintf( '<tr><td>%s<span>%s</span> end</td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
+                        sprintf( '<tr><td class="name">%s<span>%s</span> end</td><td class="time">%s</td><td class="memory">%s</td></tr>', $spaces, $profile['title'], $usedTime, number_format( $usedMemory, 0, '.', ', ' ) );
             }
             else {
-                $html .= sprintf( '<tr><td>%s<span>%s</span></td><td>%s</td><td>%s</td></tr>', $spaces, $profile['title'], $usedTime, $usedMemory );
+                $html .= sprintf( '<tr><td class="name">%s<span>%s</span></td><td class="time">%s</td><td class="memory">%s</td></tr>', $spaces, $profile['title'], $usedTime, number_format( $usedMemory, 0, '.', ', ' ) );
             }
         }
         return $html;
@@ -92,9 +92,9 @@ class Profile {
             return;
         }
         echo sprintf( '<table class="profiles"><thead><tr>' .
-                '<th>Profile Name</th>' .
-                '<th>Used Time (ms)</th>' .
-                '<th>Used Memory (byte)</th></tr></thead>' .
+                '<th class="name">Profile Name</th>' .
+                '<th class="time">Used Time (ms)</th>' .
+                '<th class="memory">Used Memory (byte)</th></tr></thead>' .
                 '<tbody>%s</tbody><tfoot><tr><td colspan="3">&nbsp;</td></tr></tfoot></table>', self::getResultHtml( self::getNestingProfiles() ) );
     }
 
@@ -104,6 +104,10 @@ class Profile {
      */
     static public function start( $name )
     {
+        if ( !ObjectManager::getInstance()->get( Config::class )->getValue( 'profile' ) ) {
+            return;
+        }
+
         if ( !isset( self::$profileNames[$name] ) ) {
             self::$profileNames[$name] = 0;
         }
@@ -122,6 +126,10 @@ class Profile {
      */
     static public function end( $name )
     {
+        if ( !ObjectManager::getInstance()->get( Config::class )->getValue( 'profile' ) ) {
+            return;
+        }
+
         if ( $name != self::getName( self::$currentProfileNames[count( self::$currentProfileNames ) - 1] ) ) {
             throw new \Exception( sprintf( 'Not an expected end name `%s`.', $name ) );
         }

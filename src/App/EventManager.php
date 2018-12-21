@@ -62,9 +62,11 @@ class EventManager {
     public function dispatch( $eventName, array $data = [] )
     {
         if ( !empty( $this->events[$eventName] ) ) {
+            profile_start( 'Event: ' . $eventName );
             foreach ( array_unique( $this->events[$eventName] ) as $observer ) {
                 $this->objectManager->create( $observer )->execute( new Object( $data ) );
             }
+            profile_end( 'Event: ' . $eventName );
         }
     }
 
