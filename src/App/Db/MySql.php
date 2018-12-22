@@ -159,11 +159,11 @@ class MySql extends AbstractAdapter {
         }
         $statement->execute();
 
-        if ( !( $id = $this->pdo->lastInsertId() ) ) {
-            list(,, $errorInfo ) = $statement->errorInfo();
+        list(,, $errorInfo ) = $statement->errorInfo();
+        if ( $errorInfo ) {
             throw new \Exception( sprintf( "%s, SQL is:\n%s", $errorInfo, $sql ) );
         }
-        return $id;
+        return $this->pdo->lastInsertId();
     }
 
     /**
