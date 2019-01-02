@@ -106,7 +106,7 @@ abstract class AbstractLangCollection extends AbstractCollection {
         $this->beforeLoad();
 
         if ( empty( $this->fields ) ) {
-            $fields = '*';
+            $fields = '`main`.*, `lang`.`' . implode( '`, `lang`.`', $this->langFields ) . '`';
         }
         else {
             if ( !in_array( $this->idFieldName, $this->fields ) ) {

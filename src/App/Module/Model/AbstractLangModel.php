@@ -62,7 +62,13 @@ abstract class AbstractLangModel extends AbstractModel {
         $this->langTable = $this->mainTable . '_lang';
 
         if ( !isset( self::$langFields[static::class] ) ) {
-            self::$langFields[static::class] = $this->conn->getAllColumns( $this->langTable );
+            self::$langFields[static::class] = [];
+            foreach ( $this->conn->getAllColumns( $this->langTable ) as $field ) {
+                if ( $field == $this->idFieldName ) {
+                    continue;
+                }
+                self::$langFields[static::class][] = $field;
+            }
         }
     }
 
@@ -71,7 +77,7 @@ abstract class AbstractLangModel extends AbstractModel {
      */
     public function getLangFields()
     {
-        return static::$langFields;
+        return self::$langFields[static::class];
     }
 
     /**
@@ -87,7 +93,7 @@ abstract class AbstractLangModel extends AbstractModel {
         $langTable = $this->conn->getTableName( $this->langTable );
         $fieldName = ( $field === null ) ? $this->idFieldName : $field;
         $lang = $this->translator->getLangCode();
-        $sql = 'SELECT * ' .
+        $sql = 'SELECT `main`.*, `lang`.`' . implode( '`, `lang`.`', self::$langFields[static::class] ) . '`' .
                 'FROM `%s` AS `main` ' .
                 'LEFT JOIN `%s` AS `lang` ON `lang`.`%s` = `main`.`%s` AND `lang`.`%s` = ? ' .
                 'WHERE `main`.`%s` = ?';
