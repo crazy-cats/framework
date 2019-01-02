@@ -86,6 +86,7 @@ class ErrorHandler {
                 $this->httpResponse->setType( HttpResponse::TYPE_JSON )
                         ->setData( [ 'error' => true, 'message' => $errstr, 'trace' => $e->getMessage() . "\n" . $e->getTraceAsString() ] )
                         ->send();
+                exit;
             }
         }
         else {

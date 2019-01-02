@@ -76,6 +76,7 @@ class ExceptionHandler {
             $this->httpResponse->setType( HttpResponse::TYPE_JSON )
                     ->setData( [ 'error' => true, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString() ] )
                     ->send();
+            exit;
         }
         else {
             echo sprintf( '<pre>%s</pre>', $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() ) );

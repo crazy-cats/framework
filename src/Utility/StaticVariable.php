@@ -15,6 +15,7 @@ namespace CrazyCat\Framework\Utility;
  */
 class StaticVariable {
 
+    const GENERAL_SEPARATOR = ',';
     const NO_SELECTION = '_NO_SELECTION_';
 
 }

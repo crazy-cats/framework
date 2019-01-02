@@ -371,6 +371,30 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     }
 
     /**
+     * @return string
+     */
+    public function getIdFieldName()
+    {
+        return $this->idFieldName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMainTable()
+    {
+        return $this->mainTable;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModelName()
+    {
+        return $this->modelName;
+    }
+
+    /**
      * @return array
      */
     public function toArray()
