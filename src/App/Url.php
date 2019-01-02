@@ -182,7 +182,14 @@ class Url {
             return false;
         }
 
-        return $this->parsePath( substr( $pathUrl, strlen( $pathBaseUrl ) ) );
+        $params = [];
+        if ( isset( $infoUrl['query'] ) ) {
+            parse_str( $infoUrl['query'], $params );
+        }
+        $info = $this->parsePath( substr( $pathUrl, strlen( $pathBaseUrl ) ) );
+        $info['params'] = array_merge( $info['params'], $params );
+
+        return $info;
     }
 
     /**
@@ -200,10 +207,10 @@ class Url {
                 $this->httpRequest->getControllerName() == $info['controller'] &&
                 $this->httpRequest->getActionName() == $info['action'] ) {
             if ( ( $this->httpRequest->getParam( self::ID_NAME ) &&
-                    isset( $info['action']['params'][self::ID_NAME] ) &&
-                    $this->httpRequest->getParam( self::ID_NAME ) == $info['action']['params'][self::ID_NAME] ) ||
+                    isset( $info['params'][self::ID_NAME] ) &&
+                    $this->httpRequest->getParam( self::ID_NAME ) == $info['params'][self::ID_NAME] ) ||
                     ( $this->httpRequest->getParam( self::ID_NAME ) === null &&
-                    empty( $info['action']['params'][self::ID_NAME] ) ) ) {
+                    empty( $info['params'][self::ID_NAME] ) ) ) {
                 return true;
             }
         }
