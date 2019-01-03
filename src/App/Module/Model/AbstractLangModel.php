@@ -7,8 +7,10 @@
 
 namespace CrazyCat\Framework\App\Module\Model;
 
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\EventManager;
+use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Translator;
 
 /**
@@ -89,15 +91,25 @@ abstract class AbstractLangModel extends AbstractModel {
     {
         $this->beforeLoad();
 
+        $fieldsSql = '`main`.*, ' . implode( ', ', array_map( function( $field ) {
+                            return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
+                        }, self::$langFields[static::class] ) );
+
         $mainTable = $this->conn->getTableName( $this->mainTable );
         $langTable = $this->conn->getTableName( $this->langTable );
         $fieldName = ( $field === null ) ? $this->idFieldName : $field;
-        $lang = $this->translator->getLangCode();
-        $sql = 'SELECT `main`.*, `lang`.`' . implode( '`, `lang`.`', self::$langFields[static::class] ) . '`' .
+
+        $langCode = $this->translator->getLangCode();
+
+        $config = ObjectManager::getInstance()->get( Config::class );
+        $defLangCode = $config->getValue( 'general/default_languages' ) ?: $config->getValue( 'lang' );
+
+        $sql = 'SELECT %s ' .
                 'FROM `%s` AS `main` ' .
                 'LEFT JOIN `%s` AS `lang` ON `lang`.`%s` = `main`.`%s` AND `lang`.`%s` = ? ' .
+                'LEFT JOIN `%s` AS `defLang` ON `defLang`.`%s` = `main`.`%s` AND `defLang`.`%s` = ? ' .
                 'WHERE `main`.`%s` = ?';
-        $this->setData( $this->conn->fetchRow( sprintf( $sql, $mainTable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $fieldName ), [ $lang, $id ] ) );
+        $this->setData( $this->conn->fetchRow( sprintf( $sql, $fieldsSql, $mainTable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $fieldName ), [ $langCode, $defLangCode, $id ] ) );
 
         $this->afterLoad();
 

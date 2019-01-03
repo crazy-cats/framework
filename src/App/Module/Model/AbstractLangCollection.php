@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Module\Model;
 
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\ObjectManager;
@@ -106,22 +107,32 @@ abstract class AbstractLangCollection extends AbstractCollection {
         $this->beforeLoad();
 
         if ( empty( $this->fields ) ) {
-            $fields = '`main`.*, `lang`.`' . implode( '`, `lang`.`', $this->langFields ) . '`';
+            $fieldsSql = '`main`.*, ' . implode( ', ', array_map( function( $field ) {
+                                return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
+                            }, $this->langFields ) );
         }
         else {
             if ( !in_array( $this->idFieldName, $this->fields ) ) {
                 array_unshift( $this->fields, $this->idFieldName );
             }
-            $fields = '`' . implode( '`, `', $this->fields ) . '`';
+            $fieldsSql = '`main`.`' . implode( '`, `main`.`', array_diff( $this->fields, $this->langFields ) ) . '`, ' .
+                    implode( ', ', array_map( function( $field ) {
+                                return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
+                            }, array_intersect( $this->fields, $this->langFields ) ) );
         }
+
         $maintable = $this->conn->getTableName( $this->mainTable );
         $langTable = $this->conn->getTableName( $this->langTable );
+
+        $config = $this->objectManager->get( Config::class );
+        $defLangCode = $config->getValue( 'general/default_languages' ) ?: $config->getValue( 'lang' );
+
         /**
          * Structure of attribute `conditions` is like:
          *     [ [ cond1 OR cond2 ] AND [ cond3 OR cond4 ] AND [ cond5 ] ]
          */
         $txtConditions = '';
-        $binds = [ $this->translator->getLangCode() ];
+        $binds = [ $this->translator->getLangCode(), $defLangCode ];
         foreach ( $this->conditions as $conditionGroup ) {
             list( $andSql, $andBinds ) = $this->parseConditions( $conditionGroup );
             $txtConditions .= ' AND ( ' . $andSql . ' )';
@@ -132,8 +143,9 @@ abstract class AbstractLangCollection extends AbstractCollection {
         $sql = 'SELECT %s ' .
                 'FROM `%s` AS `main` ' .
                 'LEFT JOIN `%s` AS `lang` ON `lang`.`%s` = `main`.`%s` AND `lang`.`%s` = ? ' .
+                'LEFT JOIN `%s` AS `defLang` ON `defLang`.`%s` = `main`.`%s` AND `defLang`.`%s` = ? ' .
                 'WHERE 1=1 %s %s %s';
-        foreach ( $this->conn->fetchAll( sprintf( $sql, $fields, $maintable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
+        foreach ( $this->conn->fetchAll( sprintf( $sql, $fieldsSql, $maintable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
         }
 
