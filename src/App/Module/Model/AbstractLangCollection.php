@@ -60,6 +60,17 @@ abstract class AbstractLangCollection extends AbstractCollection {
     }
 
     /**
+     * @param string $field
+     * @return string
+     */
+    protected function getFieldNameSql( $field )
+    {
+        return in_array( $field, $this->langFields ) ?
+                ( 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` )' ) :
+                ( '`main`.`' . $field . '`' );
+    }
+
+    /**
      * @param string|array $field
      * @param array|null $conditions
      * @return array [ sql, binds ]
@@ -84,10 +95,10 @@ abstract class AbstractLangCollection extends AbstractCollection {
                         $mask .= ', ?';
                         $binds[] = $val;
                     }
-                    $sql .= sprintf( strtr( $this->keyMap[$symbol], [ '?' => ltrim( $mask, ', ' ) ] ), ( $this->idFieldName ? ( '`main`.`' . $field . '`' ) : ( '`' . $field . '`' ) ) );
+                    $sql .= sprintf( strtr( $this->keyMap[$symbol], [ '?' => ltrim( $mask, ', ' ) ] ), $this->getFieldNameSql( $field ) );
                 }
                 else {
-                    $sql .= sprintf( $this->keyMap[$symbol], ( $this->idFieldName ? ( '`main`.`' . $field . '`' ) : ( '`' . $field . '`' ) ) );
+                    $sql .= sprintf( $this->keyMap[$symbol], $this->getFieldNameSql( $field ) );
                     $binds[] = $value;
                 }
             }
@@ -145,6 +156,7 @@ abstract class AbstractLangCollection extends AbstractCollection {
                 'LEFT JOIN `%s` AS `lang` ON `lang`.`%s` = `main`.`%s` AND `lang`.`%s` = ? ' .
                 'LEFT JOIN `%s` AS `defLang` ON `defLang`.`%s` = `main`.`%s` AND `defLang`.`%s` = ? ' .
                 'WHERE 1=1 %s %s %s';
+        echo sprintf( $sql, $fieldsSql, $maintable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $txtConditions, $sortOrders, $limitation );
         foreach ( $this->conn->fetchAll( sprintf( $sql, $fieldsSql, $maintable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
             $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
         }
