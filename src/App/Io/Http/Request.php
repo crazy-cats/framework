@@ -133,10 +133,11 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
         $this->postData = filter_input_array( INPUT_POST ) ?: [];
         $this->requestData = array_merge( $getData, $this->postData );
 
+        $pathParts = explode( '/', $this->path );
+
         /**
          * Check whether it routes to back-end
          */
-        $pathParts = explode( '/', $this->path );
         if ( ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) ) {
             $this->area->setCode( Area::CODE_BACKEND );
             $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'system' ); // system is backend route name of core module
@@ -151,7 +152,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
         /**
          * Check whether it routes to API
          */
-        if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
+        else if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
             $this->area->setCode( Area::CODE_API );
             if ( empty( $pathParts[2] ) || empty( $pathParts[3] ) || empty( $pathParts[4] ) ) {
                 throw new \Exception( 'Route undefined.' );
@@ -165,22 +166,28 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
         }
 
         /**
-         * Prepare an event for modules to add router
+         * A HTTP request must be one of API, backend and frontend request
          */
-        $this->eventManager->dispatch( 'process_http_request', [ 'request' => $this ] );
-
-        /**
-         * If it does not meet any route defined in modules, use default route rule
-         */
-        if ( $this->moduleName === null ) {
+        else {
             $this->area->setCode( Area::CODE_FRONTEND );
-            $this->routeName = (!empty( $pathParts[0] ) ? $pathParts[0] : 'index' );
-            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, $this->routeName ) ) ) {
-                throw new \Exception( 'System can not find matched route.' );
+
+            /**
+             * Prepare an event for modules to add router
+             */
+            $this->eventManager->dispatch( 'process_http_request', [ 'request' => $this ] );
+
+            /**
+             * If it does not meet any route defined in modules, use default route rule
+             */
+            if ( $this->moduleName === null ) {
+                $this->routeName = (!empty( $pathParts[0] ) ? $pathParts[0] : 'index' );
+                if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, $this->routeName ) ) ) {
+                    throw new \Exception( 'System can not find matched route.' );
+                }
+                $this->controllerName = !empty( $pathParts[1] ) ? $pathParts[1] : 'index';
+                $this->actionName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
+                $this->pushPathParamsToRequest( $pathParts, 3 );
             }
-            $this->controllerName = !empty( $pathParts[1] ) ? $pathParts[1] : 'index';
-            $this->actionName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
-            $this->pushPathParamsToRequest( $pathParts, 3 );
         }
 
         return $this->getResponse();
