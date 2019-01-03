@@ -88,7 +88,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $route
      * @return string|null
      */
-    protected function getModuleNameByRoute( $areaCode, $route )
+    public function getModuleNameByRoute( $areaCode, $route )
     {
         foreach ( $this->moduleManager->getEnabledModules() as $module ) {
             $moduleRoutes = $module->getData( 'config' )['routes'];
