@@ -98,7 +98,7 @@ class Translator {
         return $translations;
     }
 
-    private function getTranslations( $langCode )
+    public function getTranslations( $langCode )
     {
         $cacheKey = $this->area->getCode() . '-' . $langCode;
 

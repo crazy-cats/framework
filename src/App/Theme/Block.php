@@ -51,6 +51,11 @@ class Block extends \CrazyCat\Framework\Data\Object {
     protected $themeManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Translator
+     */
+    protected $translator;
+
+    /**
      * @var \CrazyCat\Framework\App\Url
      */
     protected $url;
@@ -71,6 +76,7 @@ class Block extends \CrazyCat\Framework\Data\Object {
         $this->registry = $context->getRegistry();
         $this->request = $context->getRequest();
         $this->themeManager = $context->getThemeManager();
+        $this->translator = $context->getTranslator();
         $this->url = $context->getUrl();
 
         if ( !empty( $data['template'] ) ) {

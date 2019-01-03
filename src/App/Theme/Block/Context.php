@@ -14,6 +14,7 @@ use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Registry;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
+use CrazyCat\Framework\App\Translator;
 use CrazyCat\Framework\App\Url;
 
 /**
@@ -60,11 +61,16 @@ class Context {
     protected $themeManager;
 
     /**
+     * @var \CrazyCat\Framework\App\Translator
+     */
+    protected $translator;
+
+    /**
      * @var \CrazyCat\Framework\App\Url
      */
     protected $url;
 
-    public function __construct( Area $area, Request $request, Registry $registry, CacheFactory $cacheFactory, ModuleManager $moduleManager, ThemeManager $themeManager, Url $url, EventManager $eventManager )
+    public function __construct( Area $area, Request $request, Registry $registry, CacheFactory $cacheFactory, ModuleManager $moduleManager, Translator $translator, ThemeManager $themeManager, Url $url, EventManager $eventManager )
     {
         $this->area = $area;
         $this->cacheFactory = $cacheFactory;
@@ -73,6 +79,7 @@ class Context {
         $this->registry = $registry;
         $this->request = $request;
         $this->themeManager = $themeManager;
+        $this->translator = $translator;
         $this->url = $url;
     }
 
@@ -130,6 +137,14 @@ class Context {
     public function getThemeManager()
     {
         return $this->themeManager;
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Translator
+     */
+    public function getTranslator()
+    {
+        return $this->translator;
     }
 
     /**
