@@ -23,6 +23,11 @@ class Area {
     const CODE_FRONTEND = 'frontend';
 
     /**
+     * @var \CrazyCat\Framework\App\EventManager
+     */
+    private $eventManager;
+
+    /**
      * @var string
      */
     private $code = self::CODE_GLOBAL;
@@ -39,6 +44,11 @@ class Area {
         self::CODE_CLI, self::CODE_CRON,
         self::CODE_API, self::CODE_BACKEND, self::CODE_FRONTEND
     ];
+
+    public function __construct( EventManager $eventManager )
+    {
+        $this->eventManager = $eventManager;
+    }
 
     /**
      * @return boolean
@@ -95,6 +105,7 @@ class Area {
         }
 
         $this->code = $code;
+        $this->eventManager->addEvent( 'set_area_code_after', [ 'area' => $this ] );
     }
 
 }

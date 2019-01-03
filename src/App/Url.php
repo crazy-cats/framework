@@ -24,27 +24,27 @@ class Url {
     /**
      * @var \CrazyCat\Framework\App\Area
      */
-    private $area;
+    protected $area;
 
     /**
      * @var \CrazyCat\Framework\App\Config
      */
-    private $config;
+    protected $config;
 
     /**
      * @var \CrazyCat\Framework\App\Io\Http\Request
      */
-    private $httpRequest;
+    protected $httpRequest;
 
     /**
      * @var string
      */
-    private $baseUrl;
+    protected $baseUrl;
 
     /**
      * @var string
      */
-    private $currentUrl;
+    protected $currentUrl;
 
     public function __construct( Area $area, Config $config, HttpRequest $httpRequest )
     {
@@ -58,7 +58,7 @@ class Url {
      * @param array $params
      * @return string
      */
-    private function getBackendUrl( $path, array $params = [] )
+    protected function getBackendUrl( $path, array $params = [] )
     {
         $tmp = trim( $path, '/' ) ?: 'index';
         $parts = explode( '/', $tmp );
@@ -73,7 +73,7 @@ class Url {
      * @param array $params
      * @return string
      */
-    private function getFrontendUrl( $path, array $params = [] )
+    protected function getFrontendUrl( $path, array $params = [] )
     {
         $tmp = trim( $path, '/' ) ?: 'index';
         $parts = explode( '/', $tmp );
