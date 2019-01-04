@@ -150,6 +150,22 @@ class Page extends \CrazyCat\Framework\Data\Object {
 
     /**
      * @param string $layoutName
+     * @param string $areaCode
+     * @return \CrazyCat\Framework\App\Module|null
+     */
+    private function getLayoutModule( $layoutName, $areaCode )
+    {
+        foreach ( $this->moduleManager->getEnabledModules() as $module ) {
+            if ( isset( $module['config']['routes'][$areaCode] ) ) {
+                if ( strpos( $layoutName, $module['config']['routes'][$areaCode] . '_' ) === 0 ) {
+                    return $module;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param string $layoutName
      * @return array
      */
     public function getLayoutFromFile( $layoutName )
@@ -159,9 +175,8 @@ class Page extends \CrazyCat\Framework\Data\Object {
             return $layout;
         }
 
-        list( $routeName ) = explode( '_', $layoutName );
         $areaCode = $this->theme->getData( 'config' )['area'];
-        if ( ( $module = $this->moduleManager->getModuleByRoute( $routeName, $areaCode ) ) ) {
+        if ( ( $module = $this->getLayoutModule( $layoutName, $areaCode ) ) ) {
             $layoutFile = $module->getData( 'dir' ) . DS . 'view' . DS . $areaCode . DS . 'layouts' . DS . $layoutName . '.php';
             if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
                 return $layout;
@@ -241,6 +256,9 @@ class Page extends \CrazyCat\Framework\Data\Object {
         $templateFile = $this->theme->getData( 'dir' ) . DS . 'view/templates/pages' . DS . $layout['template'] . '.php';
         if ( is_file( $templateFile ) ) {
             include $templateFile;
+        }
+        else {
+            throw new \Exception( sprintf( 'Template file `%s` does not exist.', $templateFile ) );
         }
         return ob_get_clean();
     }
