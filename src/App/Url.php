@@ -55,17 +55,22 @@ class Url {
 
     /**
      * @param string $path
+     * @return string
+     */
+    protected function getRealPath( $path )
+    {
+        $parts = array_pad( explode( '/', ( trim( $path, '/' ) ?: 'index' ) ), 3, 'index' );
+        return $parts[0] . '/' . $parts[1] . '/' . $parts[2];
+    }
+
+    /**
+     * @param string $path
      * @param array $params
      * @return string
      */
     protected function getBackendUrl( $path, array $params = [] )
     {
-        $tmp = trim( $path, '/' ) ?: 'index';
-        $parts = explode( '/', $tmp );
-        $realPath = ( ( $num = count( $parts ) ) < 3 ) ?
-                ( $tmp . str_repeat( '/index', 3 - $num ) ) :
-                ( $parts[0] . '/' . $parts[1] . '/' . $parts[2] );
-        return $this->getBaseUrl() . $this->config->getData( 'backend' )['route'] . '/' . $realPath . ( empty( $params ) ? '' : ( '?' . http_build_query( $params ) ) );
+        return $this->getBaseUrl() . $this->config->getData( 'backend' )['route'] . '/' . $this->getRealPath( $path ) . ( empty( $params ) ? '' : ( '?' . http_build_query( $params ) ) );
     }
 
     /**
@@ -75,12 +80,7 @@ class Url {
      */
     protected function getFrontendUrl( $path, array $params = [] )
     {
-        $tmp = trim( $path, '/' ) ?: 'index';
-        $parts = explode( '/', $tmp );
-        $realPath = ( ( $num = count( $parts ) ) < 3 ) ?
-                ( $tmp . str_repeat( '/index', 3 - $num ) ) :
-                ( $parts[0] . '/' . $parts[1] . '/' . $parts[2] );
-        return $this->getBaseUrl() . $realPath . ( empty( $params ) ? '' : ( '?' . http_build_query( $params ) ) );
+        return $this->getBaseUrl() . $this->getRealPath( $path ) . ( empty( $params ) ? '' : ( '?' . http_build_query( $params ) ) );
     }
 
     /**
