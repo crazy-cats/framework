@@ -37,4 +37,14 @@ class Files extends AbstractCache {
         file_put_contents( self::DIR . DS . $this->name, json_encode( $this->data ) );
     }
 
+    /**
+     * @return void
+     */
+    public function clear()
+    {
+        if ( is_file( self::DIR . DS . $this->name ) ) {
+            unlink( self::DIR . DS . $this->name );
+        }
+    }
+
 }

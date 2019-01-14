@@ -44,4 +44,9 @@ abstract class AbstractCache extends \CrazyCat\Framework\Data\Object {
      * Store data into storage
      */
     abstract public function save();
+
+    /**
+     * Clear data storage
+     */
+    abstract public function clear();
 }
