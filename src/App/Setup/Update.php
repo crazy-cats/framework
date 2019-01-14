@@ -19,14 +19,13 @@ use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 class Update {
 
     /**
-     * This method is run on `post-create-project-cmd` event which
-     *      dispatched after composer `create-project` command executed.
-     * 
      * @return void
      */
-    static public function execute()
+    static public function execute( $event )
     {
-        require_once 'definitions';
+        if ( !defined( DIR_APP ) ) {
+            return;
+        }
 
         $caches = [
             'components', 'modules', 'di', 'languages',

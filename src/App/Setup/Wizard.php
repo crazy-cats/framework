@@ -145,7 +145,7 @@ class Wizard {
      */
     static public function install()
     {
-        require_once 'definitions';
+        require 'definitions';
 
         ObjectManager::getInstance()->get( self::class )->launch();
     }
