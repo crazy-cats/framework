@@ -145,7 +145,7 @@ class Wizard {
      */
     static public function install()
     {
-        if ( !defined( DIR_APP ) ) {
+        if ( !defined( 'DIR_APP' ) ) {
             require 'definitions';
         }
 

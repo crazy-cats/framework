@@ -29,7 +29,7 @@ class Update {
 
         $event->stopPropagation();
 
-        if ( !defined( DIR_APP ) ) {
+        if ( !defined( 'DIR_APP' ) ) {
             require 'definitions';
         }
 
