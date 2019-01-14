@@ -23,8 +23,14 @@ class Update {
      */
     static public function execute( $event )
     {
-        if ( !defined( DIR_APP ) ) {
+        if ( !in_array( $event->getComposer()->getPackage()->getType(), [ 'crazycat-module', 'crazycat-theme', 'crazycat-language' ] ) ) {
             return;
+        }
+
+        $event->stopPropagation();
+
+        if ( !defined( DIR_APP ) ) {
+            require 'definitions';
         }
 
         $caches = [
