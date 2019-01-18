@@ -373,4 +373,28 @@ class MySql extends AbstractAdapter {
                 ( ( strpos( $table, $this->tblPrefix ) === 0 ) ? $table : ( $this->tblPrefix . $table) );
     }
 
+    /**
+     * @return void
+     */
+    public function beginTransaction()
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    /**
+     * @return boolean
+     */
+    public function commitTransaction()
+    {
+        return $this->pdo->commit();
+    }
+
+    /**
+     * @return void
+     */
+    public function rollbackTransaction()
+    {
+        $this->pdo->rollBack();
+    }
+
 }

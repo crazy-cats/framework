@@ -10,6 +10,7 @@ namespace CrazyCat\Framework\App\Module;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\Module;
 use CrazyCat\Framework\App\ObjectManager;
 
@@ -45,6 +46,11 @@ class Manager {
     private $enabledModules;
 
     /**
+     * @var \CrazyCat\Framework\App\Db\Manager
+     */
+    private $dbManager;
+
+    /**
      * @var \CrazyCat\Framework\App\Module[]
      */
     private $modules = [];
@@ -54,11 +60,12 @@ class Manager {
      */
     private $objectManager;
 
-    public function __construct( Area $area, Config $config, CacheFactory $cacheFactory, ObjectManager $objectManager )
+    public function __construct( Area $area, Config $config, CacheFactory $cacheFactory, DbManager $dbManager, ObjectManager $objectManager )
     {
         $this->area = $area;
         $this->cache = $cacheFactory->create( self::CACHE_NAME );
         $this->config = $config;
+        $this->dbManager = $dbManager;
         $this->objectManager = $objectManager;
     }
 
@@ -147,33 +154,42 @@ class Manager {
     public function init( $moduleSource )
     {
         if ( empty( $modulesData = $this->cache->getData() ) ) {
+            $conn = $this->dbManager->getConnection();
+            $conn->beginTransaction();
 
-            $moduleConfig = $this->getModulesConfig();
+            try {
+                $moduleConfig = $this->getModulesConfig();
+                $modulesData = [ 'enabled' => [], 'disabled' => [] ];
+                foreach ( $moduleSource as $data ) {
+                    /* @var $module \CrazyCat\Framework\App\Module */
+                    $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
+                    $namespace = $module->getData( 'config' )['namespace'];
+                    if ( !isset( $moduleConfig[$data['name']] ) ) {
+                        $moduleConfig[$data['name']] = [
+                            'enabled' => true
+                        ];
+                    }
+                    $module->setData( 'enabled', $moduleConfig[$data['name']]['enabled'] );
+                    if ( $moduleConfig[$data['name']]['enabled'] ) {
+                        $modulesData['enabled'][$namespace] = $module->getData();
+                        $module->upgrade( $moduleConfig[$data['name']] );
+                    }
+                    else {
+                        $modulesData['disabled'][$namespace] = $module->getData();
+                    }
+                    $this->modules[$namespace] = $module;
+                }
 
-            $modulesData = [ 'enabled' => [], 'disabled' => [] ];
-            foreach ( $moduleSource as $data ) {
-                /* @var $module \CrazyCat\Framework\App\Module */
-                $module = $this->objectManager->create( Module::class, [ 'data' => $data ] );
-                $namespace = $module->getData( 'config' )['namespace'];
-                if ( !isset( $moduleConfig[$data['name']] ) ) {
-                    $moduleConfig[$data['name']] = [
-                        'enabled' => true
-                    ];
-                }
-                $module->setData( 'enabled', $moduleConfig[$data['name']]['enabled'] );
-                if ( $moduleConfig[$data['name']]['enabled'] ) {
-                    $modulesData['enabled'][$namespace] = $module->getData();
-                    $module->upgrade( $moduleConfig[$data['name']] );
-                }
-                else {
-                    $modulesData['disabled'][$namespace] = $module->getData();
-                }
-                $this->modules[$namespace] = $module;
+                $conn->commitTransaction();
+
+                $this->processDependency( $modulesData['enabled'] );
+                $this->cache->setData( $modulesData )->save();
+                $this->updateModulesConfig( $moduleConfig );
             }
-            $this->processDependency( $modulesData['enabled'] );
-            $this->cache->setData( $modulesData )->save();
-
-            $this->updateModulesConfig( $moduleConfig );
+            catch ( \Exception $e ) {
+                $conn->rollbackTransaction();
+                throw $e;
+            }
         }
         else {
             foreach ( $modulesData as $moduleGroupData ) {

@@ -81,4 +81,29 @@ abstract class AbstractAdapter {
      * @return string
      */
     abstract public function getTableName( $table );
+
+    /**
+     * @return void
+     */
+    public function beginTransaction()
+    {
+        
+    }
+
+    /**
+     * @return boolean
+     */
+    public function commitTransaction()
+    {
+        return true;
+    }
+
+    /**
+     * @return void
+     */
+    public function rollbackTransaction()
+    {
+        
+    }
+
 }
