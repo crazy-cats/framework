@@ -23,10 +23,16 @@ class Update {
      */
     static public function execute( $event )
     {
-        $event->stopPropagation();
-
         if ( !defined( 'DIR_APP' ) ) {
             require 'definitions';
+        }
+
+        if ( !is_file( DIR_APP . DS . 'config' . DS . 'modules.php' ) ) {
+            return;
+        }
+
+        if ( $event->getOperation()->getPackage()->getType() != 'crazycat-module' ) {
+            return;
         }
 
         $caches = [
