@@ -42,6 +42,11 @@ abstract class AbstractSession {
         $this->storage->init();
     }
 
+    public function clearData()
+    {
+        $this->storage->clearData();
+    }
+
     public function destroy()
     {
         $this->storage->destroy();
