@@ -20,7 +20,7 @@ use CrazyCat\Framework\App\Url;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Page extends \CrazyCat\Framework\Data\Object {
+class Page extends \CrazyCat\Framework\Data\DataObject {
 
     /**
      * @var \CrazyCat\Framework\App\Config

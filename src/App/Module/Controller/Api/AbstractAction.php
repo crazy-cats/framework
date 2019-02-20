@@ -8,7 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
 use CrazyCat\Framework\App\Io\Http\Response;
-use CrazyCat\Framework\Data\Object as DataObject;
+use CrazyCat\Framework\Data\DataObject;
 
 /**
  * @category CrazyCat

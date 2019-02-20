@@ -304,7 +304,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\Data\Collection {
     }
 
     /**
-     * @return \CrazyCat\Framework\Data\Object|null
+     * @return \CrazyCat\Framework\Data\DataObject|null
      */
     public function getItemById( $id )
     {

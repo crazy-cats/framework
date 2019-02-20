@@ -7,7 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\Data\Object as DataObject;
+use CrazyCat\Framework\Data\DataObject;
 
 /**
  * @category CrazyCat

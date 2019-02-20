@@ -11,7 +11,7 @@ use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component;
-use CrazyCat\Framework\Data\Object as DataObject;
+use CrazyCat\Framework\Data\DataObject;
 
 /**
  * @category CrazyCat

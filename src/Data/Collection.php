@@ -16,12 +16,12 @@ namespace CrazyCat\Framework\Data;
 class Collection implements \IteratorAggregate, \Countable {
 
     /**
-     * @var \CrazyCat\Framework\Data\Object[]
+     * @var \CrazyCat\Framework\Data\DataObject[]
      */
     protected $items = [];
 
     /**
-     * @return \CrazyCat\Framework\Data\Object|null
+     * @return \CrazyCat\Framework\Data\DataObject|null
      */
     public function getItemById( $id )
     {

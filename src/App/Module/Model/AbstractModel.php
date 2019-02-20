@@ -16,7 +16,7 @@ use CrazyCat\Framework\App\EventManager;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-abstract class AbstractModel extends \CrazyCat\Framework\Data\Object {
+abstract class AbstractModel extends \CrazyCat\Framework\Data\DataObject {
 
     /**
      * @var array

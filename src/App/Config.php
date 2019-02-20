@@ -16,7 +16,7 @@ use CrazyCat\Framework\App\Setup\Wizard;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Config extends \CrazyCat\Framework\Data\Object {
+class Config extends \CrazyCat\Framework\Data\DataObject {
 
     const DIR = DIR_APP . DS . 'config';
     const FILE = self::DIR . DS . 'env.php';

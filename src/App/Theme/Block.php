@@ -13,7 +13,7 @@ namespace CrazyCat\Framework\App\Theme;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Block extends \CrazyCat\Framework\Data\Object {
+class Block extends \CrazyCat\Framework\Data\DataObject {
 
     /**
      * @var \CrazyCat\Framework\App\Area

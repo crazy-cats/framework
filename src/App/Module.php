@@ -16,7 +16,7 @@ use CrazyCat\Framework\Utility\Tools;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Module extends \CrazyCat\Framework\Data\Object {
+class Module extends \CrazyCat\Framework\Data\DataObject {
 
     const FILE_CONFIG = 'config' . DS . 'module.php';
 

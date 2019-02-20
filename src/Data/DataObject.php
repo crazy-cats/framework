@@ -13,7 +13,7 @@ namespace CrazyCat\Framework\Data;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Object implements \ArrayAccess {
+class DataObject implements \ArrayAccess {
 
     /**
      * @var string[]

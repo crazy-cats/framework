@@ -18,7 +18,7 @@ use CrazyCat\Framework\App\Url;
  * @author Bruce Z <152416319@qq.com>
  * @link http://crazy-cat.co
  */
-class Theme extends \CrazyCat\Framework\Data\Object {
+class Theme extends \CrazyCat\Framework\Data\DataObject {
 
     /**
      * Caches of static files
