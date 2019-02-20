@@ -184,7 +184,7 @@ class Module extends \CrazyCat\Framework\Data\DataObject {
         $namespace = trim( $this->getData( 'config' )['namespace'], '\\' );
         $area = ucfirst( $areaCode );
         $controller = str_replace( ' ', '', ucwords( implode( ' ', explode( '_', $controllerName ) ) ) );
-        $action = ucfirst( $actionName );
+        $action = str_replace( ' ', '', ucwords( implode( ' ', explode( '_', $actionName ) ) ) );
 
         $this->objectManager->create( sprintf( '%s\Controller\%s\%s\%s', $namespace, $area, $controller, $action ) )->execute();
     }
