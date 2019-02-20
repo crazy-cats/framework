@@ -8,7 +8,7 @@
 namespace CrazyCat\Framework\App\Module\Controller\Api;
 
 use CrazyCat\Framework\App\Io\Http\Response;
-use CrazyCat\Framework\Data\Object;
+use CrazyCat\Framework\Data\Object as DataObject;
 
 /**
  * @category CrazyCat
@@ -46,7 +46,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
         if ( !( $auth = $this->request->getHeader( 'Authorization' ) ) ) {
             throw new \Exception( 'You do not have permission to access the resource.' );
         }
-        $verifyObj = new Object( [ 'token_validated' => false ] );
+        $verifyObj = new DataObject( [ 'token_validated' => false ] );
         foreach ( preg_split( '/\s*,\s*/', $auth ) as $authStr ) {
             list( $type, $token ) = array_pad( preg_split( '/\s+/', $authStr ), 2, null );
             if ( $type == 'Bearer' ) {

@@ -7,7 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\Data\Object;
+use CrazyCat\Framework\Data\Object as DataObject;
 
 /**
  * @category CrazyCat
@@ -64,7 +64,7 @@ class EventManager {
         if ( !empty( $this->events[$eventName] ) ) {
             profile_start( 'Event: ' . $eventName );
             foreach ( array_unique( $this->events[$eventName] ) as $observer ) {
-                $this->objectManager->create( $observer )->execute( new Object( $data ) );
+                $this->objectManager->create( $observer )->execute( new DataObject( $data ) );
             }
             profile_end( 'Event: ' . $eventName );
         }

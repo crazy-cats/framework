@@ -11,7 +11,7 @@ use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Setup\Component;
-use CrazyCat\Framework\Data\Object;
+use CrazyCat\Framework\Data\Object as DataObject;
 
 /**
  * @category CrazyCat
@@ -105,7 +105,7 @@ class Wizard {
             ]
         ];
         $this->getInputSettings( $envSettins );
-        file_put_contents( Config::FILE, sprintf( "<?php\nreturn %s;", ( new Object )->toString( $envSettins ) ) );
+        file_put_contents( Config::FILE, sprintf( "<?php\nreturn %s;", ( new DataObject )->toString( $envSettins ) ) );
 
         echo "\n";
     }
