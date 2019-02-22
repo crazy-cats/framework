@@ -90,9 +90,8 @@ class Url {
     {
         if ( $this->baseUrl === null ) {
             $server = filter_input_array( INPUT_SERVER );
-            $scheme = ( isset( $server['HTTPS'] ) && $server['HTTPS'] != 'off' ) ? 'https' : 'http';
             $path = trim( dirname( $server['SCRIPT_NAME'] ), DS );
-            $this->baseUrl = $scheme . '://' . $server['HTTP_HOST'] . '/' . ( $path ? ( trim( $path, '/' ) . '/' ) : '' );
+            $this->baseUrl = '//' . $server['HTTP_HOST'] . '/' . ( $path ? ( trim( $path, '/' ) . '/' ) : '' );
         }
         return $this->baseUrl;
     }
