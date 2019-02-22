@@ -43,7 +43,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
     {
         parent::execute();
 
-        if ( !( $auth = $this->request->getHeader( 'Authorization' ) ) ) {
+        if ( !( $auth = $this->request->getHeader( 'authorization' ) ) ) {
             throw new \Exception( 'You do not have permission to access the resource.' );
         }
         $verifyObj = new DataObject( [ 'token_validated' => false ] );

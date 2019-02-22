@@ -248,13 +248,12 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     {
         if ( $this->headers === null ) {
             if ( function_exists( 'getallheaders' ) ) {
-                $this->headers = getallheaders();
+                $this->headers = array_change_key_case( getallheaders(), CASE_LOWER );
             }
             else {
-                $this->headers = [];
                 foreach ( filter_input_array( INPUT_SERVER ) as $name => $value ) {
                     if ( substr( $name, 0, 5 ) == 'HTTP_' ) {
-                        $this->headers[str_replace( ' ', '-', ucwords( strtolower( str_replace( '_', ' ', substr( $name, 5 ) ) ) ) )] = $value;
+                        $this->headers[str_replace( ' ', '-', strtolower( str_replace( '_', ' ', substr( $name, 5 ) ) ) )] = $value;
                     }
                 }
             }
