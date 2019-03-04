@@ -118,7 +118,7 @@ class MySql extends AbstractAdapter {
             list(,, $errorInfo ) = $statement->errorInfo();
             throw new \Exception( sprintf( "%s, SQL is:\n%s", $errorInfo, $sql ) );
         }
-        return $statement->fetch( \PDO::FETCH_ASSOC );
+        return $statement->fetch( \PDO::FETCH_ASSOC ) ?: [];
     }
 
     /**
