@@ -85,6 +85,7 @@ class App
      * Get app singleton
      *
      * @return \CrazyCat\Framework\App
+     * @throws \ReflectionException
      */
     public static function getInstance()
     {

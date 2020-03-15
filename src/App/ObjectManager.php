@@ -13,14 +13,14 @@ namespace CrazyCat\Framework\App;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class ObjectManager {
-
+class ObjectManager
+{
     const CACHE_DI_NAME = 'di';
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
-    static private $instance;
+    private static $instance;
 
     /**
      * @var array
@@ -36,10 +36,10 @@ class ObjectManager {
      * Get object manager singleton
      * @return \CrazyCat\Framework\App\ObjectManager
      */
-    static public function getInstance()
+    public static function getInstance()
     {
-        if ( self::$instance === null ) {
-            self::$instance = new ObjectManager;
+        if (self::$instance === null) {
+            self::$instance = new ObjectManager();
         }
         return self::$instance;
     }
@@ -47,67 +47,67 @@ class ObjectManager {
     /**
      * @param string $className
      * @param array $argumentArr
-     * @return objec
+     * @return object
+     * @throws \ReflectionException
      */
-    public function create( $className, $argumentArr = [] )
+    public function create($className, $argumentArr = [])
     {
-        $class = '\\' . trim( $className, '\\' );
-        if ( isset( $this->preferences[$class] ) ) {
-            return $this->create( $this->preferences[$class], $argumentArr );
+        $class = '\\' . trim($className, '\\');
+        if (isset($this->preferences[$class])) {
+            return $this->create($this->preferences[$class], $argumentArr);
         }
 
-        $reflectionClass = new \ReflectionClass( $class );
+        $reflectionClass = new \ReflectionClass($class);
 
-        if ( !( $constructor = $reflectionClass->getConstructor() ) ) {
+        if (!($constructor = $reflectionClass->getConstructor())) {
             return $reflectionClass->newInstanceWithoutConstructor();
         }
 
         $arguments = [];
-        foreach ( $constructor->getParameters() as $parameter ) {
+        foreach ($constructor->getParameters() as $parameter) {
             /* @var $parameter \ReflectionParameter */
-            if ( isset( $argumentArr[$parameter->getName()] ) ) {
+            if (isset($argumentArr[$parameter->getName()])) {
                 $arguments[] = $argumentArr[$parameter->getName()];
-            }
-            elseif ( $parameter->isOptional() ) {
+            } elseif ($parameter->isOptional()) {
                 $arguments[] = $parameter->getDefaultValue();
-            }
-            elseif ( ( $injectedClass = $parameter->getClass() ) ) {
-                $arguments[] = $this->get( $injectedClass->getName() );
-            }
-            else {
-                throw new \Exception( sprintf( 'Argument `%s` of class `%s` is required.', $parameter->getName(), $class ) );
+            } elseif (($injectedClass = $parameter->getClass())) {
+                $arguments[] = $this->get($injectedClass->getName());
+            } else {
+                throw new \Exception(
+                    sprintf('Argument `%s` of class `%s` is required.', $parameter->getName(), $class)
+                );
             }
         }
 
-        return $reflectionClass->newInstanceArgs( $arguments );
+        return $reflectionClass->newInstanceArgs($arguments);
     }
 
     /**
      * @param array $preferences
      */
-    public function collectPreferences( array $preferences )
+    public function collectPreferences(array $preferences)
     {
-        $this->preferences = array_merge( $this->preferences, $preferences );
+        $this->preferences = array_merge($this->preferences, $preferences);
     }
 
     /**
      * @param string $className
      * @param array $argumentArr
-     * @return objec
+     * @return object
+     * @throws \ReflectionException
      */
-    public function get( $className, $argumentArr = [] )
+    public function get($className, $argumentArr = [])
     {
-        $cacheName = trim( $className, '\\' );
-        if ( $cacheName == self::class ) {
+        $cacheName = trim($className, '\\');
+        if ($cacheName == self::class) {
             return self::getInstance();
         }
-        if ( isset( $this->preferences[$cacheName] ) ) {
-            return $this->get( $this->preferences[$cacheName], $argumentArr );
+        if (isset($this->preferences[$cacheName])) {
+            return $this->get($this->preferences[$cacheName], $argumentArr);
         }
-        if ( !isset( $this->singletons[$cacheName] ) ) {
-            $this->singletons[$cacheName] = $this->create( $className, $argumentArr );
+        if (!isset($this->singletons[$cacheName])) {
+            $this->singletons[$cacheName] = $this->create($className, $argumentArr);
         }
         return $this->singletons[$cacheName];
     }
-
 }
