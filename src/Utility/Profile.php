@@ -114,6 +114,7 @@ class Profile
 
     /**
      * @return string
+     * @throws \ReflectionException
      */
     public static function printProfiles()
     {
@@ -134,6 +135,7 @@ class Profile
     /**
      * Set start point for a new profile
      * @param string $name
+     * @throws \ReflectionException
      */
     public static function start($name)
     {

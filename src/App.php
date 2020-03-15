@@ -223,9 +223,7 @@ class App
                 ->getModule($pathArr[2] . '\\' . $pathArr[3]))) {
             $staticPath = $module['config']['namespace'] . '::' . substr(
                 $path,
-                strlen($areaCode) + strlen(
-                    $themeName
-                ) + strlen($module['config']['namespace']) + 3
+                strlen($areaCode) + strlen($themeName) + strlen($module['config']['namespace']) + 3
             );
         } else {
             $staticPath = substr($path, strlen($areaCode) + strlen($themeName) + 2);

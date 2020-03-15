@@ -45,19 +45,35 @@ class ObjectManager
     }
 
     /**
-     * @param string $className
+     * @param array $preferences
+     */
+    public function collectPreferences(array $preferences)
+    {
+        $this->preferences = array_merge(
+            $this->preferences,
+            array_map(
+                function ($preference) {
+                    return trim($preference, '\\');
+                },
+                $preferences
+            )
+        );
+    }
+
+    /**
+     * @param string $preference
      * @param array $argumentArr
      * @return object
      * @throws \ReflectionException
      */
-    public function create($className, $argumentArr = [])
+    public function create($preference, $argumentArr = [])
     {
-        $class = '\\' . trim($className, '\\');
-        if (isset($this->preferences[$class])) {
-            return $this->create($this->preferences[$class], $argumentArr);
+        $preference = trim($preference, '\\');
+        if (isset($this->preferences[$preference])) {
+            return $this->create($this->preferences[$preference], $argumentArr);
         }
 
-        $reflectionClass = new \ReflectionClass($class);
+        $reflectionClass = new \ReflectionClass('\\' . $preference);
 
         if (!($constructor = $reflectionClass->getConstructor())) {
             return $reflectionClass->newInstanceWithoutConstructor();
@@ -83,31 +99,23 @@ class ObjectManager
     }
 
     /**
-     * @param array $preferences
-     */
-    public function collectPreferences(array $preferences)
-    {
-        $this->preferences = array_merge($this->preferences, $preferences);
-    }
-
-    /**
-     * @param string $className
+     * @param string $preference
      * @param array $argumentArr
      * @return object
      * @throws \ReflectionException
      */
-    public function get($className, $argumentArr = [])
+    public function get($preference, $argumentArr = [])
     {
-        $cacheName = trim($className, '\\');
-        if ($cacheName == self::class) {
+        $preference = trim($preference, '\\');
+        if ($preference == self::class) {
             return self::getInstance();
         }
-        if (isset($this->preferences[$cacheName])) {
-            return $this->get($this->preferences[$cacheName], $argumentArr);
+        if (isset($this->preferences[$preference])) {
+            return $this->get($this->preferences[$preference], $argumentArr);
         }
-        if (!isset($this->singletons[$cacheName])) {
-            $this->singletons[$cacheName] = $this->create($className, $argumentArr);
+        if (!isset($this->singletons[$preference])) {
+            $this->singletons[$preference] = $this->create($preference, $argumentArr);
         }
-        return $this->singletons[$cacheName];
+        return $this->singletons[$preference];
     }
 }
