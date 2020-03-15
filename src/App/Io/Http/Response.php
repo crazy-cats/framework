@@ -9,9 +9,9 @@ namespace CrazyCat\Framework\App\Io\Http;
 
 /**
  * @category CrazyCat
- * @package CrazyCat\Framework
- * @author Bruce Z <152416319@qq.com>
- * @link http://crazy-cat.co
+ * @package  CrazyCat\Framework
+ * @author   Liwei Zeng <zengliwei@163.com>
+ * @link     http://crazy-cat.cn
  */
 class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
 

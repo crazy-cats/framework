@@ -7,10 +7,11 @@
 
 /**
  * @category CrazyCat
- * @package CrazyCat\Framework
- * @author Bruce Z <152416319@qq.com>
- * @link http://crazy-cat.co
+ * @package  CrazyCat\Framework
+ * @author   Liwei Zeng <zengliwei@163.com>
+ * @link     http://crazy-cat.cn
  */
+
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Url;
 use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
@@ -20,21 +21,21 @@ use CrazyCat\Framework\Utility\Profile;
 
 /**
  * @param string $text
- * @param array $variables
+ * @param array  $variables
  * @return string
  */
-function __( $text, $variables = [] )
+function __($text, $variables = [])
 {
-    return ObjectManager::getInstance()->get( Translator::class )->translate( $text, $variables );
+    return ObjectManager::getInstance()->get(Translator::class)->translate($text, $variables);
 }
 
 /**
  * @param string $str
  * @return string
  */
-function htmlEscape( $str )
+function htmlEscape($str)
 {
-    return htmlspecialchars( $str, ENT_QUOTES );
+    return htmlspecialchars($str, ENT_QUOTES);
 }
 
 /**
@@ -42,7 +43,7 @@ function htmlEscape( $str )
  */
 function getBaseUrl()
 {
-    return ObjectManager::getInstance()->get( Url::class )->getBaseUrl();
+    return ObjectManager::getInstance()->get(Url::class)->getBaseUrl();
 }
 
 /**
@@ -50,35 +51,36 @@ function getBaseUrl()
  */
 function getCurrentUrl()
 {
-    return ObjectManager::getInstance()->get( Url::class )->getCurrentUrl();
+    return ObjectManager::getInstance()->get(Url::class)->getCurrentUrl();
 }
 
 /**
  * @param string $path
- * @param array $params
+ * @param array  $params
  * @return string
  */
-function getUrl( $path, array $params = [] )
+function getUrl($path, array $params = [])
 {
-    return ObjectManager::getInstance()->get( Url::class )->getUrl( $path, $params );
+    return ObjectManager::getInstance()->get(Url::class)->getUrl($path, $params);
 }
 
 /**
- * @param string $path
+ * @param string      $path
  * @param string|null $themeName
  * @return string
+ * @throws Exception
  */
-function getStaticUrl( $path, $areaCode = null, $themeName = null )
+function getStaticUrl($path, $areaCode = null, $themeName = null)
 {
     /* @var $themeManager \CrazyCat\Framework\App\Theme\Manager */
-    $themeManager = ObjectManager::getInstance()->get( ThemeManager::class );
+    $themeManager = ObjectManager::getInstance()->get(ThemeManager::class);
 
     /* @var $theme \CrazyCat\Framework\App\Theme */
-    $theme = ( $areaCode === null || $themeName === null ) ?
-            $themeManager->getCurrentTheme() :
-            $themeManager->getThemes( $areaCode )[$themeName];
+    $theme = ($areaCode === null || $themeName === null) ?
+        $themeManager->getCurrentTheme() :
+        $themeManager->getThemes($areaCode)[$themeName];
 
-    return $theme->getStaticUrl( $path );
+    return $theme->getStaticUrl($path);
 }
 
 /**
@@ -86,7 +88,7 @@ function getStaticUrl( $path, $areaCode = null, $themeName = null )
  */
 function getLangCode()
 {
-    return ObjectManager::getInstance()->get( Translator::class )->getLangCode();
+    return ObjectManager::getInstance()->get(Translator::class)->getLangCode();
 }
 
 /**
@@ -98,29 +100,30 @@ function spaceString()
 }
 
 /**
- * @param array $options
+ * @param array             $options
  * @param array|string|null $value
  * @return string
  */
-function selectOptionsHtml( array $options, $value = null )
+function selectOptionsHtml(array $options, $value = null)
 {
-    return Html::selectOptionsHtml( $options, $value );
+    return Html::selectOptionsHtml($options, $value);
 }
 
 /**
  * @param string $name
  * @return void
  */
-function profile_start( $name )
+function profile_start($name)
 {
-    Profile::start( $name );
+    Profile::start($name);
 }
 
 /**
  * @param string $name
  * @return void
+ * @throws Exception
  */
-function profile_end( $name )
+function profile_end($name)
 {
-    Profile::end( $name );
+    Profile::end($name);
 }

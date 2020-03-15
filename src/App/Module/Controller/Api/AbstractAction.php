@@ -12,9 +12,9 @@ use CrazyCat\Framework\Data\DataObject;
 
 /**
  * @category CrazyCat
- * @package CrazyCat\Framework
- * @author Bruce Z <152416319@qq.com>
- * @link http://crazy-cat.co
+ * @package  CrazyCat\Framework
+ * @author   Liwei Zeng <zengliwei@163.com>
+ * @link     http://crazy-cat.cn
  */
 abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
 
