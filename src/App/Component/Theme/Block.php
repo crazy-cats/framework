@@ -31,7 +31,7 @@ class Block extends \CrazyCat\Framework\App\Data\DataObject
     protected $eventManager;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     protected $moduleManager;
 

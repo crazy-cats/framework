@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller\Api;
+namespace CrazyCat\Framework\App\Component\Module\Controller\Api;
 
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
@@ -20,7 +20,7 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Context extends \CrazyCat\Framework\App\Module\Controller\Context {
+class Context extends \CrazyCat\Framework\App\Component\Module\Controller\Context {
 
     /**
      * @var \CrazyCat\Framework\App\Io\Http\Request

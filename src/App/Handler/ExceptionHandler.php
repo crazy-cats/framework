@@ -18,8 +18,8 @@ use CrazyCat\Framework\App\Logger;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class ExceptionHandler {
-
+class ExceptionHandler
+{
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -40,7 +40,7 @@ class ExceptionHandler {
      */
     private $logger;
 
-    public function __construct( HttpRequest $httpRequest, HttpResponse $httpResponse, Area $area, Logger $logger )
+    public function __construct(HttpRequest $httpRequest, HttpResponse $httpResponse, Area $area, Logger $logger)
     {
         $this->area = $area;
         $this->httpRequest = $httpRequest;
@@ -52,9 +52,9 @@ class ExceptionHandler {
      * @param string $message
      * @return string
      */
-    private function logException( $message )
+    private function logException($message)
     {
-        $this->logger->log( $message, sprintf( 'errors/%s/%s.log', date( 'Y-m' ), date( 'Y-m-d' ) ) );
+        $this->logger->log($message, sprintf('errors/%s/%s.log', date('Y-m'), date('Y-m-d')));
 
         return $message;
     }
@@ -62,35 +62,38 @@ class ExceptionHandler {
     /**
      * @param \Exception $exception
      */
-    private function processCliException( $exception )
+    private function processCliException($exception)
     {
-        echo $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() );
+        echo $this->logException($exception->getMessage() . "\n" . $exception->getTraceAsString());
     }
 
     /**
      * @param \Exception $exception
      */
-    private function processHttpException( $exception )
+    private function processHttpException($exception)
     {
-        if ( $this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam( HttpRequest::AJAX_PARAM ) ) {
-            $this->httpResponse->setType( HttpResponse::TYPE_JSON )
-                    ->setData( [ 'error' => true, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString() ] )
-                    ->send();
+        if ($this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam(HttpRequest::AJAX_PARAM)) {
+            $this->httpResponse->setType(HttpResponse::TYPE_JSON)
+                ->setData(
+                    ['error' => true, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                )
+                ->send();
             exit;
-        }
-        else {
-            echo sprintf( '<pre>%s</pre>', $this->logException( $exception->getMessage() . "\n" . $exception->getTraceAsString() ) );
+        } else {
+            echo sprintf(
+                '<pre>%s</pre>',
+                $this->logException($exception->getMessage() . "\n" . $exception->getTraceAsString())
+            );
         }
     }
 
     /**
      * @param \Exception $exception
      */
-    public function process( $exception )
+    public function process($exception)
     {
         return $this->area->isCli() ?
-                $this->processCliException( $exception ) :
-                $this->processHttpException( $exception );
+            $this->processCliException($exception) :
+            $this->processHttpException($exception);
     }
-
 }

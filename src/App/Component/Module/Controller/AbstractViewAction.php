@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller;
+namespace CrazyCat\Framework\App\Component\Module\Controller;
 
 use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\App\Component\Language\Translator;
@@ -16,8 +16,8 @@ use CrazyCat\Framework\App\Component\Language\Translator;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractViewAction extends AbstractAction {
-
+abstract class AbstractViewAction extends AbstractAction
+{
     /**
      * @var \CrazyCat\Framework\App\Io\Http\Cookies
      */
@@ -84,13 +84,13 @@ abstract class AbstractViewAction extends AbstractAction {
     protected $metaRobots;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $skipRunning = false;
 
-    public function __construct( ViewContext $context )
+    public function __construct(ViewContext $context)
     {
-        parent::__construct( $context );
+        parent::__construct($context);
 
         $this->cookies = $context->getCookies();
         $this->messenger = $context->getMessenger();
@@ -106,7 +106,7 @@ abstract class AbstractViewAction extends AbstractAction {
      * @param string $pageTitle
      * @return $this
      */
-    protected function setPageTitle( $pageTitle )
+    protected function setPageTitle($pageTitle)
     {
         $this->pageTitle = $pageTitle;
         return $this;
@@ -116,12 +116,12 @@ abstract class AbstractViewAction extends AbstractAction {
      * @param string|array $metaKeywords
      * @return $this
      */
-    protected function setMetaKeywords( $metaKeywords )
+    protected function setMetaKeywords($metaKeywords)
     {
-        if ( !is_array( $metaKeywords ) ) {
-            $metaKeywords = preg_split( '/,\s*/', $metaKeywords );
+        if (!is_array($metaKeywords)) {
+            $metaKeywords = preg_split('/,\s*/', $metaKeywords);
         }
-        $this->metaKeywords = implode( ', ', array_unique( $metaKeywords ) );
+        $this->metaKeywords = implode(', ', array_unique($metaKeywords));
         return $this;
     }
 
@@ -129,7 +129,7 @@ abstract class AbstractViewAction extends AbstractAction {
      * @param string $metaDescription
      * @return $this
      */
-    protected function setMetaDescription( $metaDescription )
+    protected function setMetaDescription($metaDescription)
     {
         $this->metaDescription = $metaDescription;
         return $this;
@@ -139,7 +139,7 @@ abstract class AbstractViewAction extends AbstractAction {
      * @param string $metaRobots
      * @return $this
      */
-    protected function setMetaRobots( $metaRobots )
+    protected function setMetaRobots($metaRobots)
     {
         $this->metaRobots = $metaRobots;
         return $this;
@@ -148,10 +148,11 @@ abstract class AbstractViewAction extends AbstractAction {
     /**
      * @param string $themeName
      * @return $this
+     * @throws \Exception
      */
-    protected function setTheme( $themeName )
+    protected function setTheme($themeName)
     {
-        $this->themeManager->setCurrentTheme( $themeName );
+        $this->themeManager->setCurrentTheme($themeName);
         return $this;
     }
 
@@ -159,7 +160,7 @@ abstract class AbstractViewAction extends AbstractAction {
      * @param array $layout
      * @return $this
      */
-    protected function setLayout( array $layout )
+    protected function setLayout(array $layout)
     {
         $this->layout = $layout;
         return $this;
@@ -168,39 +169,41 @@ abstract class AbstractViewAction extends AbstractAction {
     /**
      * @param string $layoutFile
      * @return $this
+     * @throws \Exception
      */
-    protected function setLayoutFile( $layoutFile )
+    protected function setLayoutFile($layoutFile)
     {
-        $this->layout = $this->themeManager->getCurrentTheme()->getPage()->getLayoutFromFile( $layoutFile );
+        $this->layout = $this->themeManager->getCurrentTheme()->getPage()->getLayoutFromFile($layoutFile);
         return $this;
     }
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     protected function render()
     {
         $page = $this->themeManager->getCurrentTheme()->getPage();
 
-        $this->eventManager->dispatch( 'page_render_before', [ 'page' => $page, 'action' => $this ] );
+        $this->eventManager->dispatch('page_render_before', ['page' => $page, 'action' => $this]);
 
-        if ( $this->layout !== null ) {
-            $page->setLayout( $this->layout );
+        if ($this->layout !== null) {
+            $page->setLayout($this->layout);
         }
-        if ( $this->pageTitle !== null ) {
-            $page->setData( 'page_title', $this->pageTitle );
+        if ($this->pageTitle !== null) {
+            $page->setData('page_title', $this->pageTitle);
         }
-        if ( $this->metaKeywords !== null ) {
-            $page->setData( 'meta_keywords', $this->metaKeywords );
+        if ($this->metaKeywords !== null) {
+            $page->setData('meta_keywords', $this->metaKeywords);
         }
-        if ( $this->metaDescription !== null ) {
-            $page->setData( 'meta_description', $this->metaDescription );
+        if ($this->metaDescription !== null) {
+            $page->setData('meta_description', $this->metaDescription);
         }
-        if ( $this->metaRobots !== null ) {
-            $page->setData( 'meta_robots', $this->metaRobots );
+        if ($this->metaRobots !== null) {
+            $page->setData('meta_robots', $this->metaRobots);
         }
 
-        $this->response->setType( Response::TYPE_PAGE )->setBody( $page->toHtml() );
+        $this->response->setType(Response::TYPE_PAGE)->setBody($page->toHtml());
     }
 
     /**
@@ -213,12 +216,12 @@ abstract class AbstractViewAction extends AbstractAction {
 
     /**
      * @param string $path
-     * @param array $params
+     * @param array  $params
      * @return void
      */
-    public function redirect( $path, $params = [] )
+    public function redirect($path, $params = [])
     {
-        $this->response->setType( Response::TYPE_REDIRECT )->setData( $this->url->getUrl( $path, $params ) );
+        $this->response->setType(Response::TYPE_REDIRECT)->setData($this->url->getUrl($path, $params));
     }
 
     /**
@@ -232,36 +235,37 @@ abstract class AbstractViewAction extends AbstractAction {
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function execute()
     {
-        if ( ( $langCode = $this->request->getParam( Translator::REQUEST_KEY ) ) ) {
-            $this->translator->setLangCode( $langCode );
-            $this->cookies->setData( Translator::REQUEST_KEY, $langCode );
-        }
-        elseif ( ( $langCode = $this->cookies->getData( Translator::REQUEST_KEY ) ) ) {
-            $this->translator->setLangCode( $langCode );
+        $this->beforeRun();
+
+        if (($langCode = $this->request->getParam(Translator::REQUEST_KEY))) {
+            $this->translator->setLangCode($langCode);
+            $this->cookies->setData(Translator::REQUEST_KEY, $langCode);
+        } elseif (($langCode = $this->cookies->getData(Translator::REQUEST_KEY))) {
+            $this->translator->setLangCode($langCode);
         }
 
-        parent::execute();
-        $this->eventManager->dispatch( sprintf( '%s_execute_before', $this->request->getFullPath() ), [ 'action' => $this ] );
-
-        if ( !$this->skipRunning ) {
+        if (!$this->skipRunning) {
             /**
              * Theme manager initialization does NOT include setting current theme.
              *     We need to do something before executing the specified view action,
              *     such as setting current theme, initializing language etc..
              */
-            profile_start( 'Initializing themes' );
+            profile_start('Initializing themes');
             $this->themeManager->init();
-            profile_end( 'Initializing themes' );
+            profile_end('Initializing themes');
 
-            $this->eventManager->dispatch( 'themes_init_after', [ 'theme_manager' => $this->themeManager ] );
+            $this->eventManager->dispatch('themes_init_after', ['theme_manager' => $this->themeManager]);
 
-            profile_start( 'Execute action' );
+            profile_start('Execute action');
             $this->run();
-            profile_end( 'Execute action' );
+            profile_end('Execute action');
         }
+
+        $this->afterRun();
 
         $this->response->send();
     }

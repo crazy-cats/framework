@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller\Cli;
+namespace CrazyCat\Framework\App\Component\Module\Controller\Cli;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
+abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractAction
+{
 
     /**
      * @var \Symfony\Component\Console\Command\Command
@@ -28,7 +29,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      * @param \Symfony\Component\Console\Command\Command $command
      * @return $this
      */
-    public function setCommand( Command $command )
+    public function setCommand(Command $command)
     {
         $this->command = $command;
 
@@ -40,31 +41,32 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     public function init()
     {
-        $this->configure( $this->command );
+        $this->configure($this->command);
 
         return $this;
     }
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function execute()
     {
-        parent::execute();
-
-        list( $input, $output ) = func_get_args();
-        $this->run( $input, $output );
+        $this->beforeRun();
+        list($input, $output) = func_get_args();
+        $this->run($input, $output);
+        $this->afterRun();
     }
 
     /**
      * @param \Symfony\Component\Console\Command\Command $command
      */
-    abstract protected function configure( Command $command );
+    abstract protected function configure(Command $command);
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Input\InputInterface   $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @see https://symfony.com/doc/3.4/console/style.html
      */
-    abstract protected function run( InputInterface $input, OutputInterface $output );
+    abstract protected function run(InputInterface $input, OutputInterface $output);
 }

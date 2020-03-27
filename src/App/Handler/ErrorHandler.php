@@ -18,8 +18,8 @@ use CrazyCat\Framework\App\Logger;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class ErrorHandler {
-
+class ErrorHandler
+{
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -40,7 +40,7 @@ class ErrorHandler {
      */
     private $logger;
 
-    public function __construct( HttpRequest $httpRequest, HttpResponse $httpResponse, Area $area, Logger $logger )
+    public function __construct(HttpRequest $httpRequest, HttpResponse $httpResponse, Area $area, Logger $logger)
     {
         $this->area = $area;
         $this->httpRequest = $httpRequest;
@@ -52,9 +52,9 @@ class ErrorHandler {
      * @param string $message
      * @return string
      */
-    private function logError( $message )
+    private function logError($message)
     {
-        $this->logger->log( $message, sprintf( 'errors/%s/%s.log', date( 'Y-m' ), date( 'Y-m-d' ) ) );
+        $this->logger->log($message, sprintf('errors/%s/%s.log', date('Y-m'), date('Y-m-d')));
 
         return $message;
     }
@@ -65,9 +65,9 @@ class ErrorHandler {
      * @param string $errfile
      * @param string $errline
      */
-    private function processCliError( $errno, $errstr, $errfile, $errline )
+    private function processCliError($errno, $errstr, $errfile, $errline)
     {
-        echo $this->logError( sprintf( "\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr ) );
+        echo $this->logError(sprintf("\nMeet error on line %s of file %s:\n%s\n\n", $errline, $errfile, $errstr));
     }
 
     /**
@@ -76,25 +76,28 @@ class ErrorHandler {
      * @param string $errfile
      * @param string $errline
      */
-    private function processHttpError( $errno, $errstr, $errfile, $errline )
+    private function processHttpError($errno, $errstr, $errfile, $errline)
     {
-        if ( $this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam( HttpRequest::AJAX_PARAM ) ) {
+        if ($this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam(HttpRequest::AJAX_PARAM)) {
             try {
-                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s", $errline, $errfile, $errstr ) );
-            }
-            catch ( \Exception $e ) {
-                $this->httpResponse->setType( HttpResponse::TYPE_JSON )
-                        ->setData( [ 'error' => true, 'message' => $errstr, 'trace' => $e->getMessage() . "\n" . $e->getTraceAsString() ] )
-                        ->send();
+                throw new \Exception(sprintf("Meet error on line %s of file %s:\n%s", $errline, $errfile, $errstr));
+            } catch (\Exception $e) {
+                $this->httpResponse->setType(HttpResponse::TYPE_JSON)
+                    ->setData(
+                        [
+                            'error' => true,
+                            'message' => $errstr,
+                            'trace' => $e->getMessage() . "\n" . $e->getTraceAsString()
+                        ]
+                    )
+                    ->send();
                 exit;
             }
-        }
-        else {
+        } else {
             try {
-                throw new \Exception( sprintf( "Meet error on line %s of file %s:\n%s", $errline, $errfile, $errstr ) );
-            }
-            catch ( \Exception $e ) {
-                echo sprintf( '<pre>%s</pre>', $this->logError( $e->getMessage() . "\n" . $e->getTraceAsString() . "\n" ) );
+                throw new \Exception(sprintf("Meet error on line %s of file %s:\n%s", $errline, $errfile, $errstr));
+            } catch (\Exception $e) {
+                echo sprintf('<pre>%s</pre>', $this->logError($e->getMessage() . "\n" . $e->getTraceAsString() . "\n"));
             }
         }
     }
@@ -105,11 +108,10 @@ class ErrorHandler {
      * @param string $errfile
      * @param string $errline
      */
-    public function process( $errno, $errstr, $errfile, $errline )
+    public function process($errno, $errstr, $errfile, $errline)
     {
         return $this->area->isCli() ?
-                $this->processCliError( $errno, $errstr, $errfile, $errline ) :
-                $this->processHttpError( $errno, $errstr, $errfile, $errline );
+            $this->processCliError($errno, $errstr, $errfile, $errline) :
+            $this->processHttpError($errno, $errstr, $errfile, $errline);
     }
-
 }

@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Model;
+namespace CrazyCat\Framework\App\Component\Module\Model;
 
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;

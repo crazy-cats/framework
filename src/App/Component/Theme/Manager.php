@@ -8,11 +8,7 @@
 namespace CrazyCat\Framework\App\Component\Theme;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Setup\Setup as ComponentManager;
-use CrazyCat\Framework\App\Component\Theme;
+use CrazyCat\Framework\App\Component\Manager as ComponentManager;
 
 /**
  * @category CrazyCat
@@ -20,8 +16,8 @@ use CrazyCat\Framework\App\Component\Theme;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Manager {
-
+class Manager
+{
     const CACHE_NAME = 'themes';
 
     /**
@@ -35,7 +31,7 @@ class Manager {
     private $cache;
 
     /**
-     * @var \CrazyCat\Framework\App\Setup\Setup
+     * @var \CrazyCat\Framework\App\Component\Manager
      */
     private $componentManager;
 
@@ -59,13 +55,18 @@ class Manager {
      */
     private $themes = [
         Area::CODE_FRONTEND => [],
-        Area::CODE_BACKEND => []
+        Area::CODE_BACKEND  => []
     ];
 
-    public function __construct( Config $config, CacheFactory $cacheFactory, ObjectManager $objectManager, Area $area, ComponentManager $componentManager )
-    {
+    public function __construct(
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\Cache\Factory $cacheFactory,
+        \CrazyCat\Framework\App\Component\Manager $componentManager,
+        \CrazyCat\Framework\App\Config $config,
+        \CrazyCat\Framework\App\ObjectManager $objectManager
+    ) {
         $this->area = $area;
-        $this->cache = $cacheFactory->create( self::CACHE_NAME );
+        $this->cache = $cacheFactory->create(self::CACHE_NAME);
         $this->componentManager = $componentManager;
         $this->config = $config;
         $this->objectManager = $objectManager;
@@ -73,27 +74,30 @@ class Manager {
 
     /**
      * @return $this
+     * @throws \ReflectionException
      */
     public function init()
     {
-        if ( empty( $themesData = $this->cache->getData() ) ) {
+        if (empty($themesData = $this->cache->getData())) {
             $themesData = [
                 Area::CODE_FRONTEND => [],
-                Area::CODE_BACKEND => []
+                Area::CODE_BACKEND  => []
             ];
-            foreach ( $this->componentManager->getComponents( ComponentManager::TYPE_THEME ) as $themeInfo ) {
+            foreach ($this->componentManager->getComponents(ComponentManager::TYPE_THEME) as $themeInfo) {
                 /* @var $theme \CrazyCat\Framework\App\Component\Theme */
-                $theme = $this->objectManager->create( Theme::class, [ 'data' => $themeInfo ] );
-                $themeArea = $theme->getData( 'config' )['area'];
-                $themesData[$themeArea][$theme->getData( 'name' )] = $theme->getData();
-                $this->themes[$themeArea][$theme->getData( 'name' )] = $theme;
+                $theme = $this->objectManager->create(Theme::class, ['data' => $themeInfo]);
+                $themeArea = $theme->getData('config')['area'];
+                $themesData[$themeArea][$theme->getData('name')] = $theme->getData();
+                $this->themes[$themeArea][$theme->getData('name')] = $theme;
             }
-            $this->cache->setData( $themesData )->save();
-        }
-        else {
-            foreach ( $themesData as $themeArea => $themeGroupData ) {
-                foreach ( $themeGroupData as $themeData ) {
-                    $this->themes[$themeArea][$themeData['name']] = $this->objectManager->create( Theme::class, [ 'data' => $themeData ] );
+            $this->cache->setData($themesData)->save();
+        } else {
+            foreach ($themesData as $themeArea => $themeGroupData) {
+                foreach ($themeGroupData as $themeData) {
+                    $this->themes[$themeArea][$themeData['name']] = $this->objectManager->create(
+                        Theme::class,
+                        ['data' => $themeData]
+                    );
                 }
             }
         }
@@ -112,10 +116,10 @@ class Manager {
     /**
      * @return \CrazyCat\Framework\App\Component\Theme[]
      */
-    public function getThemes( $areaCode )
+    public function getThemes($areaCode)
     {
-        if ( !isset( $this->themes[$areaCode] ) ) {
-            throw new \Exception( 'Invalidated area code for theme.' );
+        if (!isset($this->themes[$areaCode])) {
+            throw new \Exception('Invalidated area code for theme.');
         }
         return $this->themes[$areaCode];
     }
@@ -123,13 +127,13 @@ class Manager {
     /**
      * @return \CrazyCat\Framework\App\Component\Theme
      */
-    public function getTheme( $areaCode, $themeName )
+    public function getTheme($areaCode, $themeName)
     {
-        if ( !isset( $this->themes[$areaCode] ) ) {
-            throw new \Exception( 'Invalidated area code for theme.' );
+        if (!isset($this->themes[$areaCode])) {
+            throw new \Exception('Invalidated area code for theme.');
         }
-        if ( !isset( $this->themes[$areaCode][$themeName] ) ) {
-            throw new \Exception( 'Specified theme does not exist.' );
+        if (!isset($this->themes[$areaCode][$themeName])) {
+            throw new \Exception('Specified theme does not exist.');
         }
         return $this->themes[$areaCode][$themeName];
     }
@@ -139,10 +143,10 @@ class Manager {
      */
     public function getCurrentTheme()
     {
-        if ( $this->currentTheme === null ) {
-            $themeName = $this->config->getData( $this->area->getCode() )['theme'];
-            if ( !isset( $this->themes[$this->area->getCode()][$themeName] ) ) {
-                throw new \Exception( 'Specified theme does not exist.' );
+        if ($this->currentTheme === null) {
+            $themeName = $this->config->getData($this->area->getCode())['theme'];
+            if (!isset($this->themes[$this->area->getCode()][$themeName])) {
+                throw new \Exception('Specified theme does not exist.');
             }
             $this->currentTheme = $this->themes[$this->area->getCode()][$themeName];
         }
@@ -153,10 +157,10 @@ class Manager {
      * @param string $themeName
      * @return $this
      */
-    public function setCurrentTheme( $themeName )
+    public function setCurrentTheme($themeName)
     {
-        if ( !isset( $this->themes[$this->area->getCode()][$themeName] ) ) {
-            throw new \Exception( 'Specified theme does not exist.' );
+        if (!isset($this->themes[$this->area->getCode()][$themeName])) {
+            throw new \Exception('Specified theme does not exist.');
         }
         $this->currentTheme = $this->themes[$this->area->getCode()][$themeName];
 

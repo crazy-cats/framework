@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Setup;
+namespace CrazyCat\Framework\App\Component\Module\Setup;
 
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 

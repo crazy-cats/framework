@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller\Api;
+namespace CrazyCat\Framework\App\Component\Module\Controller\Api;
 
 use CrazyCat\Framework\App\Io\Http\Response;
 use CrazyCat\Framework\App\Data\DataObject;
@@ -16,8 +16,8 @@ use CrazyCat\Framework\App\Data\DataObject;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractAction {
-
+abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractAction
+{
     /**
      * @var \CrazyCat\Framework\App\Io\Http\Request
      */
@@ -28,9 +28,9 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
      */
     protected $response;
 
-    public function __construct( Context $context )
+    public function __construct(Context $context)
     {
-        parent::__construct( $context );
+        parent::__construct($context);
 
         $this->request = $context->getRequest();
         $this->response = $context->getResponse();
@@ -38,28 +38,31 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function execute()
     {
-        parent::execute();
+        $this->beforeRun();
 
-        if ( !( $auth = $this->request->getHeader( 'authorization' ) ) ) {
-            throw new \Exception( 'You do not have permission to access the resource.' );
+        if (!($auth = $this->request->getHeader('authorization'))) {
+            throw new \Exception('You do not have permission to access the resource.');
         }
-        $verifyObj = new DataObject( [ 'token_validated' => false ] );
-        foreach ( preg_split( '/\s*,\s*/', $auth ) as $authStr ) {
-            list( $type, $token ) = array_pad( preg_split( '/\s+/', $authStr ), 2, null );
-            if ( $type == 'Bearer' ) {
-                $this->eventManager->dispatch( 'verify_api_token', [ 'token' => $token, 'verify_object' => $verifyObj ] );
+        $verifyObj = new DataObject(['token_validated' => false]);
+        foreach (preg_split('/\s*,\s*/', $auth) as $authStr) {
+            list($type, $token) = array_pad(preg_split('/\s+/', $authStr), 2, null);
+            if ($type == 'Bearer') {
+                $this->eventManager->dispatch('verify_api_token', ['token' => $token, 'verify_object' => $verifyObj]);
                 break;
             }
         }
-        if ( !$verifyObj->getData( 'token_validated' ) ) {
-            throw new \Exception( 'You do not have permission to access the resource.' );
+        if (!$verifyObj->getData('token_validated')) {
+            throw new \Exception('You do not have permission to access the resource.');
         }
-
         $this->run();
-        $this->response->setType( Response::TYPE_JSON )->send();
+
+        $this->afterRun();
+
+        $this->response->setType(Response::TYPE_JSON)->send();
     }
 
     /**

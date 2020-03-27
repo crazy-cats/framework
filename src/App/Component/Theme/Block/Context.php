@@ -31,7 +31,7 @@ class Context
     protected $eventManager;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     private $moduleManager;
 
@@ -67,7 +67,7 @@ class Context
         \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
         \CrazyCat\Framework\App\EventManager $eventManager,
         \CrazyCat\Framework\App\Io\Http\Request $request,
-        \CrazyCat\Framework\App\Module\Manager $moduleManager,
+        \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Registry $registry,
         \CrazyCat\Framework\App\Url $url
     ) {
@@ -107,7 +107,7 @@ class Context
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Module\Manager
+     * @return \CrazyCat\Framework\App\Component\Module\Manager
      */
     public function getModuleManager()
     {

@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Model;
+namespace CrazyCat\Framework\App\Component\Module\Model;
 
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\EventManager;
@@ -363,7 +363,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Module\Model\AbstractModel|null
+     * @return \CrazyCat\Framework\App\Component\Module\Model\AbstractModel|null
      */
     public function getFirstItem()
     {

@@ -9,7 +9,7 @@ namespace CrazyCat\Framework\App\Component\Theme;
 
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Io\Http\Request;
-use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Component\Theme;
 use CrazyCat\Framework\App\Url;
@@ -28,7 +28,7 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
     private $config;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     private $moduleManager;
 
@@ -151,7 +151,7 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
     /**
      * @param string $layoutName
      * @param string $areaCode
-     * @return \CrazyCat\Framework\App\Module|null
+     * @return \CrazyCat\Framework\App\Component\Module|null
      */
     private function getLayoutModule( $layoutName, $areaCode )
     {

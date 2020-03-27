@@ -13,8 +13,8 @@ namespace CrazyCat\Framework\App\Io\Http;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
-
+class Response extends \CrazyCat\Framework\App\Io\AbstractResponse
+{
     const TYPE_JSON = 'application/json';
     const TYPE_XML = 'application/xml';
     const TYPE_PAGE = 'text/html';
@@ -40,7 +40,7 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
      * @param string $type
      * @return $this
      */
-    public function setType( $type )
+    public function setType($type)
     {
         $this->type = $type;
         return $this;
@@ -50,7 +50,7 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
      * @param mixed $data
      * @return $this
      */
-    public function setData( $data )
+    public function setData($data)
     {
         $this->data = $data;
         return $this;
@@ -60,7 +60,7 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
      * @param string $url
      * @return $this
      */
-    public function setRedirect( $url )
+    public function setRedirect($url)
     {
         $this->type = self::TYPE_REDIRECT;
         $this->data = $url;
@@ -79,7 +79,7 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
      * @param string $body
      * @return $this
      */
-    public function setBody( $body )
+    public function setBody($body)
     {
         $this->body = $body;
         return $this;
@@ -90,25 +90,25 @@ class Response extends \CrazyCat\Framework\App\Io\AbstractResponse {
      */
     public function send()
     {
-        switch ( $this->type ) {
-
-            case self::TYPE_REDIRECT :
-                header( 'location: ' . $this->data );
+        switch ($this->type) {
+            case self::TYPE_REDIRECT:
+                header('location: ' . $this->data);
                 break;
 
-            case self::TYPE_JSON :
-                $this->body = json_encode( $this->data );
-
-            case self::TYPE_PLAIN :
-                header( 'Content-Type: ' . $this->type . '; charset=utf-8' );
+            case self::TYPE_JSON:
+                $this->body = json_encode($this->data);
+                header('Content-Type: ' . $this->type . '; charset=utf-8');
                 break;
 
-            default :
-                header( 'Content-Type: ' . $this->type );
+            case self::TYPE_PLAIN:
+                header('Content-Type: ' . $this->type . '; charset=utf-8');
+                break;
+
+            default:
+                header('Content-Type: ' . $this->type);
                 break;
         }
 
         echo $this->body;
     }
-
 }

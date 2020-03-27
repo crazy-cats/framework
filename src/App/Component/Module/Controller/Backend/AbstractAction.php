@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller\Backend;
+namespace CrazyCat\Framework\App\Component\Module\Controller\Backend;
 
 /**
  * @category CrazyCat
@@ -13,18 +13,17 @@ namespace CrazyCat\Framework\App\Module\Controller\Backend;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractAction extends \CrazyCat\Framework\App\Module\Controller\AbstractViewAction {
-
+abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractViewAction
+{
     /**
      * @var \CrazyCat\Framework\App\Io\Http\Session\Backend
      */
     protected $session;
 
-    public function __construct( Context $context )
+    public function __construct(Context $context)
     {
-        parent::__construct( $context );
+        parent::__construct($context);
 
         $this->session = $context->getSession();
     }
-
 }

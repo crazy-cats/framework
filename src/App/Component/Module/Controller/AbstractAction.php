@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller;
+namespace CrazyCat\Framework\App\Component\Module\Controller;
 
 /**
  * @category CrazyCat
@@ -13,8 +13,8 @@ namespace CrazyCat\Framework\App\Module\Controller;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractAction {
-
+abstract class AbstractAction
+{
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -40,7 +40,7 @@ abstract class AbstractAction {
      */
     protected $objectManager;
 
-    public function __construct( Context $context )
+    public function __construct(Context $context)
     {
         $this->area = $context->getArea();
         $this->config = $context->getConfig();
@@ -51,11 +51,47 @@ abstract class AbstractAction {
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
-    public function execute()
+    protected function beforeRun()
     {
-        $this->eventManager->dispatch( 'controller_execute_before', [ 'action' => $this ] );
-        $this->eventManager->dispatch( sprintf( '%s_controller_execute_before', $this->area->getCode() ), [ 'action' => $this ] );
+        $this->eventManager->dispatch(
+            'controller_execute_before',
+            ['action' => $this]
+        );
+        $this->eventManager->dispatch(
+            sprintf('%s_controller_execute_before', $this->area->getCode()),
+            ['action' => $this]
+        );
+        $this->eventManager->dispatch(
+            sprintf('%s_execute_before', $this->request->getFullPath()),
+            ['action' => $this]
+        );
     }
 
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    protected function afterRun()
+    {
+        $this->eventManager->dispatch(
+            sprintf('%s_execute_after', $this->request->getFullPath()),
+            ['action' => $this]
+        );
+        $this->eventManager->dispatch(
+            sprintf('%s_controller_execute_after', $this->area->getCode()),
+            ['action' => $this]
+        );
+        $this->eventManager->dispatch(
+            'controller_execute_after',
+            ['action' => $this]
+        );
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    abstract public function execute();
 }

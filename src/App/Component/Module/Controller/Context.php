@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Controller;
+namespace CrazyCat\Framework\App\Component\Module\Controller;
 
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;

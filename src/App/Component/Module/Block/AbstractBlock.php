@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Module\Block;
+namespace CrazyCat\Framework\App\Component\Module\Block;
 
 /**
  * @category CrazyCat

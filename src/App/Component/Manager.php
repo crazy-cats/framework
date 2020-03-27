@@ -18,7 +18,7 @@ use CrazyCat\Framework\Utility\File;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Setup
+class Manager
 {
     const CACHE_NAME = 'components';
 

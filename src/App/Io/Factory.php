@@ -16,8 +16,8 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Factory {
-
+class Factory
+{
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -28,7 +28,7 @@ class Factory {
      */
     private $objectManager;
 
-    public function __construct( Area $area, ObjectManager $objectManager )
+    public function __construct(Area $area, ObjectManager $objectManager)
     {
         $this->area = $area;
         $this->objectManager = $objectManager;
@@ -37,33 +37,30 @@ class Factory {
     /**
      * @param string $areaCode
      * @return \CrazyCat\Framework\App\Io\AbstractRequest
+     * @throws \ReflectionException
      */
-    public function create( $areaCode = null )
+    public function create($areaCode = null)
     {
-        if ( $areaCode === null ) {
-            if ( !$this->area->isCli() ) {
-                $request = $this->objectManager->get( Http\Request::class );
+        if ($areaCode === null) {
+            if (!$this->area->isCli()) {
+                $request = $this->objectManager->get(Http\Request::class);
+            } else {
+                $request = $this->objectManager->get(Cli\Request::class);
             }
-            else {
-                $request = $this->objectManager->get( Cli\Request::class );
-            }
-        }
-        else {
-            switch ( $areaCode ) {
-
-                case Area::CODE_API :
-                case Area::CODE_BACKEND :
-                case Area::CODE_FRONTEND :
-                    $request = $this->objectManager->get( Http\Request::class );
+        } else {
+            switch ($areaCode) {
+                case Area::CODE_API:
+                case Area::CODE_BACKEND:
+                case Area::CODE_FRONTEND:
+                    $request = $this->objectManager->get(Http\Request::class);
                     break;
 
-                case Area::CODE_CLI :
-                    $request = $this->objectManager->get( Cli\Request::class );
+                case Area::CODE_CLI:
+                    $request = $this->objectManager->get(Cli\Request::class);
                     break;
             }
         }
 
         return $request;
     }
-
 }

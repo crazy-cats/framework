@@ -13,6 +13,6 @@ namespace CrazyCat\Framework\App\Io;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractResponse {
-    
+abstract class AbstractResponse
+{
 }

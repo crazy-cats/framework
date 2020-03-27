@@ -8,7 +8,7 @@
 namespace CrazyCat\Framework;
 
 use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
-use CrazyCat\Framework\App\Component\Setup as ComponentSetup;
+use CrazyCat\Framework\App\Component\Manager as ComponentManager;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Io\Http\Response\ContentType;
 use CrazyCat\Framework\App\ObjectManager;
@@ -94,38 +94,45 @@ class App
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Handler\ErrorHandler $errorHandler,
-        \CrazyCat\Framework\App\Handler\ExceptionHandler $exceptionHandler,
         \CrazyCat\Framework\App\ObjectManager $objectManager,
-        \CrazyCat\Framework\App\Setup $setup
+        \CrazyCat\Framework\App\Setup\Wizard $wizard
     ) {
         $this->area = $area;
-        $this->errorHandler = $errorHandler;
-        $this->exceptionHandler = $exceptionHandler;
         $this->objectManager = $objectManager;
 
         if (!is_file(App\Config::FILE)) {
-            $setup->launch();
+            $wizard->launch();
         }
-        $this->config = $objectManager->get(\CrazyCat\Framework\App\Config::class);
+        $this->init();
+    }
+
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
+    private function init()
+    {
+        $errorHandler = $this->objectManager->get(\CrazyCat\Framework\App\Handler\ErrorHandler::class);
+        $exceptionHandler = $this->objectManager->get(\CrazyCat\Framework\App\Handler\ExceptionHandler::class);
+        set_error_handler([$errorHandler, 'process']);
+        set_exception_handler([$exceptionHandler, 'process']);
+
+        /**
+         * Use UTC time as system time, for calculation and storage
+         */
+        ini_set('date.timezone', 'UTC');
+
+        $this->config = $this->objectManager->get(\CrazyCat\Framework\App\Config::class);
 
         /**
          * Below single instances should be created after base config is initialized
          */
-        $this->cacheFactory = $objectManager->get(\CrazyCat\Framework\App\Cache\Factory::class);
-        $this->componentSetup = $objectManager->get(\CrazyCat\Framework\App\Component\Setup::class);
-        $this->dbManager = $objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
-        $this->ioFactory = $objectManager->get(\CrazyCat\Framework\App\Io\Factory::class);
-        $this->moduleManager = $objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class);
-        $this->translator = $objectManager->get(\CrazyCat\Framework\App\Component\Language\Translator::class);
-    }
-
-    /**
-     * @return string
-     */
-    public function getVersion()
-    {
-        return '1.0.0';
+        $this->cacheFactory = $this->objectManager->get(\CrazyCat\Framework\App\Cache\Factory::class);
+        $this->componentSetup = $this->objectManager->get(\CrazyCat\Framework\App\Component\Manager::class);
+        $this->dbManager = $this->objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
+        $this->ioFactory = $this->objectManager->get(\CrazyCat\Framework\App\Io\Factory::class);
+        $this->moduleManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class);
+        $this->translator = $this->objectManager->get(\CrazyCat\Framework\App\Component\Language\Translator::class);
     }
 
     /**
@@ -135,15 +142,12 @@ class App
      */
     private function initComponents($composerLoader)
     {
-        set_error_handler([$this->errorHandler, 'process']);
-        set_exception_handler([$this->exceptionHandler, 'process']);
-
         profile_start('Collect components');
         $components = $this->componentSetup->init($composerLoader);
         profile_end('Collect components');
 
         profile_start('Initializing modules');
-        $this->moduleManager->init($components[ComponentSetup::TYPE_MODULE]);
+        $this->moduleManager->init($components[ComponentManager::TYPE_MODULE]);
         profile_end('Initializing modules');
 
         return $components;
@@ -156,11 +160,6 @@ class App
     public function run($composerLoader, $areaCode = null)
     {
         profile_start('Run APP');
-
-        /**
-         * Use UTC time as system time, for calculation and storage
-         */
-        ini_set('date.timezone', 'UTC');
 
         profile_start('Initializing components');
         $components = $this->initComponents($composerLoader);
@@ -183,7 +182,7 @@ class App
          *     so no need to worry about the area code here.
          */
         profile_start('Initializing translator');
-        $this->translator->init($components[ComponentSetup::TYPE_LANG]);
+        $this->translator->init($components[ComponentManager::TYPE_LANG]);
         profile_end('Initializing translator');
 
         /**
@@ -220,7 +219,7 @@ class App
         $theme = $this->objectManager->get(ThemeManager::class)->init()
             ->getTheme($areaCode, $themeName);
 
-        /* @var $module \CrazyCat\Framework\App\Module */
+        /* @var $module \CrazyCat\Framework\App\Component\Module */
         if (isset($pathArr[4]) && ($module = $this->objectManager->get(ModuleManager::class)
                 ->getModule($pathArr[2] . '\\' . $pathArr[3]))) {
             $staticPath = $module['config']['namespace'] . '::' .
@@ -241,5 +240,13 @@ class App
             $theme->generateStaticFile($areaCode, $themeName, $staticPath);
             readfile($filePath);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return '1.0.0';
     }
 }

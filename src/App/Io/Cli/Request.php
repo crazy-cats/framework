@@ -9,7 +9,7 @@ namespace CrazyCat\Framework\App\Io\Cli;
 
 use CrazyCat\Framework\App;
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Command\Command;
@@ -20,8 +20,8 @@ use Symfony\Component\Console\Command\Command;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
-
+class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
+{
     /**
      * @var \CrazyCat\Framework\App
      */
@@ -33,7 +33,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
     protected $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     protected $moduleManager;
 
@@ -42,7 +42,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      */
     protected $objectManager;
 
-    public function __construct( App $app, Area $area, ModuleManager $moduleManager, ObjectManager $objectManager )
+    public function __construct(App $app, Area $area, ModuleManager $moduleManager, ObjectManager $objectManager)
     {
         $this->app = $app;
         $this->area = $area;
@@ -52,30 +52,33 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function process()
     {
-        $this->area->setCode( Area::CODE_CLI );
+        $this->area->setCode(Area::CODE_CLI);
 
         /* @var $consoleApplication \Symfony\Component\Console\Application */
-        $consoleApplication = $this->objectManager->create( ConsoleApplication::class, [
-            'name' => 'CrazyCat CLI',
-            'version' => $this->app->getVersion() ] );
+        $consoleApplication = $this->objectManager->create(
+            ConsoleApplication::class,
+            [
+                'name' => 'CrazyCat CLI',
+                'version' => $this->app->getVersion()
+            ]
+        );
 
-        foreach ( $this->moduleManager->getEnabledModules() as $module ) {
-            foreach ( $module->getControllerActions( Area::CODE_CLI ) as $route => $className ) {
-
+        foreach ($this->moduleManager->getEnabledModules() as $module) {
+            foreach ($module->getControllerActions(Area::CODE_CLI) as $route => $className) {
                 /* @var $command \Symfony\Component\Console\Command\Command */
-                $command = $this->objectManager->create( Command::class, [ 'name' => str_replace( '/', ':', $route ) ] );
+                $command = $this->objectManager->create(Command::class, ['name' => str_replace('/', ':', $route)]);
 
-                /* @var $controllerAction \CrazyCat\Framework\App\Module\Controller\Cli\AbstractAction */
-                $controllerAction = $this->objectManager->create( $className );
-                $controllerAction->setCommand( $command )->init();
+                /* @var $controllerAction \CrazyCat\Framework\App\Component\Module\Controller\Cli\AbstractAction */
+                $controllerAction = $this->objectManager->create($className);
+                $controllerAction->setCommand($command)->init();
 
-                $consoleApplication->add( $command->setCode( [ $controllerAction, 'execute' ] ) );
+                $consoleApplication->add($command->setCode([$controllerAction, 'execute']));
             }
         }
         $consoleApplication->run();
     }
-
 }

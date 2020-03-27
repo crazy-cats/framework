@@ -10,7 +10,7 @@ namespace CrazyCat\Framework\App\Io\Http;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
@@ -45,7 +45,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     protected $headers;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     protected $moduleManager;
 

@@ -8,8 +8,7 @@
 namespace CrazyCat\Framework\App\Component\Language;
 
 use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\Utility\File;
 
@@ -46,7 +45,7 @@ class Translator
     private $translationsCaches;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     private $moduleManager;
 
@@ -66,19 +65,21 @@ class Translator
     private $langPackages = [];
 
     public function __construct(
-        Config $config,
-        Area $area,
-        CacheFactory $cacheFactory,
-        ModuleManager $moduleManager,
-        ThemeManager $themeManager
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\Cache\Factory $cacheFactory,
+        \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
+        \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
+        \CrazyCat\Framework\App\Config $config
     ) {
         $this->area = $area;
         $this->cache = $cacheFactory->create(self::CACHE_LANG_NAME);
         $this->cacheFactory = $cacheFactory;
-        $this->langCode = $config[$area->getCode()] ? $config[$area->getCode(
-        )]['lang'] : $config[Area::CODE_GLOBAL]['lang'];
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
+
+        $this->langCode = $config[$area->getCode()]
+            ? $config[$area->getCode()]['lang']
+            : $config[Area::CODE_GLOBAL]['lang'];
     }
 
     /**
@@ -201,7 +202,7 @@ class Translator
             foreach ($languageSource as $language) {
                 $config = require $language['dir'] . DS . 'config.php';
                 $this->langPackages[$config['code']] = [
-                    'dir' => $language['dir'],
+                    'dir'  => $language['dir'],
                     'code' => $config['code'],
                     'name' => $config['name']
                 ];
