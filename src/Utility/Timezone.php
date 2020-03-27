@@ -13,22 +13,26 @@ namespace CrazyCat\Framework\Utility;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Timezone {
-
-    static public function zones()
+class Timezone
+{
+    public static function zones()
     {
         $zones = [];
-        foreach ( ( new \DateTimeZone( 'UTC' ) )->listAbbreviations() as $zoneAreas ) {
-            foreach ( $zoneAreas as $zone ) {
-                if ( !$zone['timezone_id'] ) {
+        foreach ((new \DateTimeZone('UTC'))->listAbbreviations() as $zoneAreas) {
+            foreach ($zoneAreas as $zone) {
+                if (!$zone['timezone_id']) {
                     continue;
                 }
-                $zones[$zone['timezone_id']] = sprintf( '%s ( %s%s )', $zone['timezone_id'], ( $zone['offset'] >= 0 ? '+' : '-' ), date( 'G:i', $zone['offset'] ) );
+                $zones[$zone['timezone_id']] = sprintf(
+                    '%s ( %s%s )',
+                    $zone['timezone_id'],
+                    ($zone['offset'] >= 0 ? '+' : '-'),
+                    date('G:i', $zone['offset'])
+                );
             }
         }
-        asort( $zones );
+        asort($zones);
 
         return $zones;
     }
-
 }

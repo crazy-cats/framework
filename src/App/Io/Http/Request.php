@@ -19,8 +19,8 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
-
+class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
+{
     const AJAX_PARAM = 'ajax';
     const API_ROUTE = 'rest/V1';
 
@@ -74,8 +74,13 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      */
     protected $path;
 
-    public function __construct( Area $area, Config $config, ModuleManager $moduleManager, EventManager $eventManager, ObjectManager $objectManager )
-    {
+    public function __construct(
+        Area $area,
+        Config $config,
+        ModuleManager $moduleManager,
+        EventManager $eventManager,
+        ObjectManager $objectManager
+    ) {
         $this->area = $area;
         $this->config = $config;
         $this->eventManager = $eventManager;
@@ -88,12 +93,12 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $route
      * @return string|null
      */
-    public function getModuleNameByRoute( $areaCode, $route )
+    public function getModuleNameByRoute($areaCode, $route)
     {
-        foreach ( $this->moduleManager->getEnabledModules() as $module ) {
-            $moduleRoutes = $module->getData( 'config' )['routes'];
-            if ( isset( $moduleRoutes[$areaCode] ) && $moduleRoutes[$areaCode] == $route ) {
-                return $module->getData( 'name' );
+        foreach ($this->moduleManager->getEnabledModules() as $module) {
+            $moduleRoutes = $module->getData('config')['routes'];
+            if (isset($moduleRoutes[$areaCode]) && $moduleRoutes[$areaCode] == $route) {
+                return $module->getData('name');
             }
         }
         return null;
@@ -101,92 +106,97 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
      * @param array $pathParts
-     * @param int $startPos
+     * @param int   $startPos
      * @return void
      */
-    protected function pushPathParamsToRequest( array $pathParts, $startPos )
+    protected function pushPathParamsToRequest(array $pathParts, $startPos)
     {
-        if ( !isset( $pathParts[$startPos] ) ) {
+        if (!isset($pathParts[$startPos])) {
             return;
         }
-        for ( $pos = $startPos; $pos < count( $pathParts ); $pos += 2 ) {
+        for ($pos = $startPos; $pos < count($pathParts); $pos += 2) {
             $key = $pathParts[$pos];
-            if ( !isset( $this->requestData[$key] ) ) {
-                $this->requestData[$key] = isset( $pathParts[$pos + 1] ) ? $pathParts[$pos + 1] : null;
+            if (!isset($this->requestData[$key])) {
+                $this->requestData[$key] = isset($pathParts[$pos + 1]) ? $pathParts[$pos + 1] : null;
             }
         }
     }
 
     /**
      * @return void
+     * @throws \Exception
      */
     public function process()
     {
-        $server = filter_input_array( INPUT_SERVER );
-        $pathRoot = dirname( $server['SCRIPT_NAME'] );
-        $filePath = explode( '?', ( isset( $server['HTTP_X_REWRITE_URL'] ) ? $server['HTTP_X_REWRITE_URL'] : $server['REQUEST_URI'] ) )[0];
-        $this->path = trim( ( strpos( $filePath, $server['SCRIPT_NAME'] ) !== false ) ?
-                substr( $filePath, strlen( $server['SCRIPT_NAME'] ) ) :
-                substr( $filePath, strlen( $pathRoot ) ), '/' );
+        $server = filter_input_array(INPUT_SERVER);
+        $pathRoot = dirname($server['SCRIPT_NAME']);
+        $filePath = explode(
+            '?',
+            (isset($server['HTTP_X_REWRITE_URL']) ? $server['HTTP_X_REWRITE_URL'] : $server['REQUEST_URI'])
+        )[0];
+        $this->path = trim(
+            (strpos($filePath, $server['SCRIPT_NAME']) !== false) ?
+                substr($filePath, strlen($server['SCRIPT_NAME'])) :
+                substr($filePath, strlen($pathRoot)),
+            '/'
+        );
 
-        $getData = filter_input_array( INPUT_GET ) ?: [];
-        $this->postData = filter_input_array( INPUT_POST ) ?: [];
-        $this->requestData = array_merge( $getData, $this->postData );
+        $getData = filter_input_array(INPUT_GET) ?: [];
+        $this->postData = filter_input_array(INPUT_POST) ?: [];
+        $this->requestData = array_merge($getData, $this->postData);
 
-        $pathParts = explode( '/', $this->path );
+        $pathParts = explode('/', $this->path);
 
-        /**
-         * Check whether it routes to back-end
-         */
-        if ( ( $pathParts[0] == $this->config->getData( Area::CODE_BACKEND )['route'] ) ) {
-            $this->area->setCode( Area::CODE_BACKEND );
-            $this->routeName = (!empty( $pathParts[1] ) ? $pathParts[1] : 'system' ); // system is backend route name of core module
-            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_BACKEND, $this->routeName ) ) ) {
-                throw new \Exception( 'System can not find matched route.' );
-            }
-            $this->controllerName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
-            $this->actionName = !empty( $pathParts[3] ) ? $pathParts[3] : 'index';
-            $this->pushPathParamsToRequest( $pathParts, 4 );
-        }
-
-        /**
-         * Check whether it routes to API
-         */
-        else if ( isset( $pathParts[1] ) && ( $pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE ) ) {
-            $this->area->setCode( Area::CODE_API );
-            if ( empty( $pathParts[2] ) || empty( $pathParts[3] ) || empty( $pathParts[4] ) ) {
-                throw new \Exception( 'Route undefined.' );
-            }
-            $this->routeName = $pathParts[2];
-            if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_API, $this->routeName ) ) ) {
-                throw new \Exception( 'System can not find matched route.' );
-            }
-            $this->controllerName = $pathParts[3];
-            $this->actionName = $pathParts[4];
-        }
-
-        /**
-         * A HTTP request must be one of API, backend and frontend request
-         */
-        else {
-            $this->area->setCode( Area::CODE_FRONTEND );
-
+        if (($pathParts[0] == $this->config->getData(Area::CODE_BACKEND)['route'])) {
             /**
-             * Prepare an event for modules to add router
+             * Check whether it routes to back-end
              */
-            $this->eventManager->dispatch( 'process_http_request', [ 'request' => $this ] );
-
+            $this->area->setCode(Area::CODE_BACKEND);
+            $this->routeName = (!empty($pathParts[1]) ? $pathParts[1] : 'system'); // system is backend route name of core module
+            if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_BACKEND, $this->routeName))) {
+                throw new \Exception('System can not find matched route.');
+            }
+            $this->controllerName = !empty($pathParts[2]) ? $pathParts[2] : 'index';
+            $this->actionName = !empty($pathParts[3]) ? $pathParts[3] : 'index';
+            $this->pushPathParamsToRequest($pathParts, 4);
+        } else {
             /**
-             * If it does not meet any route defined in modules, use default route rule
+             * Check whether it routes to API
              */
-            if ( $this->moduleName === null ) {
-                $this->routeName = (!empty( $pathParts[0] ) ? $pathParts[0] : 'index' );
-                if ( !( $this->moduleName = $this->getModuleNameByRoute( Area::CODE_FRONTEND, $this->routeName ) ) ) {
-                    throw new \Exception( 'System can not find matched route.' );
+            if (isset($pathParts[1]) && ($pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE)) {
+                $this->area->setCode(Area::CODE_API);
+                if (empty($pathParts[2]) || empty($pathParts[3]) || empty($pathParts[4])) {
+                    throw new \Exception('Route undefined.');
                 }
-                $this->controllerName = !empty( $pathParts[1] ) ? $pathParts[1] : 'index';
-                $this->actionName = !empty( $pathParts[2] ) ? $pathParts[2] : 'index';
-                $this->pushPathParamsToRequest( $pathParts, 3 );
+                $this->routeName = $pathParts[2];
+                if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_API, $this->routeName))) {
+                    throw new \Exception('System can not find matched route.');
+                }
+                $this->controllerName = $pathParts[3];
+                $this->actionName = $pathParts[4];
+            } else {
+                /**
+                 * A HTTP request must be one of API, backend and frontend request
+                 */
+                $this->area->setCode(Area::CODE_FRONTEND);
+
+                /**
+                 * Prepare an event for modules to add router
+                 */
+                $this->eventManager->dispatch('process_http_request', ['request' => $this]);
+
+                /**
+                 * If it does not meet any route defined in modules, use default route rule
+                 */
+                if ($this->moduleName === null) {
+                    $this->routeName = (!empty($pathParts[0]) ? $pathParts[0] : 'index');
+                    if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_FRONTEND, $this->routeName))) {
+                        throw new \Exception('System can not find matched route.');
+                    }
+                    $this->controllerName = !empty($pathParts[1]) ? $pathParts[1] : 'index';
+                    $this->actionName = !empty($pathParts[2]) ? $pathParts[2] : 'index';
+                    $this->pushPathParamsToRequest($pathParts, 3);
+                }
             }
         }
 
@@ -205,20 +215,20 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string|null $key
      * @return mixed
      */
-    public function getPost( $key = null )
+    public function getPost($key = null)
     {
-        return ( $key === null ) ? $this->postData :
-                ( isset( $this->postData[$key] ) ? $this->postData[$key] : null );
+        return ($key === null) ? $this->postData :
+            (isset($this->postData[$key]) ? $this->postData[$key] : null);
     }
 
     /**
-     * @param string $key
+     * @param string      $key
      * @param string|null $default
      * @return mixed
      */
-    public function getParam( $key, $default = null )
+    public function getParam($key, $default = null)
     {
-        return isset( $this->requestData[$key] ) ? $this->requestData[$key] : $default;
+        return isset($this->requestData[$key]) ? $this->requestData[$key] : $default;
     }
 
     /**
@@ -231,10 +241,10 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
 
     /**
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      * @return $this
      */
-    public function setParam( $key, $value )
+    public function setParam($key, $value)
     {
         $this->requestData[$key] = $value;
         return $this;
@@ -244,28 +254,31 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $name
      * @return array|null
      */
-    public function getHeader( $name )
+    public function getHeader($name)
     {
-        if ( $this->headers === null ) {
-            if ( function_exists( 'getallheaders' ) ) {
-                $this->headers = array_change_key_case( getallheaders(), CASE_LOWER );
-            }
-            else {
-                foreach ( filter_input_array( INPUT_SERVER ) as $name => $value ) {
-                    if ( substr( $name, 0, 5 ) == 'HTTP_' ) {
-                        $this->headers[str_replace( ' ', '-', strtolower( str_replace( '_', ' ', substr( $name, 5 ) ) ) )] = $value;
+        if ($this->headers === null) {
+            if (function_exists('getallheaders')) {
+                $this->headers = array_change_key_case(getallheaders(), CASE_LOWER);
+            } else {
+                foreach (filter_input_array(INPUT_SERVER) as $name => $value) {
+                    if (substr($name, 0, 5) == 'HTTP_') {
+                        $this->headers[str_replace(
+                            ' ',
+                            '-',
+                            strtolower(str_replace('_', ' ', substr($name, 5)))
+                        )] = $value;
                     }
                 }
             }
         }
-        return isset( $this->headers[$name] ) ? $this->headers[$name] : null;
+        return isset($this->headers[$name]) ? $this->headers[$name] : null;
     }
 
     /**
      * @param string $moduleName
      * @return $this
      */
-    public function setModuleName( $moduleName )
+    public function setModuleName($moduleName)
     {
         $this->moduleName = $moduleName;
         return $this;
@@ -275,7 +288,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $routeName
      * @return $this
      */
-    public function setRouteName( $routeName )
+    public function setRouteName($routeName)
     {
         $this->routeName = $routeName;
         return $this;
@@ -285,7 +298,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $controllerName
      * @return $this
      */
-    public function setControllerName( $controllerName )
+    public function setControllerName($controllerName)
     {
         $this->controllerName = $controllerName;
         return $this;
@@ -295,7 +308,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $actionName
      * @return $this
      */
-    public function setActionName( $actionName )
+    public function setActionName($actionName)
     {
         $this->actionName = $actionName;
         return $this;
@@ -305,24 +318,24 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest {
      * @param string $separator
      * @return string
      */
-    public function getFullPath( $separator = '_' )
+    public function getFullPath($separator = '_')
     {
         return $this->getRouteName() .
-                $separator .
-                $this->getControllerName() .
-                $separator .
-                $this->getActionName();
+            $separator .
+            $this->getControllerName() .
+            $separator .
+            $this->getActionName();
     }
 
     /**
      * @return \CrazyCat\Framework\App\Io\Http\Response
+     * @throws \ReflectionException
      */
     public function getResponse()
     {
-        if ( $this->response === null ) {
-            $this->response = $this->objectManager->get( Response::class );
+        if ($this->response === null) {
+            $this->response = $this->objectManager->get(Response::class);
         }
         return $this->response;
     }
-
 }

@@ -13,8 +13,8 @@ namespace CrazyCat\Framework\App;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Timezone {
-
+class Timezone
+{
     /**
      * @var \DateTime
      */
@@ -22,37 +22,36 @@ class Timezone {
 
     public function __construct()
     {
-        $this->datetime = new \DateTime;
+        $this->datetime = new \DateTime();
     }
 
     /**
      * @param \DateTimeZone $timezone
      * @return $this
      */
-    public function setTimezone( $timezone )
+    public function setTimezone($timezone)
     {
-        $this->datetime->setTimezone( $timezone );
+        $this->datetime->setTimezone($timezone);
         return $this;
     }
 
     /**
      * @param string|null $dateTime
-     * @param string $format
+     * @param string      $format
      * @return string
      */
-    public function getDateTime( $dateTime = null, $format = 'Y-m-d H:i:s' )
+    public function getDateTime($dateTime = null, $format = 'Y-m-d H:i:s')
     {
-        return $this->datetime->setTimestamp( $dateTime !== null ? strtotime( $dateTime ) : time() )->format( $format );
+        return $this->datetime->setTimestamp($dateTime !== null ? strtotime($dateTime) : time())->format($format);
     }
 
     /**
      * @param string|null $dateTime
-     * @param string $format
+     * @param string      $format
      * @return string
      */
-    public function getUtcDateTime( $dateTime = null, $format = 'Y-m-d H:i:s' )
+    public function getUtcDateTime($dateTime = null, $format = 'Y-m-d H:i:s')
     {
-        return date( $format, ( $dateTime !== null ? strtotime( $dateTime ) : time() ) );
+        return date($format, ($dateTime !== null ? strtotime($dateTime) : time()));
     }
-
 }

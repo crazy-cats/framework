@@ -13,8 +13,8 @@ namespace CrazyCat\Framework\App;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Area {
-
+class Area
+{
     const CODE_GLOBAL = 'global';
     const CODE_CLI = 'cli';
     const CODE_CRON = 'cron';
@@ -41,30 +41,33 @@ class Area {
      * @var array
      */
     private $allowedCodes = [
-        self::CODE_CLI, self::CODE_CRON,
-        self::CODE_API, self::CODE_BACKEND, self::CODE_FRONTEND
+        self::CODE_CLI,
+        self::CODE_CRON,
+        self::CODE_API,
+        self::CODE_BACKEND,
+        self::CODE_FRONTEND
     ];
 
-    public function __construct( EventManager $eventManager )
+    public function __construct(EventManager $eventManager)
     {
         $this->eventManager = $eventManager;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isCli()
     {
-        return in_array( PHP_SAPI, [ 'cli' ] );
+        return in_array(PHP_SAPI, ['cli']);
     }
 
     /**
      * @param string $code
-     * @return boolean
+     * @return bool
      */
-    public function verifyCode( $code )
+    public function verifyCode($code)
     {
-        return in_array( $code, $this->allowedCodes );
+        return in_array($code, $this->allowedCodes);
     }
 
     /**
@@ -88,24 +91,25 @@ class Area {
      */
     public function getHashCode()
     {
-        if ( !isset( $this->hashCode[$this->code] ) ) {
-            $this->hashCode[$this->code] = md5( $this->code );
+        if (!isset($this->hashCode[$this->code])) {
+            $this->hashCode[$this->code] = md5($this->code);
         }
         return $this->hashCode[$this->code];
     }
 
     /**
      * @param string $code
+     * @throws \Exception
      */
-    public function setCode( $code )
+    public function setCode($code)
     {
-        if ( !$this->verifyCode( $code ) ||
-                ($this->isCli() && in_array( $code, [ self::CODE_FRONTEND, self::CODE_BACKEND ] ) ) ) {
-            throw new \Exception( 'Invalidated area code.' );
+        if (!$this->verifyCode($code) ||
+            ($this->isCli() && in_array($code, [self::CODE_FRONTEND, self::CODE_BACKEND]))) {
+            throw new \Exception('Invalidated area code.');
         }
 
         $this->code = $code;
-        $this->eventManager->dispatch( 'set_area_code_after', [ 'area' => $this ] );
+        $this->eventManager->dispatch('set_area_code_after', ['area' => $this]);
     }
 
 }

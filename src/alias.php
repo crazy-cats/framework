@@ -12,10 +12,8 @@
  * @link     http://crazy-cat.cn
  */
 
+use CrazyCat\Framework\App\Component\Language\Translator;
 use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Url;
-use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
-use CrazyCat\Framework\App\Translator;
 use CrazyCat\Framework\Utility\Html;
 use CrazyCat\Framework\Utility\Profile;
 
@@ -23,6 +21,7 @@ use CrazyCat\Framework\Utility\Profile;
  * @param string $text
  * @param array  $variables
  * @return string
+ * @throws ReflectionException
  */
 function __($text, $variables = [])
 {
@@ -40,51 +39,7 @@ function htmlEscape($str)
 
 /**
  * @return string
- */
-function getBaseUrl()
-{
-    return ObjectManager::getInstance()->get(Url::class)->getBaseUrl();
-}
-
-/**
- * @return string
- */
-function getCurrentUrl()
-{
-    return ObjectManager::getInstance()->get(Url::class)->getCurrentUrl();
-}
-
-/**
- * @param string $path
- * @param array  $params
- * @return string
- */
-function getUrl($path, array $params = [])
-{
-    return ObjectManager::getInstance()->get(Url::class)->getUrl($path, $params);
-}
-
-/**
- * @param string      $path
- * @param string|null $themeName
- * @return string
- * @throws Exception
- */
-function getStaticUrl($path, $areaCode = null, $themeName = null)
-{
-    /* @var $themeManager \CrazyCat\Framework\App\Theme\Manager */
-    $themeManager = ObjectManager::getInstance()->get(ThemeManager::class);
-
-    /* @var $theme \CrazyCat\Framework\App\Theme */
-    $theme = ($areaCode === null || $themeName === null) ?
-        $themeManager->getCurrentTheme() :
-        $themeManager->getThemes($areaCode)[$themeName];
-
-    return $theme->getStaticUrl($path);
-}
-
-/**
- * @return string
+ * @throws ReflectionException
  */
 function getLangCode()
 {
@@ -93,10 +48,11 @@ function getLangCode()
 
 /**
  * @return string
+ * @throws ReflectionException
  */
 function spaceString()
 {
-    return Html::spaceString();
+    return ObjectManager::getInstance()->get(Html::class)->spaceString();
 }
 
 /**
@@ -112,6 +68,7 @@ function selectOptionsHtml(array $options, $value = null)
 /**
  * @param string $name
  * @return void
+ * @throws ReflectionException
  */
 function profile_start($name)
 {

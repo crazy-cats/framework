@@ -91,7 +91,7 @@ abstract class AbstractAdapter {
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function commitTransaction()
     {

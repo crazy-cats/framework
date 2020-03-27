@@ -7,11 +7,11 @@
 
 namespace CrazyCat\Framework;
 
+use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
+use CrazyCat\Framework\App\Component\Setup as ComponentSetup;
+use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Io\Http\Response\ContentType;
-use CrazyCat\Framework\App\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Setup\Component as ComponentSetup;
-use CrazyCat\Framework\App\Theme\Manager as ThemeManager;
 
 /**
  * @category CrazyCat
@@ -32,7 +32,7 @@ class App
     private $cacheFactory;
 
     /**
-     * @var \CrazyCat\Framework\Setup\Components
+     * @var \CrazyCat\Framework\Components\Setup
      */
     private $componentSetup;
 
@@ -62,7 +62,7 @@ class App
     private $ioFactory;
 
     /**
-     * @var \CrazyCat\Framework\App\Module\Manager
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     private $moduleManager;
 
@@ -77,7 +77,7 @@ class App
     private $request;
 
     /**
-     * @var \CrazyCat\Framework\App\Translator
+     * @var \CrazyCat\Framework\App\Component\Language\Translator
      */
     private $translator;
 
@@ -93,29 +93,31 @@ class App
     }
 
     public function __construct(
-        \CrazyCat\Framework\App\Cache\Factory $cacheFactory,
-        \CrazyCat\Framework\App\Handler\ExceptionHandler $exceptionHandler,
-        \CrazyCat\Framework\App\Handler\ErrorHandler $errorHandler,
-        \CrazyCat\Framework\App\Db\Manager $dbManager,
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Io\Factory $ioFactory,
-        \CrazyCat\Framework\App\Translator $translator,
-        \CrazyCat\Framework\App\Module\Manager $moduleManager,
-        \CrazyCat\Framework\App\Setup\Component $componentSetup,
-        \CrazyCat\Framework\App\Config $config,
-        \CrazyCat\Framework\App\ObjectManager $objectManager
+        \CrazyCat\Framework\App\Handler\ErrorHandler $errorHandler,
+        \CrazyCat\Framework\App\Handler\ExceptionHandler $exceptionHandler,
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\App\Setup $setup
     ) {
         $this->area = $area;
-        $this->cacheFactory = $cacheFactory;
-        $this->componentSetup = $componentSetup;
-        $this->config = $config;
-        $this->dbManager = $dbManager;
         $this->errorHandler = $errorHandler;
         $this->exceptionHandler = $exceptionHandler;
-        $this->ioFactory = $ioFactory;
-        $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
-        $this->translator = $translator;
+
+        if (!is_file(App\Config::FILE)) {
+            $setup->launch();
+        }
+        $this->config = $objectManager->get(\CrazyCat\Framework\App\Config::class);
+
+        /**
+         * Below single instances should be created after base config is initialized
+         */
+        $this->cacheFactory = $objectManager->get(\CrazyCat\Framework\App\Cache\Factory::class);
+        $this->componentSetup = $objectManager->get(\CrazyCat\Framework\App\Component\Setup::class);
+        $this->dbManager = $objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
+        $this->ioFactory = $objectManager->get(\CrazyCat\Framework\App\Io\Factory::class);
+        $this->moduleManager = $objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class);
+        $this->translator = $objectManager->get(\CrazyCat\Framework\App\Component\Language\Translator::class);
     }
 
     /**
@@ -213,7 +215,7 @@ class App
         $path = filter_input(INPUT_GET, 'path');
         $pathArr = explode('/', $path);
 
-        /* @var $theme \CrazyCat\Framework\App\Theme */
+        /* @var $theme \CrazyCat\Framework\App\Component\Theme */
         list($areaCode, $themeName) = $pathArr;
         $theme = $this->objectManager->get(ThemeManager::class)->init()
             ->getTheme($areaCode, $themeName);
@@ -221,10 +223,11 @@ class App
         /* @var $module \CrazyCat\Framework\App\Module */
         if (isset($pathArr[4]) && ($module = $this->objectManager->get(ModuleManager::class)
                 ->getModule($pathArr[2] . '\\' . $pathArr[3]))) {
-            $staticPath = $module['config']['namespace'] . '::' . substr(
-                $path,
-                strlen($areaCode) + strlen($themeName) + strlen($module['config']['namespace']) + 3
-            );
+            $staticPath = $module['config']['namespace'] . '::' .
+                substr(
+                    $path,
+                    strlen($areaCode) + strlen($themeName) + strlen($module['config']['namespace']) + 3
+                );
         } else {
             $staticPath = substr($path, strlen($areaCode) + strlen($themeName) + 2);
         }

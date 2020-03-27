@@ -13,23 +13,23 @@ namespace CrazyCat\Framework\Utility;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Http {
-
-    static public function getRemoteIp()
+class Http
+{
+    /**
+     * @return string
+     */
+    public static function getRemoteIp()
     {
-        $server = filter_input_array( INPUT_SERVER );
+        $server = filter_input_array(INPUT_SERVER);
 
-        if ( !empty( $server['HTTP_CLIENT_IP'] ) ) {
+        if (!empty($server['HTTP_CLIENT_IP'])) {
             $ip = $server['HTTP_CLIENT_IP'];
-        }
-        else if ( !empty( $server['HTTP_X_FORWARDED_FOR'] ) ) {
+        } elseif (!empty($server['HTTP_X_FORWARDED_FOR'])) {
             $ip = $server['HTTP_X_FORWARDED_FOR'];
-        }
-        else {
+        } else {
             $ip = $server['REMOTE_ADDR'];
         }
 
         return $ip;
     }
-
 }

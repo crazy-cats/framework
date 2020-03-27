@@ -90,7 +90,7 @@ class Curl {
      * @param array $headers
      * @return mixed
      */
-    static public function get( $url, $data = null, $headers = [] )
+    public static function get( $url, $data = null, $headers = [] )
     {
         return self::request( self::METHOD_GET, $url, $data, $headers );
     }
@@ -101,7 +101,7 @@ class Curl {
      * @param array $headers
      * @return mixed
      */
-    static public function post( $url, $data = null, $headers = [] )
+    public static function post( $url, $data = null, $headers = [] )
     {
         return self::request( self::METHOD_POST, $url, $data, $headers );
     }
@@ -112,7 +112,7 @@ class Curl {
      * @param array $headers
      * @return mixed
      */
-    static public function put( $url, $data = null, $headers = [] )
+    public static function put( $url, $data = null, $headers = [] )
     {
         return self::request( self::METHOD_PUT, $url, $data, $headers );
     }
@@ -123,7 +123,7 @@ class Curl {
      * @param array $headers
      * @return mixed
      */
-    static public function delete( $url, $data = null, $headers = [] )
+    public static function delete( $url, $data = null, $headers = [] )
     {
         return self::request( self::METHOD_DELETE, $url, $data, $headers );
     }

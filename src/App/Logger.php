@@ -16,8 +16,8 @@ use Monolog\Logger as Processor;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Logger {
-
+class Logger
+{
     const DIR = DIR_VAR . DS . 'log';
 
     /**
@@ -35,25 +35,28 @@ class Logger {
      */
     protected $processor;
 
-    public function __construct( ObjectManager $objectManager )
+    public function __construct(ObjectManager $objectManager)
     {
         $this->objectManager = $objectManager;
-        $this->processor = $objectManager->create( Processor::class, [ 'name' => 'CrazyCat' ] );
+        $this->processor = $objectManager->create(Processor::class, ['name' => 'CrazyCat']);
     }
 
-    public function log( $content, $file = 'system.log' )
+    public function log($content, $file = 'system.log')
     {
-        if ( !isset( $this->handlers[$file] ) ) {
-            $dir = self::DIR . DS . dirname( $file );
-            if ( !is_dir( $dir ) ) {
-                mkdir( $dir, 0755, true );
+        if (!isset($this->handlers[$file])) {
+            $dir = self::DIR . DS . dirname($file);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
             }
-            $this->handlers[$file] = $this->objectManager->create( StreamHandler::class, [
-                'stream' => self::DIR . DS . $file,
-                'level' => Processor::INFO ] );
-            $this->processor->pushHandler( $this->handlers[$file] );
+            $this->handlers[$file] = $this->objectManager->create(
+                StreamHandler::class,
+                [
+                    'stream' => self::DIR . DS . $file,
+                    'level' => Processor::INFO
+                ]
+            );
+            $this->processor->pushHandler($this->handlers[$file]);
         }
-        $this->processor->addInfo( print_r( $content, true ) );
+        $this->processor->addInfo(print_r($content, true));
     }
-
 }

@@ -17,12 +17,12 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Factory {
-
+class Factory
+{
     private $config;
     private $objectManager;
 
-    public function __construct( Config $config, ObjectManager $objectManager )
+    public function __construct(Config $config, ObjectManager $objectManager)
     {
         $this->config = $config;
         $this->objectManager = $objectManager;
@@ -31,16 +31,16 @@ class Factory {
     /**
      * @param string $name
      * @return \CrazyCat\Framework\App\Cache\AbstractCache
+     * @throws \ReflectionException
      */
-    public function create( $name )
+    public function create($name)
     {
-        $config = $this->config->getData( Area::CODE_GLOBAL )['cache'];
-        switch ( $config['type'] ) {
+        $config = $this->config->getData(Area::CODE_GLOBAL)['cache'];
+        switch ($config['type']) {
             default:
                 $className = Files::class;
                 break;
         }
-        return $this->objectManager->create( $className, [ 'name' => $name, 'config' => $config ] );
+        return $this->objectManager->create($className, ['name' => $name, 'config' => $config]);
     }
-
 }

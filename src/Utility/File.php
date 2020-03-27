@@ -22,7 +22,7 @@ class File {
      * @param boolean $recursive
      * @return string[]
      */
-    static public function getFolders( $dir, $recursive = false )
+    public static function getFolders( $dir, $recursive = false )
     {
         $subDirs = [];
         if ( ( $dh = opendir( $dir ) ) ) {
@@ -46,7 +46,7 @@ class File {
      * @param boolean $recursive
      * @return string[]
      */
-    static public function getFiles( $dir, $recursive = false )
+    public static function getFiles( $dir, $recursive = false )
     {
         $files = [];
         if ( ( $dh = opendir( $dir ) ) ) {
@@ -73,7 +73,7 @@ class File {
      * @param string $enclosure
      * @return string[]
      */
-    static public function getCsv( $handle, $length = null, $delimiter = ',', $enclosure = '"' )
+    public static function getCsv( $handle, $length = null, $delimiter = ',', $enclosure = '"' )
     {
         $separator = preg_quote( $delimiter );
         $quoteSymbol = preg_quote( $enclosure );

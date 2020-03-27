@@ -382,7 +382,7 @@ class MySql extends AbstractAdapter {
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function commitTransaction()
     {

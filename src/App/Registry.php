@@ -13,8 +13,8 @@ namespace CrazyCat\Framework\App;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Registry {
-
+class Registry
+{
     /**
      * @var array
      */
@@ -22,13 +22,14 @@ class Registry {
 
     /**
      * @param string $name
-     * @param mixed $content
+     * @param mixed  $content
      * @return $this;
+     * @throws \Exception
      */
-    public function register( $name, $content )
+    public function register($name, $content)
     {
-        if ( isset( $this->contents[$name] ) ) {
-            throw new \Exception( sprintf( 'Content with name `%s` has been registered.', $name ) );
+        if (isset($this->contents[$name])) {
+            throw new \Exception(sprintf('Content with name `%s` has been registered.', $name));
         }
         $this->contents[$name] = $content;
         return $this;
@@ -38,9 +39,8 @@ class Registry {
      * @param string $name
      * @return mixed
      */
-    public function registry( $name )
+    public function registry($name)
     {
-        return isset( $this->contents[$name] ) ? $this->contents[$name] : null;
+        return isset($this->contents[$name]) ? $this->contents[$name] : null;
     }
-
 }
