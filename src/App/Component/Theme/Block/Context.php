@@ -21,7 +21,7 @@ class Context
     protected $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Factory
+     * @var \CrazyCat\Framework\App\Cache\Manager
      */
     protected $cacheFactory;
 
@@ -62,7 +62,7 @@ class Context
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Cache\Factory $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
         \CrazyCat\Framework\App\Component\Language\Translator $translator,
         \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
         \CrazyCat\Framework\App\EventManager $eventManager,
@@ -91,7 +91,7 @@ class Context
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Cache\Factory
+     * @return \CrazyCat\Framework\App\Cache\Manager
      */
     public function getCacheFactory()
     {

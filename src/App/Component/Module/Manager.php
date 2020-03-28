@@ -8,7 +8,7 @@
 namespace CrazyCat\Framework\App\Component\Module;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\Component\Module;
@@ -222,13 +222,15 @@ class Manager
     }
 
     /**
+     * @param string $areaCode
      * @return array
      */
-    public function collectDependencyInjections()
+    public function collectDependencyInjections($areaCode = Area::CODE_GLOBAL)
     {
         $di = [];
+        $path = ($areaCode == Area::CODE_GLOBAL) ? '' : (DS . $areaCode);
         foreach ($this->getEnabledModules() as $module) {
-            if (is_file($module->getData('dir') . DS . 'config' . DS . 'di.php')) {
+            if (is_file($module->getData('dir') . DS . 'config' . $path . DS . 'di.php')) {
                 $di = array_merge($di, require($module->getData('dir') . DS . 'config' . DS . 'di.php'));
             }
         }
@@ -268,7 +270,7 @@ class Manager
     }
 
     /**
-     * @param string $routeName
+     * @param string      $routeName
      * @param string|null $areaCode
      * @return \CrazyCat\Framework\App\Component\Module|null
      */

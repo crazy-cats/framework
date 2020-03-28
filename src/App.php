@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Component\Manager as ComponentManager;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
@@ -27,14 +28,14 @@ class App
     private $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Factory
+     * @var \CrazyCat\Framework\App\Cache\Manager
      */
-    private $cacheFactory;
+    private $cacheManager;
 
     /**
      * @var \CrazyCat\Framework\Components\Setup
      */
-    private $componentSetup;
+    private $componentManager;
 
     /**
      * @var \CrazyCat\Framework\App\Config
@@ -127,10 +128,9 @@ class App
         /**
          * Below single instances should be created after base config is initialized
          */
-        $this->cacheFactory = $this->objectManager->get(\CrazyCat\Framework\App\Cache\Factory::class);
-        $this->componentSetup = $this->objectManager->get(\CrazyCat\Framework\App\Component\Manager::class);
+        $this->cacheManager = $this->objectManager->get(\CrazyCat\Framework\App\Cache\Manager::class);
+        $this->componentManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Manager::class);
         $this->dbManager = $this->objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
-        $this->ioFactory = $this->objectManager->get(\CrazyCat\Framework\App\Io\Factory::class);
         $this->moduleManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class);
         $this->translator = $this->objectManager->get(\CrazyCat\Framework\App\Component\Language\Translator::class);
     }
@@ -143,7 +143,7 @@ class App
     private function initComponents($composerLoader)
     {
         profile_start('Collect components');
-        $components = $this->componentSetup->init($composerLoader);
+        $components = $this->componentManager->init($composerLoader);
         profile_end('Collect components');
 
         profile_start('Initializing modules');
@@ -154,7 +154,27 @@ class App
     }
 
     /**
+     * @param string $areaCode
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function initDependencyInjection($areaCode = Area::CODE_GLOBAL)
+    {
+        profile_start(sprintf('Initializing %s dependency injections', $areaCode));
+        $cacheDependencyInjection = $this->cacheManager->create(ObjectManager::CACHE_DI_NAME);
+        if ($cacheDependencyInjection->hasData($areaCode)) {
+            $dependencyInjections = $cacheDependencyInjection->getData($areaCode);
+        } else {
+            $dependencyInjections = $this->moduleManager->collectDependencyInjections($areaCode);
+            $cacheDependencyInjection->setData($areaCode, $dependencyInjections)->save();
+        }
+        $this->objectManager->collectPreferences($dependencyInjections);
+        profile_end(sprintf('Initializing %s dependency injections', $areaCode));
+    }
+
+    /**
      * @param \Composer\Autoload\ClassLoader $composerLoader
+     * @param string                         $areaCode
      * @throws \Exception
      */
     public function run($composerLoader, $areaCode = null)
@@ -165,17 +185,7 @@ class App
         $components = $this->initComponents($composerLoader);
         profile_end('Initializing components');
 
-        /**
-         * Dependency Injections
-         */
-        profile_start('Initializing dependency injections');
-        $cacheDependencyInjections = $this->cacheFactory->create(ObjectManager::CACHE_DI_NAME);
-        if (empty($dependencyInjections = $cacheDependencyInjections->getData())) {
-            $dependencyInjections = $this->moduleManager->collectDependencyInjections();
-            $cacheDependencyInjections->setData($dependencyInjections)->save();
-        }
-        $this->objectManager->collectPreferences($dependencyInjections);
-        profile_end('Initializing dependency injections');
+        $this->initDependencyInjection();
 
         /**
          * Translations will be collected on the first usage of `translate` method,
@@ -190,7 +200,8 @@ class App
          *     area code is specified in `process` method of the object.
          */
         profile_start('Process request');
-        $this->request = $this->ioFactory->create($areaCode);
+        $ioFactory = $this->objectManager->get(\CrazyCat\Framework\App\Io\Factory::class);
+        $this->request = $ioFactory->create($areaCode);
         $this->request->process();
         profile_end('Process request');
 

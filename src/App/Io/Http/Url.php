@@ -91,7 +91,7 @@ class Url
     public function getBaseUrl()
     {
         if ($this->baseUrl === null) {
-            $server = filter_input_array(INPUT_SERVER);
+            $server = $_SERVER;
             $path = trim(dirname($server['SCRIPT_NAME']), DS);
             $this->baseUrl = '//' . $server['HTTP_HOST'] . '/' . ($path ? (trim($path, '/') . '/') : '');
         }

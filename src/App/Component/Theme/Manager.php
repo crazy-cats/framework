@@ -60,7 +60,7 @@ class Manager
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Cache\Factory $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
         \CrazyCat\Framework\App\Component\Manager $componentManager,
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\ObjectManager $objectManager

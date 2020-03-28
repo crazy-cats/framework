@@ -36,18 +36,14 @@ class Config extends \CrazyCat\Framework\App\Data\DataObject
      * @param string|null $scope
      * @return mixed
      */
-    public function getValue($path, $scope = null)
+    public function getValue($path, $scope = Area::CODE_GLOBAL)
     {
-        if ($scope === null) {
-            $scope = $this->area->getCode();
-        }
-        $config = $this->getData($scope);
-
-        if (isset($config[$path])) {
-            return $config[$path];
-        }
-
         $globalConfig = $this->getData(Area::CODE_GLOBAL);
-        return isset($globalConfig[$path]) ? $globalConfig[$path] : null;
+        if ($scope == Area::CODE_GLOBAL) {
+            return $globalConfig[$path] ?? null;
+        }
+
+        $config = $this->getData($scope);
+        return $config[$path] ?? ($globalConfig[$path] ?? null);
     }
 }

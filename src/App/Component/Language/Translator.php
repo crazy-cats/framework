@@ -7,7 +7,7 @@
 
 namespace CrazyCat\Framework\App\Component\Language;
 
-use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
 use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\Utility\File;
@@ -30,7 +30,7 @@ class Translator
     private $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Factory
+     * @var \CrazyCat\Framework\App\Cache\Manager
      */
     private $cacheFactory;
 
@@ -66,7 +66,7 @@ class Translator
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Cache\Factory $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
         \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
         \CrazyCat\Framework\App\Config $config

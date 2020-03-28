@@ -150,8 +150,6 @@ class DataObject implements \ArrayAccess
     }
 
     /**
-     * @param string|array $key |$data
-     * @param mixed        $value
      * @return $this
      */
     public function setData()

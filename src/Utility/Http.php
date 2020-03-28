@@ -20,7 +20,7 @@ class Http
      */
     public static function getRemoteIp()
     {
-        $server = filter_input_array(INPUT_SERVER);
+        $server = $_SERVER;
 
         if (!empty($server['HTTP_CLIENT_IP'])) {
             $ip = $server['HTTP_CLIENT_IP'];

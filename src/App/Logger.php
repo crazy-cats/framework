@@ -41,6 +41,12 @@ class Logger
         $this->processor = $objectManager->create(Processor::class, ['name' => 'CrazyCat']);
     }
 
+    /**
+     * @param mixed $content
+     * @param string $file
+     * @return void
+     * @throws \ReflectionException
+     */
     public function log($content, $file = 'system.log')
     {
         if (!isset($this->handlers[$file])) {
@@ -52,7 +58,7 @@ class Logger
                 StreamHandler::class,
                 [
                     'stream' => self::DIR . DS . $file,
-                    'level' => Processor::INFO
+                    'level'  => Processor::INFO
                 ]
             );
             $this->processor->pushHandler($this->handlers[$file]);

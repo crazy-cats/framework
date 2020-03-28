@@ -13,7 +13,8 @@ namespace CrazyCat\Framework\App\Cache;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject {
+abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject
+{
 
     /**
      * @var string
@@ -25,9 +26,9 @@ abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject {
      */
     protected $config;
 
-    public function __construct( $name, $config = [] )
+    public function __construct($name, $config = [])
     {
-        parent::__construct( [] );
+        parent::__construct([]);
 
         $this->name = $name;
         $this->config = $config;

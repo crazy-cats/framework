@@ -111,5 +111,4 @@ class Area
         $this->code = $code;
         $this->eventManager->dispatch('set_area_code_after', ['area' => $this]);
     }
-
 }

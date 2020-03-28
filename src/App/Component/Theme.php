@@ -7,7 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
 use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Component\Theme\Page;
 use CrazyCat\Framework\App\Url;

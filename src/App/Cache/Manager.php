@@ -17,7 +17,7 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-class Factory
+class Manager
 {
     private $config;
     private $objectManager;

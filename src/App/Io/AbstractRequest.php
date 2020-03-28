@@ -13,8 +13,8 @@ namespace CrazyCat\Framework\App\Io;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     http://crazy-cat.cn
  */
-abstract class AbstractRequest {
-
+abstract class AbstractRequest
+{
     /**
      * @var string
      */
@@ -36,9 +36,50 @@ abstract class AbstractRequest {
     protected $actionName;
 
     /**
+     * @var \CrazyCat\Framework\App
+     */
+    protected $app;
+    /**
+     * @var \CrazyCat\Framework\App\Area
+     */
+    protected $area;
+    /**
+     * @var \CrazyCat\Framework\App\Config
+     */
+    protected $config;
+    /**
+     * @var \CrazyCat\Framework\App\EventManager
+     */
+    protected $eventManager;
+    /**
+     * @var \CrazyCat\Framework\App\Component\Module\Manager
+     */
+    protected $moduleManager;
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    protected $objectManager;
+
+    /**
      * @var \CrazyCat\Framework\App\Io\Cli\Response
      */
     protected $response;
+
+    public function __construct(
+        \CrazyCat\Framework\App $app,
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
+        \CrazyCat\Framework\App\Config $config,
+        \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\ObjectManager $objectManager
+    ) {
+        $this->app = $app;
+        $this->area = $area;
+        $this->config = $config;
+        $this->eventManager = $eventManager;
+        $this->moduleManager = $moduleManager;
+        $this->objectManager = $objectManager;
+    }
 
     /**
      * @return string

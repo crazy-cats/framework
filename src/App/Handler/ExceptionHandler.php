@@ -10,7 +10,6 @@ namespace CrazyCat\Framework\App\Handler;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Io\Http\Request as HttpRequest;
 use CrazyCat\Framework\App\Io\Http\Response as HttpResponse;
-use CrazyCat\Framework\App\Logger;
 
 /**
  * @category CrazyCat
@@ -26,26 +25,23 @@ class ExceptionHandler
     private $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Io\Http\Request
-     */
-    private $httpRequest;
-
-    /**
-     * @var \CrazyCat\Framework\App\Io\Http\Response
-     */
-    private $httpResponse;
-
-    /**
      * @var \CrazyCat\Framework\App\Logger
      */
     private $logger;
 
-    public function __construct(HttpRequest $httpRequest, HttpResponse $httpResponse, Area $area, Logger $logger)
-    {
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    private $objectManager;
+
+    public function __construct(
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\Logger $logger,
+        \CrazyCat\Framework\App\ObjectManager $objectManager
+    ) {
         $this->area = $area;
-        $this->httpRequest = $httpRequest;
-        $this->httpResponse = $httpResponse;
         $this->logger = $logger;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -69,11 +65,16 @@ class ExceptionHandler
 
     /**
      * @param \Exception $exception
+     * @throws \ReflectionException
      */
     private function processHttpException($exception)
     {
-        if ($this->area->getCode() == Area::CODE_API || $this->httpRequest->getParam(HttpRequest::AJAX_PARAM)) {
-            $this->httpResponse->setType(HttpResponse::TYPE_JSON)
+        $httpRequest = $this->objectManager->get(HttpRequest::class);
+        if ($this->area->getCode() == Area::CODE_API
+            || $httpRequest->getParam(HttpRequest::AJAX_PARAM)
+        ) {
+            $httpResponse = $this->objectManager->get(HttpResponse::class);
+            $httpResponse->setType(HttpResponse::TYPE_JSON)
                 ->setData(
                     ['error' => true, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
                 )
@@ -89,6 +90,7 @@ class ExceptionHandler
 
     /**
      * @param \Exception $exception
+     * @throws \ReflectionException
      */
     public function process($exception)
     {

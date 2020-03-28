@@ -8,10 +8,6 @@
 namespace CrazyCat\Framework\App\Io\Http;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
-use CrazyCat\Framework\App\ObjectManager;
 
 /**
  * @category CrazyCat
@@ -25,34 +21,9 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     const API_ROUTE = 'rest/V1';
 
     /**
-     * @var \CrazyCat\Framework\App\Area
-     */
-    protected $area;
-
-    /**
-     * @var \CrazyCat\Framework\App\Config
-     */
-    protected $config;
-
-    /**
-     * @var \CrazyCat\Framework\App\EventManager
-     */
-    protected $eventManager;
-
-    /**
      * @var array
      */
     protected $headers;
-
-    /**
-     * @var \CrazyCat\Framework\App\Component\Module\Manager
-     */
-    protected $moduleManager;
-
-    /**
-     * @var \CrazyCat\Framework\App\ObjectManager
-     */
-    protected $objectManager;
 
     /**
      * @var array
@@ -74,19 +45,10 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
      */
     protected $path;
 
-    public function __construct(
-        Area $area,
-        Config $config,
-        ModuleManager $moduleManager,
-        EventManager $eventManager,
-        ObjectManager $objectManager
-    ) {
-        $this->area = $area;
-        $this->config = $config;
-        $this->eventManager = $eventManager;
-        $this->moduleManager = $moduleManager;
-        $this->objectManager = $objectManager;
-    }
+    /**
+     * @var bool
+     */
+    private $isProcessed;
 
     /**
      * @param string $areaCode
@@ -106,38 +68,36 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
 
     /**
      * @param array $pathParts
-     * @param int   $startPos
+     * @param bool  $processParams
      * @return void
+     * @throws \Exception
      */
-    protected function pushPathParamsToRequest(array $pathParts, $startPos)
+    protected function processPath($pathParts, $processParams = true)
     {
-        if (!isset($pathParts[$startPos])) {
-            return;
+        $pathParts = array_pad($pathParts, 3, 'index');
+        list($this->routeName, $this->controllerName, $this->actionName) = $pathParts;
+        if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_BACKEND, $this->routeName))) {
+            throw new \Exception('System can not find matched route.');
         }
-        for ($pos = $startPos; $pos < count($pathParts); $pos += 2) {
-            $key = $pathParts[$pos];
-            if (!isset($this->requestData[$key])) {
-                $this->requestData[$key] = isset($pathParts[$pos + 1]) ? $pathParts[$pos + 1] : null;
-            }
+        if ($processParams) {
+            unset($pathParts[0], $pathParts[1], $pathParts[2]);
+            $this->requestData = array_merge($this->requestData, $pathParts);
         }
     }
 
     /**
-     * @return void
-     * @throws \Exception
+     * @return Response
+     * @throws \ReflectionException
      */
     public function process()
     {
-        $server = filter_input_array(INPUT_SERVER);
+        $server = $_SERVER;
         $pathRoot = dirname($server['SCRIPT_NAME']);
-        $filePath = explode(
-            '?',
-            (isset($server['HTTP_X_REWRITE_URL']) ? $server['HTTP_X_REWRITE_URL'] : $server['REQUEST_URI'])
-        )[0];
+        $filePath = explode('?', ($server['HTTP_X_REWRITE_URL'] ?? $server['REQUEST_URI']))[0];
         $this->path = trim(
-            (strpos($filePath, $server['SCRIPT_NAME']) !== false) ?
-                substr($filePath, strlen($server['SCRIPT_NAME'])) :
-                substr($filePath, strlen($pathRoot)),
+            (strpos($filePath, $server['SCRIPT_NAME']) !== false)
+                ? substr($filePath, strlen($server['SCRIPT_NAME']))
+                : substr($filePath, strlen($pathRoot)),
             '/'
         );
 
@@ -145,61 +105,46 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
         $this->postData = filter_input_array(INPUT_POST) ?: [];
         $this->requestData = array_merge($getData, $this->postData);
 
-        $pathParts = explode('/', $this->path);
+        /**
+         * Prepare an event for modules to add router
+         */
+        $this->eventManager->dispatch('process_http_request_before', ['request' => $this]);
+        if ($this->isProcessed) {
+            $this->app->initDependencyInjection($this->area->getCode());
+            return $this->getResponse();
+        }
 
-        if (($pathParts[0] == $this->config->getData(Area::CODE_BACKEND)['route'])) {
+        /**
+         * Check whether it routes to API
+         */
+        if (strpos($this->path, self::API_ROUTE) === 0) {
+            $this->area->setCode(Area::CODE_API);
+            $pathParts = explode('/', $this->path);
+            unset($pathParts[0], $pathParts[1]);
+            if (empty($pathParts)) {
+                throw new \Exception('Route undefined.');
+            }
+            $this->processPath($pathParts, false);
+        } else {
             /**
              * Check whether it routes to back-end
              */
-            $this->area->setCode(Area::CODE_BACKEND);
-            $this->routeName = (!empty($pathParts[1]) ? $pathParts[1] : 'system'); // system is backend route name of core module
-            if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_BACKEND, $this->routeName))) {
-                throw new \Exception('System can not find matched route.');
-            }
-            $this->controllerName = !empty($pathParts[2]) ? $pathParts[2] : 'index';
-            $this->actionName = !empty($pathParts[3]) ? $pathParts[3] : 'index';
-            $this->pushPathParamsToRequest($pathParts, 4);
-        } else {
-            /**
-             * Check whether it routes to API
-             */
-            if (isset($pathParts[1]) && ($pathParts[0] . '/' . $pathParts[1] == self::API_ROUTE)) {
-                $this->area->setCode(Area::CODE_API);
-                if (empty($pathParts[2]) || empty($pathParts[3]) || empty($pathParts[4])) {
-                    throw new \Exception('Route undefined.');
-                }
-                $this->routeName = $pathParts[2];
-                if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_API, $this->routeName))) {
-                    throw new \Exception('System can not find matched route.');
-                }
-                $this->controllerName = $pathParts[3];
-                $this->actionName = $pathParts[4];
+            $pathParts = explode('/', $this->path);
+            if (isset($pathParts[0])
+                && $pathParts[0] == $this->config->getData(Area::CODE_BACKEND)['route']
+            ) {
+                $this->area->setCode(Area::CODE_BACKEND);
+                unset($pathParts[0]);
             } else {
                 /**
-                 * A HTTP request must be one of API, backend and frontend request
+                 * The rest should be front-end request
                  */
                 $this->area->setCode(Area::CODE_FRONTEND);
-
-                /**
-                 * Prepare an event for modules to add router
-                 */
-                $this->eventManager->dispatch('process_http_request', ['request' => $this]);
-
-                /**
-                 * If it does not meet any route defined in modules, use default route rule
-                 */
-                if ($this->moduleName === null) {
-                    $this->routeName = (!empty($pathParts[0]) ? $pathParts[0] : 'index');
-                    if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_FRONTEND, $this->routeName))) {
-                        throw new \Exception('System can not find matched route.');
-                    }
-                    $this->controllerName = !empty($pathParts[1]) ? $pathParts[1] : 'index';
-                    $this->actionName = !empty($pathParts[2]) ? $pathParts[2] : 'index';
-                    $this->pushPathParamsToRequest($pathParts, 3);
-                }
             }
+            $this->processPath($pathParts);
         }
 
+        $this->app->initDependencyInjection($this->area->getCode());
         return $this->getResponse();
     }
 
@@ -257,10 +202,10 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     public function getHeader($name)
     {
         if ($this->headers === null) {
-            if (function_exists('getallheaders')) {
-                $this->headers = array_change_key_case(getallheaders(), CASE_LOWER);
+            if (function_exists('getAllHeaders')) {
+                $this->headers = array_change_key_case(getAllHeaders(), CASE_LOWER);
             } else {
-                foreach (filter_input_array(INPUT_SERVER) as $name => $value) {
+                foreach ($_SERVER as $name => $value) {
                     if (substr($name, 0, 5) == 'HTTP_') {
                         $this->headers[str_replace(
                             ' ',
@@ -311,6 +256,25 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     public function setActionName($actionName)
     {
         $this->actionName = $actionName;
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setIsProcessed()
+    {
+        $this->isProcessed = true;
         return $this;
     }
 

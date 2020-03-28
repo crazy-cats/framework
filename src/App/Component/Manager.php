@@ -8,7 +8,7 @@
 namespace CrazyCat\Framework\App\Component;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Cache\Factory as CacheFactory;
+use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\Utility\File;
 
@@ -42,7 +42,7 @@ class Manager
     ];
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Factory
+     * @var \CrazyCat\Framework\App\Cache\Manager
      */
     private $cacheFactory;
 

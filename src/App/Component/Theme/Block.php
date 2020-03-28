@@ -21,7 +21,7 @@ class Block extends \CrazyCat\Framework\App\Data\DataObject
     protected $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Factory
+     * @var \CrazyCat\Framework\App\Cache\Manager
      */
     protected $cacheFactory;
 

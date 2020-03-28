@@ -23,46 +23,19 @@ use Symfony\Component\Console\Command\Command;
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
 {
     /**
-     * @var \CrazyCat\Framework\App
-     */
-    protected $app;
-
-    /**
-     * @var \CrazyCat\Framework\App\Area
-     */
-    protected $area;
-
-    /**
-     * @var \CrazyCat\Framework\App\Component\Module\Manager
-     */
-    protected $moduleManager;
-
-    /**
-     * @var \CrazyCat\Framework\App\ObjectManager
-     */
-    protected $objectManager;
-
-    public function __construct(App $app, Area $area, ModuleManager $moduleManager, ObjectManager $objectManager)
-    {
-        $this->app = $app;
-        $this->area = $area;
-        $this->moduleManager = $moduleManager;
-        $this->objectManager = $objectManager;
-    }
-
-    /**
      * @return void
      * @throws \ReflectionException
      */
     public function process()
     {
         $this->area->setCode(Area::CODE_CLI);
+        $this->app->initDependencyInjection(Area::CODE_CLI);
 
         /* @var $consoleApplication \Symfony\Component\Console\Application */
         $consoleApplication = $this->objectManager->create(
             ConsoleApplication::class,
             [
-                'name' => 'CrazyCat CLI',
+                'name'    => 'CrazyCat CLI',
                 'version' => $this->app->getVersion()
             ]
         );
