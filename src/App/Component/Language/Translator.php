@@ -16,12 +16,15 @@ use CrazyCat\Framework\Utility\File;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Translator
 {
     const CACHE_LANG_NAME = 'languages';
     const CACHE_TRANSLATIONS_NAME = 'translations';
+
+    const DIR = 'i18n';
+
     const REQUEST_KEY = 'lang';
 
     /**
@@ -32,7 +35,7 @@ class Translator
     /**
      * @var \CrazyCat\Framework\App\Cache\Manager
      */
-    private $cacheFactory;
+    private $cacheManager;
 
     /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache
@@ -66,14 +69,14 @@ class Translator
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
         \CrazyCat\Framework\App\Config $config
     ) {
         $this->area = $area;
-        $this->cache = $cacheFactory->create(self::CACHE_LANG_NAME);
-        $this->cacheFactory = $cacheFactory;
+        $this->cache = $cacheManager->create(self::CACHE_LANG_NAME);
+        $this->cacheManager = $cacheManager;
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
 
@@ -115,7 +118,7 @@ class Translator
         $cacheKey = $this->area->getCode() . '-' . $langCode;
 
         if (!isset($this->translationsCaches[$cacheKey])) {
-            $this->translationsCaches[$cacheKey] = $this->cacheFactory->create(
+            $this->translationsCaches[$cacheKey] = $this->cacheManager->create(
                 self::CACHE_TRANSLATIONS_NAME . '-' . $cacheKey
             );
         }
@@ -124,7 +127,10 @@ class Translator
             /**
              * Translations in language packages
              */
-            $translations = $this->collectTranslations($this->langPackages[$langCode]['dir'] . DS . 'i18n', $langCode);
+            $translations = $this->collectTranslations(
+                $this->langPackages[$langCode]['dir'] . DS . self::DIR,
+                $langCode
+            );
 
             /**
              * Translations in modules
@@ -132,7 +138,7 @@ class Translator
             foreach ($this->moduleManager->getEnabledModules() as $module) {
                 $translations = array_merge(
                     $translations,
-                    $this->collectTranslations($module->getData('dir') . DS . 'i18n', $langCode)
+                    $this->collectTranslations($module->getData('dir') . DS . self::DIR, $langCode)
                 );
             }
 
@@ -144,7 +150,7 @@ class Translator
                     $translations = array_merge(
                         $translations,
                         $this->collectTranslations(
-                            $theme->getData('dir') . DS . 'i18n',
+                            $theme->getData('dir') . DS . self::DIR,
                             $langCode
                         )
                     );

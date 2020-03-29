@@ -7,20 +7,18 @@
     ],
     "authors": [
         {
-            "name": "Bruce Z",
+            "name": "Liwei Zeng",
             "email": "zengliwei@163.com",
-            "homepage": "http://crazy-cat.cn",
+            "homepage": "https://crazy-cat.cn",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": ">5.6.0",
+        "php": ">7.1.0",
         "monolog/monolog": "1.0.*",
         "symfony/console": "*",
         "crazycat/language-en_us": "~1.0",
-        "crazycat/module-core": "~1.0",
         "crazycat/module-admin": "~1.0",
-        "crazycat/theme-frontend-default": "~1.0",
         "crazycat/theme-backend-default": "~1.0"
     },
     "autoload": {

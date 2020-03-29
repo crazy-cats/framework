@@ -11,11 +11,12 @@ namespace CrazyCat\Framework\App;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class ObjectManager
 {
-    const CACHE_DI_NAME = 'di';
+    const CACHE_NAME = 'di';
+    const CONFIG_FILE = 'di.php';
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager

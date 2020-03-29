@@ -19,13 +19,13 @@ use CrazyCat\Framework\App\Io\Http\Session\Frontend as Session;
 use CrazyCat\Framework\App\Io\Http\Session\Messenger;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Component\Language\Translator;
-use CrazyCat\Framework\App\Url;
+use CrazyCat\Framework\App\Io\Http\Url;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Context extends \CrazyCat\Framework\App\Component\Module\Controller\ViewContext {
 

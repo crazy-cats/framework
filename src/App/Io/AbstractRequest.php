@@ -11,7 +11,7 @@ namespace CrazyCat\Framework\App\Io;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractRequest
 {
@@ -34,11 +34,6 @@ abstract class AbstractRequest
      * @var string
      */
     protected $actionName;
-
-    /**
-     * @var \CrazyCat\Framework\App
-     */
-    protected $app;
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -66,14 +61,12 @@ abstract class AbstractRequest
     protected $response;
 
     public function __construct(
-        \CrazyCat\Framework\App $app,
         \CrazyCat\Framework\App\Area $area,
         \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\EventManager $eventManager,
         \CrazyCat\Framework\App\ObjectManager $objectManager
     ) {
-        $this->app = $app;
         $this->area = $area;
         $this->config = $config;
         $this->eventManager = $eventManager;

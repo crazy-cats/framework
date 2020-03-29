@@ -12,15 +12,16 @@ use CrazyCat\Framework\App\Io\Http\Request;
 use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\App\Component\Theme;
-use CrazyCat\Framework\App\Url;
+use CrazyCat\Framework\App\Io\Http\Url;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
-class Page extends \CrazyCat\Framework\App\Data\DataObject {
+class Page extends \CrazyCat\Framework\App\Data\DataObject
+{
 
     /**
      * @var \CrazyCat\Framework\App\Config
@@ -48,7 +49,7 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
     private $theme;
 
     /**
-     * @var \CrazyCat\Framework\App\Url
+     * @var \CrazyCat\Framework\App\Io\Http\Url
      */
     private $url;
 
@@ -65,10 +66,16 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
     /**
      * @var array
      */
-    private $cssInfo = [ 'files' => [], 'links' => [] ];
+    private $cssInfo = ['files' => [], 'links' => []];
 
-    public function __construct( Config $config, Url $url, ModuleManager $moduleManager, ObjectManager $objectManager, Request $request, Theme $theme )
-    {
+    public function __construct(
+        Config $config,
+        Url $url,
+        ModuleManager $moduleManager,
+        ObjectManager $objectManager,
+        Request $request,
+        Theme $theme
+    ) {
         parent::__construct();
 
         $this->config = $config;
@@ -81,41 +88,41 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
 
     /**
      * Layout B cover layout A
-     * 
+     *
      * @param array $layoutA
      * @param array $layoutB
      * @return array
      */
-    private function mergeLayoutBlocks( array $layoutA, array $layoutB )
+    private function mergeLayoutBlocks(array $layoutA, array $layoutB)
     {
-        foreach ( $layoutA as $sectionName => &$blockGroup ) {
-            if ( isset( $layoutB[$sectionName] ) ) {
-                $blockGroup = array_merge( $blockGroup, $layoutB[$sectionName] );
-                unset( $layoutB[$sectionName] );
+        foreach ($layoutA as $sectionName => &$blockGroup) {
+            if (isset($layoutB[$sectionName])) {
+                $blockGroup = array_merge($blockGroup, $layoutB[$sectionName]);
+                unset($layoutB[$sectionName]);
             }
         }
-        return array_merge( $layoutA, $layoutB );
+        return array_merge($layoutA, $layoutB);
     }
 
     /**
      * Layout B cover layout A
-     * 
+     *
      * @param array $layoutA
      * @param array $layoutB
      * @return array
      */
-    private function mergeLayout( array $layoutA, array $layoutB )
+    private function mergeLayout(array $layoutA, array $layoutB)
     {
-        $blocksA = empty( $layoutA['blocks'] ) ? [] : $layoutA['blocks'];
-        $blocksB = empty( $layoutB['blocks'] ) ? [] : $layoutB['blocks'];
+        $blocksA = empty($layoutA['blocks']) ? [] : $layoutA['blocks'];
+        $blocksB = empty($layoutB['blocks']) ? [] : $layoutB['blocks'];
 
-        $cssA = empty( $layoutA['css'] ) ? [] : $layoutA['css'];
-        $cssB = empty( $layoutB['css'] ) ? [] : $layoutB['css'];
+        $cssA = empty($layoutA['css']) ? [] : $layoutA['css'];
+        $cssB = empty($layoutB['css']) ? [] : $layoutB['css'];
 
         return [
-            'template' => empty( $layoutB['template'] ) ? ( empty( $layoutA['template'] ) ? '1column' : $layoutA['template'] ) : $layoutB['template'],
-            'css' => array_merge( $cssA, $cssB ),
-            'blocks' => $this->mergeLayoutBlocks( $blocksA, $blocksB )
+            'template' => empty($layoutB['template']) ? (empty($layoutA['template']) ? '1column' : $layoutA['template']) : $layoutB['template'],
+            'css'      => array_merge($cssA, $cssB),
+            'blocks'   => $this->mergeLayoutBlocks($blocksA, $blocksB)
         ];
     }
 
@@ -123,28 +130,30 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
      * @param array $blocksLayout
      * @return void
      */
-    private function prepareBlocks( array $blocksLayout )
+    private function prepareBlocks(array $blocksLayout)
     {
-        foreach ( $blocksLayout as $sectionName => $blocks ) {
+        foreach ($blocksLayout as $sectionName => $blocks) {
             $this->sectionsHtml[$sectionName] = '';
-            foreach ( $blocks as $blockName => $blockInfo ) {
-                $data = isset( $blockInfo['data'] ) ? $blockInfo['data'] : [];
+            foreach ($blocks as $blockName => $blockInfo) {
+                $data = isset($blockInfo['data']) ? $blockInfo['data'] : [];
                 $data['name'] = $blockName;
-                $this->sectionsHtml[$sectionName] .= $this->objectManager->create( $blockInfo['class'], [ 'data' => $data ] )->toHtml();
+                $this->sectionsHtml[$sectionName] .= $this->objectManager->create(
+                    $blockInfo['class'],
+                    ['data' => $data]
+                )->toHtml();
             }
         }
     }
 
     /**
      * @param array $cssLayout
-     * @param boolean $merge
      * @return void
      */
-    private function prepareCssScripts( array $cssLayout )
+    private function prepareCssScripts(array $cssLayout)
     {
-        foreach ( $cssLayout as $css ) {
-            $this->cssInfo['files'][] = $this->theme->getStaticPath( $css );
-            $this->cssInfo['links'][] = $this->theme->getStaticUrl( $css );
+        foreach ($cssLayout as $css) {
+            $this->cssInfo['files'][] = $this->theme->getStaticPath($css);
+            $this->cssInfo['links'][] = $this->theme->getStaticUrl($css);
         }
     }
 
@@ -153,11 +162,11 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
      * @param string $areaCode
      * @return \CrazyCat\Framework\App\Component\Module|null
      */
-    private function getLayoutModule( $layoutName, $areaCode )
+    private function getLayoutModule($layoutName, $areaCode)
     {
-        foreach ( $this->moduleManager->getEnabledModules() as $module ) {
-            if ( isset( $module['config']['routes'][$areaCode] ) ) {
-                if ( strpos( $layoutName, $module['config']['routes'][$areaCode] . '_' ) === 0 ) {
+        foreach ($this->moduleManager->getEnabledModules() as $module) {
+            if (isset($module['config']['routes'][$areaCode])) {
+                if (strpos($layoutName, $module['config']['routes'][$areaCode] . '_') === 0) {
                     return $module;
                 }
             }
@@ -168,17 +177,18 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
      * @param string $layoutName
      * @return array
      */
-    public function getLayoutFromFile( $layoutName )
+    public function getLayoutFromFile($layoutName)
     {
-        $layoutFile = $this->theme->getData( 'dir' ) . DS . 'view' . DS . 'layouts' . DS . $layoutName . '.php';
-        if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
+        $layoutFile = $this->theme->getData('dir') . DS . 'view' . DS . 'layouts' . DS . $layoutName . '.php';
+        if (is_file($layoutFile) && ($layout = require $layoutFile) && is_array($layout)) {
             return $layout;
         }
 
-        $areaCode = $this->theme->getData( 'config' )['area'];
-        if ( ( $module = $this->getLayoutModule( $layoutName, $areaCode ) ) ) {
-            $layoutFile = $module->getData( 'dir' ) . DS . 'view' . DS . $areaCode . DS . 'layouts' . DS . $layoutName . '.php';
-            if ( is_file( $layoutFile ) && ( $layout = require $layoutFile ) && is_array( $layout ) ) {
+        $areaCode = $this->theme->getData('config')['area'];
+        if (($module = $this->getLayoutModule($layoutName, $areaCode))) {
+            $layoutFile = $module->getData('dir') .
+                DS . 'view' . DS . $areaCode . DS . 'layouts' . DS . $layoutName . '.php';
+            if (is_file($layoutFile) && ($layout = require $layoutFile) && is_array($layout)) {
                 return $layout;
             }
         }
@@ -190,7 +200,7 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
      * @param array $layout
      * @return $this
      */
-    public function setLayout( array $layout )
+    public function setLayout(array $layout)
     {
         $this->layout = $layout;
         return $this;
@@ -200,27 +210,27 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
      * @param string $sectionName
      * @return string
      */
-    public function getSectionHtml( $sectionName )
+    public function getSectionHtml($sectionName)
     {
-        return isset( $this->sectionsHtml[$sectionName] ) ? $this->sectionsHtml[$sectionName] : '';
+        return isset($this->sectionsHtml[$sectionName]) ? $this->sectionsHtml[$sectionName] : '';
     }
 
     /**
      * @param string $path
      * @return string
      */
-    public function getThemeUrl( $path )
+    public function getThemeUrl($path)
     {
-        return $this->theme->getStaticUrl( $path );
+        return $this->theme->getStaticUrl($path);
     }
 
     /**
      * @param string $separator
      * @return string
      */
-    public function getLayoutName( $separator = '_' )
+    public function getLayoutName($separator = '_')
     {
-        return $this->request->getFullPath( $separator );
+        return $this->request->getFullPath($separator);
     }
 
     /**
@@ -228,12 +238,11 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
      */
     public function getCssScripts()
     {
-        if ( $this->config->getData( $this->theme->getData( 'config' )['area'] )['merge_css'] ) {
+        if ($this->config->getData($this->theme->getData('config')['area'])['merge_css']) {
             return '';
-        }
-        else {
+        } else {
             $scripts = '';
-            foreach ( $this->cssInfo['links'] as $cssLink ) {
+            foreach ($this->cssInfo['links'] as $cssLink) {
                 $scripts .= '<link rel="stylesheet" type="text/css" media="all" href="' . $cssLink . "\" />\n";
             }
             return $scripts;
@@ -242,25 +251,27 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject {
 
     /**
      * @return string
+     * @throws \Exception
      */
     public function toHtml()
     {
-        $layout = $this->mergeLayout( $this->getLayoutFromFile( 'default' ), $this->getLayoutFromFile( $this->getLayoutName() ) );
-        if ( $this->layout !== null ) {
-            $layout = $this->mergeLayout( $layout, $this->layout );
+        $layout = $this->mergeLayout(
+            $this->getLayoutFromFile('default'),
+            $this->getLayoutFromFile($this->getLayoutName())
+        );
+        if ($this->layout !== null) {
+            $layout = $this->mergeLayout($layout, $this->layout);
         }
-        $this->prepareCssScripts( $layout['css'] );
-        $this->prepareBlocks( $layout['blocks'] );
+        $this->prepareCssScripts($layout['css']);
+        $this->prepareBlocks($layout['blocks']);
 
         ob_start();
-        $templateFile = $this->theme->getData( 'dir' ) . DS . 'view/templates/pages' . DS . $layout['template'] . '.php';
-        if ( is_file( $templateFile ) ) {
+        $templateFile = $this->theme->getData('dir') . DS . 'view/templates/pages' . DS . $layout['template'] . '.php';
+        if (is_file($templateFile)) {
             include $templateFile;
-        }
-        else {
-            throw new \Exception( sprintf( 'Template file `%s` does not exist.', $templateFile ) );
+        } else {
+            throw new \Exception(sprintf('Template file `%s` does not exist.', $templateFile));
         }
         return ob_get_clean();
     }
-
 }

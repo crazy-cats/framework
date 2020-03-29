@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractAction
 {
@@ -50,11 +50,11 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
      * @return void
      * @throws \ReflectionException
      */
-    public function execute()
+    public function run()
     {
         $this->beforeRun();
         list($input, $output) = func_get_args();
-        $this->run($input, $output);
+        $this->execute($input, $output);
         $this->afterRun();
     }
 
@@ -68,5 +68,5 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @see https://symfony.com/doc/3.4/console/style.html
      */
-    abstract protected function run(InputInterface $input, OutputInterface $output);
+    abstract protected function execute(InputInterface $input, OutputInterface $output);
 }

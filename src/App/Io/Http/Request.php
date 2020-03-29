@@ -13,7 +13,7 @@ use CrazyCat\Framework\App\Area;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
 {
@@ -72,9 +72,9 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
      * @return void
      * @throws \Exception
      */
-    protected function processPath($pathParts, $processParams = true)
+    protected function processPath(array $pathParts, $processParams = true)
     {
-        $pathParts = array_pad($pathParts, 3, 'index');
+        $pathParts = array_values(array_pad($pathParts, 3, 'index'));
         list($this->routeName, $this->controllerName, $this->actionName) = $pathParts;
         if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_BACKEND, $this->routeName))) {
             throw new \Exception('System can not find matched route.');
@@ -110,7 +110,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
          */
         $this->eventManager->dispatch('process_http_request_before', ['request' => $this]);
         if ($this->isProcessed) {
-            $this->app->initDependencyInjection($this->area->getCode());
+            $this->moduleManager->collectConfig($this->area->getCode());
             return $this->getResponse();
         }
 
@@ -144,7 +144,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
             $this->processPath($pathParts);
         }
 
-        $this->app->initDependencyInjection($this->area->getCode());
+        $this->moduleManager->collectConfig($this->area->getCode());
         return $this->getResponse();
     }
 

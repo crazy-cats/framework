@@ -15,7 +15,7 @@ use CrazyCat\Framework\App\Io\Http\Response as HttpResponse;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class ExceptionHandler
 {

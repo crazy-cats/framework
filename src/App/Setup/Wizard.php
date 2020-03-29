@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Wizard
 {
@@ -71,7 +71,12 @@ class Wizard
      */
     public function launch()
     {
-        foreach ([AppConfig::DIR, ComponentManager::DIR_APP_MODULES, ComponentManager::DIR_APP_THEMES] as $dir) {
+        $appSourceDirs = [
+            DIR_APP . DS . AppConfig::DIR,
+            DIR_APP . DS . ComponentManager::DIR_APP_MODULES,
+            DIR_APP . DS . ComponentManager::DIR_APP_THEMES
+        ];
+        foreach ($appSourceDirs as $dir) {
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }

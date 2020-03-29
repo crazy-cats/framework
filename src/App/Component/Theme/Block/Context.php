@@ -11,7 +11,7 @@ namespace CrazyCat\Framework\App\Component\Theme\Block;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Context
 {
@@ -56,7 +56,7 @@ class Context
     protected $translator;
 
     /**
-     * @var \CrazyCat\Framework\App\Url
+     * @var \CrazyCat\Framework\App\Io\Http\Url
      */
     protected $url;
 
@@ -69,7 +69,7 @@ class Context
         \CrazyCat\Framework\App\Io\Http\Request $request,
         \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Registry $registry,
-        \CrazyCat\Framework\App\Url $url
+        \CrazyCat\Framework\App\Io\Http\Url $url
     ) {
         $this->area = $area;
         $this->cacheFactory = $cacheFactory;
@@ -147,7 +147,7 @@ class Context
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Url
+     * @return \CrazyCat\Framework\App\Io\Http\Url
      */
     public function getUrl()
     {

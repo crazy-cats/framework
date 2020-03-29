@@ -8,13 +8,14 @@
 namespace CrazyCat\Framework\App\Component\Theme;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Component\Theme;
 use CrazyCat\Framework\App\Component\Manager as ComponentManager;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Manager
 {
@@ -60,13 +61,13 @@ class Manager
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Component\Manager $componentManager,
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\ObjectManager $objectManager
     ) {
         $this->area = $area;
-        $this->cache = $cacheFactory->create(self::CACHE_NAME);
+        $this->cache = $cacheManager->create(self::CACHE_NAME);
         $this->componentManager = $componentManager;
         $this->config = $config;
         $this->objectManager = $objectManager;
@@ -115,6 +116,7 @@ class Manager
 
     /**
      * @return \CrazyCat\Framework\App\Component\Theme[]
+     * @throws \Exception
      */
     public function getThemes($areaCode)
     {
@@ -126,6 +128,7 @@ class Manager
 
     /**
      * @return \CrazyCat\Framework\App\Component\Theme
+     * @throws \Exception
      */
     public function getTheme($areaCode, $themeName)
     {
@@ -140,6 +143,7 @@ class Manager
 
     /**
      * @return \CrazyCat\Framework\App\Component\Theme|null
+     * @throws \Exception
      */
     public function getCurrentTheme()
     {
@@ -156,6 +160,7 @@ class Manager
     /**
      * @param string $themeName
      * @return $this
+     * @throws \Exception
      */
     public function setCurrentTheme($themeName)
     {
@@ -166,5 +171,4 @@ class Manager
 
         return $this;
     }
-
 }

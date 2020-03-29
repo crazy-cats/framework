@@ -11,7 +11,7 @@ namespace CrazyCat\Framework\App\Component\Module\Controller;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractAction
 {
@@ -60,10 +60,6 @@ abstract class AbstractAction
             ['action' => $this]
         );
         $this->eventManager->dispatch(
-            sprintf('%s_controller_execute_before', $this->area->getCode()),
-            ['action' => $this]
-        );
-        $this->eventManager->dispatch(
             sprintf('%s_execute_before', $this->request->getFullPath()),
             ['action' => $this]
         );
@@ -80,10 +76,6 @@ abstract class AbstractAction
             ['action' => $this]
         );
         $this->eventManager->dispatch(
-            sprintf('%s_controller_execute_after', $this->area->getCode()),
-            ['action' => $this]
-        );
-        $this->eventManager->dispatch(
             'controller_execute_after',
             ['action' => $this]
         );
@@ -93,5 +85,5 @@ abstract class AbstractAction
      * @return void
      * @throws \ReflectionException
      */
-    abstract public function execute();
+    abstract public function run();
 }

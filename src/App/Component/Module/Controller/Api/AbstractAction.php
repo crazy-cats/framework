@@ -14,7 +14,7 @@ use CrazyCat\Framework\App\Data\DataObject;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractAction
 {
@@ -40,7 +40,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
      * @return void
      * @throws \ReflectionException
      */
-    public function execute()
+    public function run()
     {
         $this->beforeRun();
 
@@ -58,7 +58,7 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
         if (!$verifyObj->getData('token_validated')) {
             throw new \Exception('You do not have permission to access the resource.');
         }
-        $this->run();
+        $this->execute();
 
         $this->afterRun();
 
@@ -68,5 +68,5 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
     /**
      * @return void
      */
-    abstract protected function run();
+    abstract protected function execute();
 }

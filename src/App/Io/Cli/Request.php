@@ -18,7 +18,7 @@ use Symfony\Component\Console\Command\Command;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
 {
@@ -29,14 +29,14 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     public function process()
     {
         $this->area->setCode(Area::CODE_CLI);
-        $this->app->initDependencyInjection(Area::CODE_CLI);
+        $this->moduleManager->collectConfig(Area::CODE_CLI);
 
         /* @var $consoleApplication \Symfony\Component\Console\Application */
         $consoleApplication = $this->objectManager->create(
             ConsoleApplication::class,
             [
                 'name'    => 'CrazyCat CLI',
-                'version' => $this->app->getVersion()
+                'version' => App::getInstance()->getVersion()
             ]
         );
 

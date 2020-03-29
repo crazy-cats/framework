@@ -14,7 +14,7 @@ use CrazyCat\Framework\App\Component\Language\Translator;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractViewAction extends AbstractAction
 {
@@ -54,7 +54,7 @@ abstract class AbstractViewAction extends AbstractAction
     protected $translator;
 
     /**
-     * @var \CrazyCat\Framework\App\Url
+     * @var \CrazyCat\Framework\App\Io\Http\Url
      */
     protected $url;
 
@@ -237,7 +237,7 @@ abstract class AbstractViewAction extends AbstractAction
      * @return void
      * @throws \ReflectionException
      */
-    public function execute()
+    public function run()
     {
         $this->beforeRun();
 
@@ -261,7 +261,7 @@ abstract class AbstractViewAction extends AbstractAction
             $this->eventManager->dispatch('themes_init_after', ['theme_manager' => $this->themeManager]);
 
             profile_start('Execute action');
-            $this->run();
+            $this->execute();
             profile_end('Execute action');
         }
 
@@ -273,5 +273,5 @@ abstract class AbstractViewAction extends AbstractAction
     /**
      * @return void
      */
-    abstract protected function run();
+    abstract protected function execute();
 }

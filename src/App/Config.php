@@ -11,12 +11,12 @@ namespace CrazyCat\Framework\App;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Config extends \CrazyCat\Framework\App\Data\DataObject
 {
-    const DIR = DIR_APP . DS . 'config';
-    const FILE = self::DIR . DS . 'env.php';
+    const DIR = 'config';
+    const FILE = 'env.php';
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -26,7 +26,7 @@ class Config extends \CrazyCat\Framework\App\Data\DataObject
     public function __construct(
         \CrazyCat\Framework\App\Area $area
     ) {
-        parent::__construct(require self::FILE);
+        parent::__construct(require DIR_APP . DS . self::DIR . DS . self::FILE);
 
         $this->area = $area;
     }

@@ -17,7 +17,7 @@ use CrazyCat\Framework\App\ObjectManager;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Context {
 

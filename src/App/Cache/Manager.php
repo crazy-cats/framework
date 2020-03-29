@@ -8,22 +8,34 @@
 namespace CrazyCat\Framework\App\Cache;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\ObjectManager;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Manager
 {
+    /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache[]
+     */
+    private $caches;
+
+    /**
+     * @var \CrazyCat\Framework\App\Config
+     */
     private $config;
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
     private $objectManager;
 
-    public function __construct(Config $config, ObjectManager $objectManager)
-    {
+    public function __construct(
+        \CrazyCat\Framework\App\Config $config,
+        \CrazyCat\Framework\App\ObjectManager $objectManager
+    ) {
         $this->config = $config;
         $this->objectManager = $objectManager;
     }
@@ -41,6 +53,32 @@ class Manager
                 $className = Files::class;
                 break;
         }
-        return $this->objectManager->create($className, ['name' => $name, 'config' => $config]);
+
+        $cache = $this->objectManager->create($className, ['name' => $name, 'config' => $config]);
+        $this->caches[$name] = $cache;
+
+        return $cache;
+    }
+
+    /**
+     * @param string $name
+     * @return \CrazyCat\Framework\App\Cache\AbstractCache|null
+     */
+    public function get($name = null)
+    {
+        if ($name === null) {
+            return $this->caches;
+        }
+        return $this->caches[$name] ?? null;
+    }
+
+    /**
+     * @return void
+     */
+    public function flushAll()
+    {
+        foreach ($this->caches as $cache) {
+            $cache->clear();
+        }
     }
 }

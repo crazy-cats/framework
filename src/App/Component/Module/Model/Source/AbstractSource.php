@@ -11,7 +11,7 @@ namespace CrazyCat\Framework\App\Component\Module\Model\Source;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractSource {
 
@@ -23,7 +23,7 @@ abstract class AbstractSource {
     protected $sourceData = [];
 
     /**
-     * @param boolean $withEmpty
+     * @param bool $withEmpty
      * @param array|null $array
      * @return array
      */

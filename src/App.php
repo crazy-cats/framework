@@ -7,18 +7,16 @@
 
 namespace CrazyCat\Framework;
 
-use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
 use CrazyCat\Framework\App\Component\Manager as ComponentManager;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Io\Http\Response\ContentType;
-use CrazyCat\Framework\App\ObjectManager;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class App
 {
@@ -28,12 +26,7 @@ class App
     private $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Manager
-     */
-    private $cacheManager;
-
-    /**
-     * @var \CrazyCat\Framework\Components\Setup
+     * @var \CrazyCat\Framework\App\Component\Manager
      */
     private $componentManager;
 
@@ -48,14 +41,9 @@ class App
     private $dbManager;
 
     /**
-     * @var \CrazyCat\Framework\App\Handler\ErrorHandler
+     * @var \CrazyCat\Framework\App\EventManager
      */
-    private $errorHandler;
-
-    /**
-     * @var App\Handler\ExceptionHandler
-     */
-    private $exceptionHandler;
+    private $eventManager;
 
     /**
      * @var \CrazyCat\Framework\App\Io\Factory
@@ -101,7 +89,7 @@ class App
         $this->area = $area;
         $this->objectManager = $objectManager;
 
-        if (!is_file(App\Config::FILE)) {
+        if (!is_file(DIR_APP . DS . App\Config::DIR . DS . App\Config::FILE)) {
             $wizard->launch();
         }
         $this->init();
@@ -128,7 +116,6 @@ class App
         /**
          * Below single instances should be created after base config is initialized
          */
-        $this->cacheManager = $this->objectManager->get(\CrazyCat\Framework\App\Cache\Manager::class);
         $this->componentManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Manager::class);
         $this->dbManager = $this->objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
         $this->moduleManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class);
@@ -154,25 +141,6 @@ class App
     }
 
     /**
-     * @param string $areaCode
-     * @return void
-     * @throws \ReflectionException
-     */
-    public function initDependencyInjection($areaCode = Area::CODE_GLOBAL)
-    {
-        profile_start(sprintf('Initializing %s dependency injections', $areaCode));
-        $cacheDependencyInjection = $this->cacheManager->create(ObjectManager::CACHE_DI_NAME);
-        if ($cacheDependencyInjection->hasData($areaCode)) {
-            $dependencyInjections = $cacheDependencyInjection->getData($areaCode);
-        } else {
-            $dependencyInjections = $this->moduleManager->collectDependencyInjections($areaCode);
-            $cacheDependencyInjection->setData($areaCode, $dependencyInjections)->save();
-        }
-        $this->objectManager->collectPreferences($dependencyInjections);
-        profile_end(sprintf('Initializing %s dependency injections', $areaCode));
-    }
-
-    /**
      * @param \Composer\Autoload\ClassLoader $composerLoader
      * @param string                         $areaCode
      * @throws \Exception
@@ -183,9 +151,8 @@ class App
 
         profile_start('Initializing components');
         $components = $this->initComponents($composerLoader);
+        $this->moduleManager->collectConfig();
         profile_end('Initializing components');
-
-        $this->initDependencyInjection();
 
         /**
          * Translations will be collected on the first usage of `translate` method,
@@ -205,8 +172,8 @@ class App
         $this->request->process();
         profile_end('Process request');
 
-        if ($this->request->getModuleName()) {
-            $this->moduleManager->getModule($this->request->getModuleName())
+        if (($moduleName = $this->request->getModuleName())) {
+            $this->moduleManager->getModule($moduleName)
                 ->launch($this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName());
         }
 

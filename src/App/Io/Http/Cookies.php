@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App;
+namespace CrazyCat\Framework\App\Io\Http;
 
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
@@ -15,7 +15,7 @@ use CrazyCat\Framework\App\Io\Http\Url;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Cookies
 {

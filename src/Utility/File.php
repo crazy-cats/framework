@@ -11,7 +11,7 @@ namespace CrazyCat\Framework\Utility;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class File {
 
@@ -19,7 +19,7 @@ class File {
      * Get folders of specified directory
      * 
      * @param string $dir
-     * @param boolean $recursive
+     * @param bool $recursive
      * @return string[]
      */
     public static function getFolders( $dir, $recursive = false )
@@ -43,7 +43,7 @@ class File {
      * Get folders of specified directory
      * 
      * @param string $dir
-     * @param boolean $recursive
+     * @param bool $recursive
      * @return string[]
      */
     public static function getFiles( $dir, $recursive = false )

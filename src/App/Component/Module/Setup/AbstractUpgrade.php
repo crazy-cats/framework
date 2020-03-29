@@ -13,7 +13,7 @@ use CrazyCat\Framework\App\Db\Manager as DbManager;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 abstract class AbstractUpgrade {
 

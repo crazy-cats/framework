@@ -9,21 +9,22 @@ namespace CrazyCat\Framework\App\Component\Module;
 
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
+use CrazyCat\Framework\App\Component\Module;
 use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\App\Db\Manager as DbManager;
-use CrazyCat\Framework\App\Component\Module;
+use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\ObjectManager;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Manager
 {
     const CACHE_NAME = 'modules';
-    const CONFIG_FILE = Config::DIR . DS . 'modules.php';
+    const CONFIG_FILE = 'modules.php';
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -31,19 +32,24 @@ class Manager
     private $area;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\AbstractCache
-     */
-    private $cache;
-
-    /**
      * @var \CrazyCat\Framework\App\Config
      */
     private $config;
 
     /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
+     */
+    private $diCache;
+
+    /**
      * @var \CrazyCat\Framework\App\Component\Module[]
      */
     private $enabledModules;
+
+    /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
+     */
+    private $eventsCache;
 
     /**
      * @var \CrazyCat\Framework\App\Db\Manager
@@ -54,6 +60,11 @@ class Manager
      * @var \CrazyCat\Framework\App\Component\Module[]
      */
     private $modules = [];
+
+    /**
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
+     */
+    private $modulesCache;
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
@@ -68,10 +79,13 @@ class Manager
         ObjectManager $objectManager
     ) {
         $this->area = $area;
-        $this->cache = $cacheFactory->create(self::CACHE_NAME);
         $this->config = $config;
         $this->dbManager = $dbManager;
         $this->objectManager = $objectManager;
+
+        $this->diCache = $cacheFactory->create(ObjectManager::CACHE_NAME);
+        $this->eventsCache = $cacheFactory->create(EventManager::CACHE_NAME);
+        $this->modulesCache = $cacheFactory->create(self::CACHE_NAME);
     }
 
     /**
@@ -151,8 +165,9 @@ class Manager
      */
     private function getModulesConfig()
     {
-        if (is_file(self::CONFIG_FILE)) {
-            $config = require self::CONFIG_FILE;
+        $file = DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE;
+        if (is_file($file)) {
+            $config = require $file;
         }
         if (!isset($config) || !is_array($config) || empty($config)) {
             return [];
@@ -174,7 +189,7 @@ class Manager
      */
     public function init($moduleSource)
     {
-        if (empty($modulesData = $this->cache->getData())) {
+        if (empty($modulesData = $this->modulesCache->getData())) {
             $conn = $this->dbManager->getConnection();
             $conn->beginTransaction();
 
@@ -203,7 +218,7 @@ class Manager
                 $conn->commitTransaction();
 
                 $this->processDependency($modulesData['enabled']);
-                $this->cache->setData($modulesData)->save();
+                $this->modulesCache->setData($modulesData)->save();
                 $this->updateModulesConfig($moduleConfig);
             } catch (\Exception $e) {
                 $conn->rollbackTransaction();
@@ -225,16 +240,26 @@ class Manager
      * @param string $areaCode
      * @return array
      */
-    public function collectDependencyInjections($areaCode = Area::CODE_GLOBAL)
+    public function collectConfig($areaCode = Area::CODE_GLOBAL)
     {
-        $di = [];
-        $path = ($areaCode == Area::CODE_GLOBAL) ? '' : (DS . $areaCode);
-        foreach ($this->getEnabledModules() as $module) {
-            if (is_file($module->getData('dir') . DS . 'config' . $path . DS . 'di.php')) {
-                $di = array_merge($di, require($module->getData('dir') . DS . 'config' . DS . 'di.php'));
+        if ($this->diCache->hasData($areaCode)) {
+            $di = $this->diCache->getData($areaCode);
+            $events = $this->eventsCache->getData($areaCode);
+        } else {
+            $di = $events = [];
+            $path = Module::CONFIG_DIR . (($areaCode == Area::CODE_GLOBAL) ? '' : (DS . $areaCode));
+            foreach ($this->getEnabledModules() as $module) {
+                if (is_file(($file = $module->getData('dir') . DS . $path . DS . ObjectManager::CONFIG_FILE))) {
+                    $di = array_merge($di, require $file);
+                }
+                if (is_file(($file = $module->getData('dir') . DS . $path . DS . EventManager::CONFIG_FILE))) {
+                    $events = array_merge($events, require $file);
+                }
             }
+            $this->diCache->setData($areaCode, $di)->save();
+            $this->eventsCache->setData($areaCode, $events)->save();
         }
-        return $di;
+        return [$di, $events];
     }
 
     /**
@@ -252,7 +277,7 @@ class Manager
     {
         if ($this->enabledModules === null) {
             $this->enabledModules = [];
-            $modulesData = $this->cache->getData();
+            $modulesData = $this->modulesCache->getData();
             foreach ($modulesData['enabled'] as $moduleData) {
                 $this->enabledModules[] = $this->modules[$moduleData['config']['namespace']];
             }

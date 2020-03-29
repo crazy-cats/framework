@@ -16,17 +16,18 @@ use CrazyCat\Framework\Utility\File;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Manager
 {
     const CACHE_NAME = 'components';
+    const REG_FILE = 'registration.php';
 
     /**
      * paths of app folders
      */
-    const DIR_APP_MODULES = DIR_APP . DS . 'modules';
-    const DIR_APP_THEMES = DIR_APP . DS . 'themes';
+    const DIR_APP_MODULES = 'modules';
+    const DIR_APP_THEMES = 'themes';
 
     /**
      * types
@@ -36,9 +37,9 @@ class Manager
     const TYPE_THEME = 'theme';
 
     private $components = [
-        self::TYPE_LANG => [],
+        self::TYPE_LANG   => [],
         self::TYPE_MODULE => [],
-        self::TYPE_THEME => []
+        self::TYPE_THEME  => []
     ];
 
     /**
@@ -88,8 +89,8 @@ class Manager
                     foreach (File::getFolders($dir . '/' . $vendor) as $module) {
                         $prefix = $vendor . '\\' . $module . '\\';
                         $path = $dir . DS . $vendor . DS . $module;
-                        if (is_file($path . DS . 'registration.php')) {
-                            require $path . DS . 'registration.php';
+                        if (is_file($path . DS . self::REG_FILE)) {
+                            require $path . DS . self::REG_FILE;
                             $composerLoader->addPsr4($prefix, $path . DS . 'code');
                         }
                     }
@@ -101,13 +102,13 @@ class Manager
              *     only backend and frontend area have themes.
              */
             foreach ([Area::CODE_BACKEND, Area::CODE_FRONTEND] as $areaCode) {
-                $dir = self::DIR_APP_THEMES . DS . $areaCode;
+                $dir = DIR_APP . DS . self::DIR_APP_THEMES . DS . $areaCode;
                 if (!is_dir($dir)) {
                     mkdir($dir, 0755, true);
                 }
                 foreach (File::getFolders($dir) as $path) {
-                    if (is_file($dir . DS . $path . DS . 'registration.php')) {
-                        require $dir . DS . $path . DS . 'registration.php';
+                    if (is_file($dir . DS . $path . DS . self::REG_FILE)) {
+                        require $dir . DS . $path . DS . self::REG_FILE;
                     }
                 }
             }
@@ -141,7 +142,7 @@ class Manager
             throw new \Exception(sprintf('Component name `%s` has been used.', $name));
         }
         $this->components[$type][$name] = [
-            'dir' => $dir,
+            'dir'  => $dir,
             'name' => $name
         ];
     }

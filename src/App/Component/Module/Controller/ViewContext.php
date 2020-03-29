@@ -18,13 +18,13 @@ use CrazyCat\Framework\App\Registry;
 use CrazyCat\Framework\App\Io\Http\Session\Messenger;
 use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
 use CrazyCat\Framework\App\Component\Language\Translator;
-use CrazyCat\Framework\App\Url;
+use CrazyCat\Framework\App\Io\Http\Url;
 
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class ViewContext extends Context {
 
@@ -64,7 +64,7 @@ class ViewContext extends Context {
     protected $translator;
 
     /**
-     * @var \CrazyCat\Framework\App\Url
+     * @var \CrazyCat\Framework\App\Io\Http\Url
      */
     protected $url;
 
@@ -139,7 +139,7 @@ class ViewContext extends Context {
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Url
+     * @return \CrazyCat\Framework\App\Io\Http\Url
      */
     public function getUrl()
     {

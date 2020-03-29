@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App;
+namespace CrazyCat\Framework\App\Component;
 
 use CrazyCat\Framework\Utility\File;
 use CrazyCat\Framework\Utility\Tools;
@@ -14,22 +14,23 @@ use CrazyCat\Framework\Utility\Tools;
  * @category CrazyCat
  * @package  CrazyCat\Framework
  * @author   Liwei Zeng <zengliwei@163.com>
- * @link     http://crazy-cat.cn
+ * @link     https://crazy-cat.cn
  */
 class Module extends \CrazyCat\Framework\App\Data\DataObject
 {
-    const FILE_CONFIG = 'config' . DS . 'module.php';
+    const CODE_DIR = 'code';
+    const CONFIG_DIR = 'config';
+    const CONFIG_FILE = 'module.php';
 
     /**
      * @var array
      */
     private $configRules = [
         'namespace' => ['required' => true, 'type' => 'string'],
-        'version' => ['required' => true, 'type' => 'string'],
-        'depends' => ['required' => true, 'type' => 'array'],
-        'events' => ['required' => false, 'type' => 'array'],
-        'routes' => ['required' => false, 'type' => 'array'],
-        'settings' => ['required' => false, 'type' => 'array']
+        'version'   => ['required' => true, 'type' => 'string'],
+        'depends'   => ['required' => true, 'type' => 'array'],
+        'routes'    => ['required' => false, 'type' => 'array'],
+        'settings'  => ['required' => false, 'type' => 'array']
     ];
 
     /**
@@ -47,8 +48,12 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
      */
     private $objectManager;
 
-    public function __construct(Area $area, ObjectManager $objectManager, EventManager $eventManager, array $data)
-    {
+    public function __construct(
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
+        array $data
+    ) {
         $this->area = $area;
         $this->eventManager = $eventManager;
         $this->objectManager = $objectManager;
@@ -57,43 +62,44 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
     }
 
     /**
-     * @param array $data
-     * @return array
-     * @throws \Exception
+     * @param array $config
+     * @return bool
      */
-    private function verifyConfig($data)
+    private function verifyConfig($config)
     {
-        if (!is_file($data['dir'] . DS . self::FILE_CONFIG)) {
-            throw new \Exception(sprintf('Config file of module `%s` does not exist.', $data['name']));
-        }
-        $config = require $data['dir'] . DS . self::FILE_CONFIG;
-
         if (!is_array($config)) {
-            throw new \Exception(sprintf('Invalidated config file of module `%s`.', $data['name']));
+            return false;
         }
         foreach ($config as $key => $value) {
-            if (!isset($this->configRules[$key])) {
-                unset($config[$key]);
-            } elseif (gettype($value) != $this->configRules[$key]['type']) {
-                throw new \Exception(sprintf('Invalidated setting `%s` of module `%s`.', $key, $data['name']));
+            if (!isset($this->configRules[$key])
+                || gettype($value) != $this->configRules[$key]['type']) {
+                return false;
             }
         }
         foreach ($this->configRules as $key => $rule) {
             if ($rule['required'] && !isset($config[$key])) {
-                throw new \Exception(sprintf('Setting `%s` of module `%s` is required.', $key, $data['name']));
+                return false;
             }
         }
-        return $config;
+        return true;
     }
 
     /**
-     * @param array $events
+     * @param array $data
+     * @return array
+     * @throws \Exception
      */
-    private function assignEvents(array $events)
+    private function collectConfig($data)
     {
-        foreach ($events as $eventName => $observer) {
-            $this->eventManager->addEvent($eventName, $observer);
+        $file = $data['dir'] . DS . self::CONFIG_DIR . DS . self::CONFIG_FILE;
+        if (!is_file($file)) {
+            throw new \Exception(sprintf('Config file of module `%s` does not exist.', $data['name']));
         }
+        $config = require $file;
+        if (!$this->verifyConfig($config)) {
+            throw new \Exception(sprintf('Invalidated config file of module `%s`.', $data['name']));
+        }
+        return $config;
     }
 
     /**
@@ -108,14 +114,9 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
          *     initializing actions when it is with `config`.
          */
         if (!isset($data['config'])) {
-            $data['config'] = $this->verifyConfig($data);
+            $data['config'] = $this->collectConfig($data);
             $data['controller_actions'] = $this->intiControllerActions($data);
         }
-
-        if (!empty($data['config']['events'])) {
-            $this->assignEvents($data['config']['events']);
-        }
-
         return $data;
     }
 
@@ -125,7 +126,7 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
      */
     private function intiControllerActions($data)
     {
-        $controllerDir = $data['dir'] . DS . 'code' . DS . 'Controller';
+        $controllerDir = $data['dir'] . DS . self::CODE_DIR . DS . 'Controller';
         $namespace = $data['config']['namespace'];
         $routes = $data['config']['routes'];
 
@@ -156,6 +157,18 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
     }
 
     /**
+     * @param string|null $areaCode
+     * @return array
+     */
+    public function getControllerActions($areaCode = null)
+    {
+        $controllerActions = $this->getData('controller_actions');
+
+        return ($areaCode === null) ? $controllerActions :
+            (isset($controllerActions[$areaCode]) ? $controllerActions[$areaCode] : []);
+    }
+
+    /**
      * @param array $moduleConfig
      * @return void
      * @throws \ReflectionException
@@ -167,18 +180,6 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
             $this->objectManager->get($setupClass)->execute($currentVersion);
         }
         $moduleConfig['version'] = $this->data['config']['version'];
-    }
-
-    /**
-     * @param string|null $areaCode
-     * @return array
-     */
-    public function getControllerActions($areaCode = null)
-    {
-        $controllerActions = $this->getData('controller_actions');
-
-        return ($areaCode === null) ? $controllerActions :
-            (isset($controllerActions[$areaCode]) ? $controllerActions[$areaCode] : []);
     }
 
     /**
@@ -196,6 +197,6 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
 
         $this->objectManager->create(
             sprintf('%s\Controller\%s\%s\%s', $namespace, $area, $controller, $action)
-        )->execute();
+        )->run();
     }
 }
