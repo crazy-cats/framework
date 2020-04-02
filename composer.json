@@ -5,6 +5,9 @@
     "license": [
         "proprietary"
     ],
+    "keywords": [
+        "PSR-12"
+    ],
     "authors": [
         {
             "name": "Liwei Zeng",
