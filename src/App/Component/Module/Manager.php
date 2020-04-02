@@ -180,7 +180,10 @@ class Manager
      */
     private function updateModulesConfig(array $config)
     {
-        file_put_contents(self::CONFIG_FILE, sprintf("<?php\nreturn %s;", $this->config->toString($config)));
+        file_put_contents(
+            DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE,
+            sprintf("<?php\nreturn %s;", $this->config->toString($config))
+        );
     }
 
     /**
