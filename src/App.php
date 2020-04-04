@@ -36,21 +36,6 @@ class App
     private $config;
 
     /**
-     * @var \CrazyCat\Framework\App\Db\Manager
-     */
-    private $dbManager;
-
-    /**
-     * @var \CrazyCat\Framework\App\EventManager
-     */
-    private $eventManager;
-
-    /**
-     * @var \CrazyCat\Framework\App\Io\Factory
-     */
-    private $ioFactory;
-
-    /**
      * @var \CrazyCat\Framework\App\Component\Module\Manager
      */
     private $moduleManager;
@@ -117,7 +102,6 @@ class App
          * Below single instances should be created after base config is initialized
          */
         $this->componentManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Manager::class);
-        $this->dbManager = $this->objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
         $this->moduleManager = $this->objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class);
         $this->translator = $this->objectManager->get(\CrazyCat\Framework\App\Component\Language\Translator::class);
     }

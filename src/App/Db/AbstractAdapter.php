@@ -13,81 +13,80 @@ namespace CrazyCat\Framework\App\Db;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-abstract class AbstractAdapter {
-
+abstract class AbstractAdapter
+{
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array  $binds
      * @return array
      */
-    abstract public function fetchAll( $sql, array $binds = [] );
+    abstract public function fetchAll($sql, array $binds = []);
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array  $binds
      * @return array
      */
-    abstract public function fetchPairs( $sql, array $binds = [] );
+    abstract public function fetchPairs($sql, array $binds = []);
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array  $binds
      * @return array
      */
-    abstract public function fetchCol( $sql, array $binds = [] );
+    abstract public function fetchCol($sql, array $binds = []);
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array  $binds
      * @return array
      */
-    abstract public function fetchRow( $sql, array $binds = [] );
+    abstract public function fetchRow($sql, array $binds = []);
 
     /**
      * @param string $sql
-     * @param array $binds
+     * @param array  $binds
      * @return string|null
      */
-    abstract public function fetchOne( $sql, array $binds = [] );
+    abstract public function fetchOne($sql, array $binds = []);
 
     /**
      * @param string $table
-     * @param array $data [ key => value ]
+     * @param array  $data [ key => value ]
      * @return int
      */
-    abstract public function insert( $table, array $data );
+    abstract public function insert($table, array $data);
 
     /**
      * @param string $table
-     * @param array $data [ [ key => value ], [ key => value ], ... ]
+     * @param array  $data [ [ key => value ], [ key => value ], ... ]
      */
-    abstract public function insertArray( $table, array $data );
+    abstract public function insertArray($table, array $data);
 
     /**
      * @param string $table
-     * @param array $data [ key => value ]
-     * @param array $conditions
+     * @param array  $data [ key => value ]
+     * @param array  $conditions
      */
-    abstract public function update( $table, array $data, array $conditions = [] );
+    abstract public function update($table, array $data, array $conditions = []);
 
     /**
      * @param string $table
-     * @param array $conditions
+     * @param array  $conditions
      */
-    abstract public function delete( $table, array $conditions = [] );
+    abstract public function delete($table, array $conditions = []);
 
     /**
      * @param string $table
      * @return string
      */
-    abstract public function getTableName( $table );
+    abstract public function getTableName($table);
 
     /**
      * @return void
      */
     public function beginTransaction()
     {
-        
     }
 
     /**
@@ -103,7 +102,5 @@ abstract class AbstractAdapter {
      */
     public function rollbackTransaction()
     {
-        
     }
-
 }

@@ -15,14 +15,14 @@ use CrazyCat\Framework\App\Db\Manager as DbManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-abstract class AbstractUpgrade {
-
+abstract class AbstractUpgrade
+{
     /**
      * @var \CrazyCat\Framework\App\Db\AbstractAdapter
      */
     protected $conn;
 
-    public function __construct( DbManager $dbManager )
+    public function __construct(DbManager $dbManager)
     {
         $this->conn = $dbManager->getConnection();
     }
@@ -31,5 +31,5 @@ abstract class AbstractUpgrade {
      * @param string|null $currentVersion
      * @return void
      */
-    abstract public function execute( $currentVersion );
+    abstract public function execute($currentVersion);
 }

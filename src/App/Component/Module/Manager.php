@@ -8,10 +8,8 @@
 namespace CrazyCat\Framework\App\Component\Module;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
 use CrazyCat\Framework\App\Component\Module;
 use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\Db\Manager as DbManager;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\ObjectManager;
 
@@ -72,20 +70,20 @@ class Manager
     private $objectManager;
 
     public function __construct(
-        Area $area,
-        Config $config,
-        CacheFactory $cacheFactory,
-        DbManager $dbManager,
-        ObjectManager $objectManager
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\Config $config,
+        \CrazyCat\Framework\App\Cache\Manager $cacheManager,
+        \CrazyCat\Framework\App\Db\Manager $dbManager,
+        \CrazyCat\Framework\App\ObjectManager $objectManager
     ) {
         $this->area = $area;
         $this->config = $config;
         $this->dbManager = $dbManager;
         $this->objectManager = $objectManager;
 
-        $this->diCache = $cacheFactory->create(ObjectManager::CACHE_NAME);
-        $this->eventsCache = $cacheFactory->create(EventManager::CACHE_NAME);
-        $this->modulesCache = $cacheFactory->create(self::CACHE_NAME);
+        $this->diCache = $cacheManager->create(ObjectManager::CACHE_NAME);
+        $this->eventsCache = $cacheManager->create(EventManager::CACHE_NAME);
+        $this->modulesCache = $cacheManager->create(self::CACHE_NAME);
     }
 
     /**
