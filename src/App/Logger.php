@@ -42,12 +42,13 @@ class Logger
     }
 
     /**
-     * @param mixed $content
+     * @param mixed  $content
      * @param string $file
+     * @param int    $level
      * @return void
      * @throws \ReflectionException
      */
-    public function log($content, $file = 'system.log')
+    public function log($content, $file = 'system.log', $level = Processor::INFO)
     {
         if (!isset($this->handlers[$file])) {
             $dir = self::DIR . DS . dirname($file);
@@ -56,13 +57,65 @@ class Logger
             }
             $this->handlers[$file] = $this->objectManager->create(
                 StreamHandler::class,
-                [
-                    'stream' => self::DIR . DS . $file,
-                    'level'  => Processor::INFO
-                ]
+                ['stream' => self::DIR . DS . $file]
             );
             $this->processor->pushHandler($this->handlers[$file]);
         }
-        $this->processor->addInfo(print_r($content, true));
+        $this->processor->addRecord($level, print_r($content, true));
+    }
+
+    /**
+     * @param mixed  $content
+     * @param string $file
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function addAlert($content, $file = 'system.log')
+    {
+        $this->log($content, $file, Processor::ALERT);
+    }
+
+    /**
+     * @param mixed  $content
+     * @param string $file
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function addCritical($content, $file = 'system.log')
+    {
+        $this->log($content, $file, Processor::CRITICAL);
+    }
+
+    /**
+     * @param mixed  $content
+     * @param string $file
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function addError($content, $file = 'system.log')
+    {
+        $this->log($content, $file, Processor::ERROR);
+    }
+
+    /**
+     * @param mixed  $content
+     * @param string $file
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function addWarning($content, $file = 'system.log')
+    {
+        $this->log($content, $file, Processor::WARNING);
+    }
+
+    /**
+     * @param mixed  $content
+     * @param string $file
+     * @return void
+     * @throws \ReflectionException
+     */
+    public function addDebug($content, $file = 'system.log')
+    {
+        $this->log($content, $file, Processor::DEBUG);
     }
 }

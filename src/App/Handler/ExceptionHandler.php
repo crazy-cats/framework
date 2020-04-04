@@ -46,21 +46,23 @@ class ExceptionHandler
 
     /**
      * @param string $message
-     * @return string
+     * @return void
+     * @throws \ReflectionException
      */
     private function logException($message)
     {
-        $this->logger->log($message, sprintf('errors/%s/%s.log', date('Y-m'), date('Y-m-d')));
-
-        return $message;
+        $this->logger->addError($message, sprintf('errors/%s/%s.log', date('Y-m'), date('Y-m-d')));
     }
 
     /**
      * @param \Exception $exception
+     * @throws \ReflectionException
      */
     private function processCliException($exception)
     {
-        echo $this->logException($exception->getMessage() . "\n" . $exception->getTraceAsString());
+        $exception = $exception->getMessage() . "\n" . $exception->getTraceAsString();
+        $this->logException($exception);
+        echo $exception;
     }
 
     /**
@@ -81,10 +83,9 @@ class ExceptionHandler
                 ->send();
             exit;
         } else {
-            echo sprintf(
-                '<pre>%s</pre>',
-                $this->logException($exception->getMessage() . "\n" . $exception->getTraceAsString())
-            );
+            $exception = $exception->getMessage() . "\n" . $exception->getTraceAsString();
+            $this->logException($exception);
+            echo '<pre>' . $exception . '</pre>';
         }
     }
 

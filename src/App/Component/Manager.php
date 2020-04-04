@@ -85,6 +85,9 @@ class Manager
              * Add modules of which source codes are in `app/modules` as Psr4 packages
              */
             foreach ($composerLoader->getFallbackDirsPsr4() as $dir) {
+                if (!is_dir($dir)) {
+                    continue;
+                }
                 foreach (File::getFolders($dir) as $vendor) {
                     foreach (File::getFolders($dir . '/' . $vendor) as $module) {
                         $prefix = $vendor . '\\' . $module . '\\';

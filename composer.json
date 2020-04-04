@@ -20,9 +20,7 @@
         "php": ">7.3.0",
         "monolog/monolog": "1.0.*",
         "symfony/console": "*",
-        "crazycat/language-en_us": "~1.0",
-        "crazycat/module-admin": "~1.0",
-        "crazycat/theme-backend-default": "~1.0"
+        "crazycat/language-en_us": "~1.0"
     },
     "autoload": {
         "psr-4": {
