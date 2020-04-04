@@ -13,9 +13,8 @@ namespace CrazyCat\Framework\Utility;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class StaticVariable {
-
+class StaticVariable
+{
     const GENERAL_SEPARATOR = ',';
     const NO_SELECTION = '_NO_SELECTION_';
-
 }

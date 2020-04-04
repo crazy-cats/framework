@@ -13,119 +13,117 @@ namespace CrazyCat\Framework\Utility;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Curl {
-
+class Curl
+{
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_DELETE = 'DELETE';
 
     /**
-     * @param string $method
-     * @param string $url
+     * @param string            $method
+     * @param string            $url
      * @param string|array|null $data
-     * @param array $headers
+     * @param array             $headers
      * @return mixed
+     * @throws \Exception
      */
-    static private function request( $method, $url, $data = null, $headers = [] )
+    private static function request($method, $url, $data = null, $headers = [])
     {
-        $ch = curl_init();
+        $opts = [
+            CURLOPT_HEADER         => 0,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_HTTP_VERSION   => 1,
+            CURLOPT_URL            => $url,
+            CURLOPT_HTTPHEADER     => $headers
+        ];
 
-        switch ( $method ) {
-
-            case self::METHOD_POST :
-                curl_setopt( $ch, CURLOPT_POST, 1 );
-                curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+        switch ($method) {
+            case self::METHOD_POST:
+                $opts[CURLOPT_POST] = 1;
+                $opts[CURLOPT_POSTFIELDS] = $data;
                 break;
 
-            case self::METHOD_PUT :
-                curl_setopt( $ch, CURLOPT_POST, 0 );
-                curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'PUT' );
-                curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+            case self::METHOD_PUT:
+                $opts[CURLOPT_POST] = 0;
+                $opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
+                $opts[CURLOPT_POSTFIELDS] = $data;
                 break;
 
-            case self::METHOD_DELETE :
-                curl_setopt( $ch, CURLOPT_POST, 0 );
-                curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'DELETE' );
-                curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+            case self::METHOD_DELETE:
+                $opts[CURLOPT_POST] = 0;
+                $opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+                $opts[CURLOPT_POSTFIELDS] = $data;
                 break;
 
-            case self::METHOD_GET :
-            default :
-                curl_setopt( $ch, CURLOPT_POST, 0 );
-                if ( $data !== null && !is_object( $data ) && !is_array( $data ) ) {
-                    $data = json_decode( $data, true );
-                    if ( !is_array( $data ) ) {
-                        $data = null;
-                    }
-                }
-                if ( !empty( $data ) ) {
-                    $url .= ( strpos( $url, '?' ) === false ? '?' : '&' ) . http_build_query( $data );
+            case self::METHOD_GET:
+                $opts[CURLOPT_POST] = 0;
+                if (!empty($data)) {
+                    $opts[CURLOPT_URL] .= (strpos($url, '?') === false ? '?' : '&') . http_build_query($data);
                 }
                 break;
         }
 
-        curl_setopt( $ch, CURLOPT_HEADER, 0 );
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
-        curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 2 );
-        curl_setopt( $ch, CURLOPT_HTTP_VERSION, 1 );
-        curl_setopt( $ch, CURLOPT_URL, $url );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+        $ch = curl_init();
+        curl_setopt_array($ch, $opts);
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
 
-        $response = curl_exec( $ch );
-        $error = curl_error( $ch );
-        curl_close( $ch );
-
-        if ( $error ) {
-            throw new \Exception( $error );
+        if ($error) {
+            throw new \Exception($error);
         }
 
         return $response;
     }
 
     /**
-     * @param string $url
+     * @param string            $url
      * @param string|array|null $data
-     * @param array $headers
+     * @param array             $headers
      * @return mixed
+     * @throws \Exception
      */
-    public static function get( $url, $data = null, $headers = [] )
+    public static function get($url, $data = null, $headers = [])
     {
-        return self::request( self::METHOD_GET, $url, $data, $headers );
+        return self::request(self::METHOD_GET, $url, $data, $headers);
     }
 
     /**
-     * @param string $url
+     * @param string            $url
      * @param string|array|null $data
-     * @param array $headers
+     * @param array             $headers
      * @return mixed
+     * @throws \Exception
      */
-    public static function post( $url, $data = null, $headers = [] )
+    public static function post($url, $data = null, $headers = [])
     {
-        return self::request( self::METHOD_POST, $url, $data, $headers );
+        return self::request(self::METHOD_POST, $url, $data, $headers);
     }
 
     /**
-     * @param string $url
+     * @param string            $url
      * @param string|array|null $data
-     * @param array $headers
+     * @param array             $headers
      * @return mixed
+     * @throws \Exception
      */
-    public static function put( $url, $data = null, $headers = [] )
+    public static function put($url, $data = null, $headers = [])
     {
-        return self::request( self::METHOD_PUT, $url, $data, $headers );
+        return self::request(self::METHOD_PUT, $url, $data, $headers);
     }
 
     /**
-     * @param string $url
+     * @param string            $url
      * @param string|array|null $data
-     * @param array $headers
+     * @param array             $headers
      * @return mixed
+     * @throws \Exception
      */
-    public static function delete( $url, $data = null, $headers = [] )
+    public static function delete($url, $data = null, $headers = [])
     {
-        return self::request( self::METHOD_DELETE, $url, $data, $headers );
+        return self::request(self::METHOD_DELETE, $url, $data, $headers);
     }
-
 }
