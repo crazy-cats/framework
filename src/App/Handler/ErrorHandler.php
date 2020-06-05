@@ -70,7 +70,7 @@ class ErrorHandler
             $this->logError($error);
 
             if ($this->area->isCli()) {
-                echo $error;
+                echo $error . "\n\n";
             } else {
                 $httpRequest = $this->objectManager->get(HttpRequest::class);
                 if ($this->area->getCode() == Area::CODE_API

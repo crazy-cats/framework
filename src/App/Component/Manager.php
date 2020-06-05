@@ -63,10 +63,22 @@ class Manager
         return ObjectManager::getInstance()->get(self::class);
     }
 
-    public function __construct(CacheFactory $cacheFactory, ObjectManager $objectManager)
+    public function __construct(ObjectManager $objectManager)
     {
-        $this->cacheFactory = $cacheFactory;
         $this->objectManager = $objectManager;
+    }
+
+    /**
+     * Use this method instead of injecting the cache factory in construct method,
+     *     in order not to meet error when registering a component.
+     *
+     * @return void
+     * @throws \ReflectionException
+     */
+    private function getCache()
+    {
+        return $this->objectManager->get(CacheFactory::class)
+            ->create(self::CACHE_NAME);
     }
 
     /**
@@ -78,7 +90,7 @@ class Manager
      */
     public function init($composerLoader, $forceGenerate = false)
     {
-        $cache = $this->cacheFactory->create(self::CACHE_NAME);
+        $cache = $this->getCache();
 
         if ($forceGenerate || !($components = $cache->getData())) {
             /**

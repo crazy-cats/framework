@@ -7,11 +7,7 @@
 
 namespace CrazyCat\Framework\App\Component\Module\Controller;
 
-use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Logger;
-use CrazyCat\Framework\App\ObjectManager;
+use CrazyCat\Framework\App\Io\AbstractRequest;
 
 /**
  * @category CrazyCat
@@ -19,8 +15,8 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Context {
-
+abstract class AbstractContext
+{
     /**
      * @var \CrazyCat\Framework\App\Area
      */
@@ -46,8 +42,13 @@ class Context {
      */
     protected $objectManager;
 
-    public function __construct( Area $area, Config $config, Logger $logger, EventManager $eventManager, ObjectManager $objectManager )
-    {
+    public function __construct(
+        \CrazyCat\Framework\App\Area $area,
+        \CrazyCat\Framework\App\Config $config,
+        \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\Logger $logger,
+        \CrazyCat\Framework\App\ObjectManager $objectManager
+    ) {
         $this->area = $area;
         $this->config = $config;
         $this->eventManager = $eventManager;
@@ -95,4 +96,11 @@ class Context {
         return $this->objectManager;
     }
 
+    /**
+     * @return \CrazyCat\Framework\App\ObjectManager
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
 }

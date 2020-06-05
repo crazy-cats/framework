@@ -10,6 +10,7 @@ namespace CrazyCat\Framework\App\Component\Module;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Component\Module;
 use CrazyCat\Framework\App\Config;
+use CrazyCat\Framework\App\Db\MySql;
 use CrazyCat\Framework\App\EventManager;
 use CrazyCat\Framework\App\ObjectManager;
 
@@ -35,6 +36,11 @@ class Manager
     private $config;
 
     /**
+     * @var \CrazyCat\Framework\App\Db\Manager
+     */
+    private $dbManager;
+
+    /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache
      */
     private $diCache;
@@ -50,9 +56,9 @@ class Manager
     private $eventsCache;
 
     /**
-     * @var \CrazyCat\Framework\App\Db\Manager
+     * @var \CrazyCat\Framework\App\EventManager
      */
-    private $dbManager;
+    private $eventManager;
 
     /**
      * @var \CrazyCat\Framework\App\Component\Module[]
@@ -74,11 +80,13 @@ class Manager
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Db\Manager $dbManager,
+        \CrazyCat\Framework\App\EventManager $eventManager,
         \CrazyCat\Framework\App\ObjectManager $objectManager
     ) {
         $this->area = $area;
         $this->config = $config;
         $this->dbManager = $dbManager;
+        $this->eventManager = $eventManager;
         $this->objectManager = $objectManager;
 
         $this->diCache = $cacheManager->create(ObjectManager::CACHE_NAME);
@@ -180,7 +188,7 @@ class Manager
     {
         file_put_contents(
             DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE,
-            sprintf("<?php\nreturn %s;", $this->config->toString($config))
+            sprintf("<?php\nreturn %s;\n", $this->config->toString($config))
         );
     }
 
@@ -191,39 +199,60 @@ class Manager
     public function init($moduleSource)
     {
         if (empty($modulesData = $this->modulesCache->getData())) {
-            $conn = $this->dbManager->getConnection();
-            $conn->beginTransaction();
-
-            try {
-                $moduleConfig = $this->getModulesConfig();
-                $modulesData = ['enabled' => [], 'disabled' => []];
-                foreach ($moduleSource as $data) {
-                    /* @var $module \CrazyCat\Framework\App\Component\Module */
-                    $module = $this->objectManager->create(Module::class, ['data' => $data]);
-                    $namespace = $module->getData('config')['namespace'];
-                    if (!isset($moduleConfig[$data['name']])) {
-                        $moduleConfig[$data['name']] = [
-                            'enabled' => true
-                        ];
-                    }
-                    $module->setData('enabled', $moduleConfig[$data['name']]['enabled']);
-                    if ($moduleConfig[$data['name']]['enabled']) {
-                        $modulesData['enabled'][$namespace] = $module->getData();
-                        $module->upgrade($moduleConfig[$data['name']]);
-                    } else {
-                        $modulesData['disabled'][$namespace] = $module->getData();
-                    }
-                    $this->modules[$namespace] = $module;
+            $moduleConfig = $this->getModulesConfig();
+            $modulesData = ['enabled' => [], 'disabled' => []];
+            foreach ($moduleSource as $data) {
+                /* @var $module \CrazyCat\Framework\App\Component\Module */
+                $module = $this->objectManager->create(Module::class, ['data' => $data]);
+                $namespace = $module->getData('config')['namespace'];
+                if (!isset($moduleConfig[$data['name']])) {
+                    $moduleConfig[$data['name']] = [
+                        'enabled' => true
+                    ];
                 }
+                $module->setData('enabled', $moduleConfig[$data['name']]['enabled']);
+                if ($moduleConfig[$data['name']]['enabled']) {
+                    $modulesData['enabled'][$namespace] = $module->getData();
+                } else {
+                    $modulesData['disabled'][$namespace] = $module->getData();
+                }
+                $this->modules[$namespace] = $module;
+            }
+            $this->processDependency($modulesData['enabled']);
+            $this->modulesCache->setData($modulesData)->save();
+            $this->updateModulesConfig($moduleConfig);
 
+            /**
+             * Setup modules
+             */
+            $conn = $this->dbManager->getConnection();
+            $tblModuleSetup = $conn->getTableName('module_setup');
+            $completedExecutions = $conn->fetchCol(sprintf('SELECT `class` FROM `%s`', $tblModuleSetup));
+            $completedSetupClasses = [];
+            $conn->beginTransaction();
+            try {
+                foreach ($modulesData['enabled'] as $moduleData) {
+                    if (!isset($moduleData['config']['setup'])) {
+                        continue;
+                    }
+                    foreach ($moduleData['config']['setup'] as $setupClass) {
+                        $setupClass = '\\' . trim($setupClass, '\\');
+                        if (in_array($setupClass, $completedExecutions)) {
+                            continue;
+                        }
+                        if (class_exists($setupClass)) {
+                            $this->objectManager->get($setupClass)->execute();
+                        }
+                        $completedSetupClasses[] = ['class' => $setupClass];
+                    }
+                }
                 $conn->commitTransaction();
-
-                $this->processDependency($modulesData['enabled']);
-                $this->modulesCache->setData($modulesData)->save();
-                $this->updateModulesConfig($moduleConfig);
             } catch (\Exception $e) {
                 $conn->rollbackTransaction();
                 throw $e;
+            }
+            if (!empty($completedSetupClasses)) {
+                $conn->insertArray($tblModuleSetup, $completedSetupClasses);
             }
         } else {
             foreach ($modulesData as $moduleGroupData) {
@@ -239,7 +268,6 @@ class Manager
 
     /**
      * @param string $areaCode
-     * @return array
      */
     public function collectConfig($areaCode = Area::CODE_GLOBAL)
     {
@@ -260,7 +288,11 @@ class Manager
             $this->diCache->setData($areaCode, $di)->save();
             $this->eventsCache->setData($areaCode, $events)->save();
         }
-        return [$di, $events];
+
+        $this->objectManager->collectPreferences($di);
+        foreach ($events as $eventName => $observers) {
+            $this->eventManager->addEvent($eventName, $observers);
+        }
     }
 
     /**
@@ -312,5 +344,24 @@ class Manager
             }
         }
         return null;
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public function initDb()
+    {
+        /* @var $conn \CrazyCat\Framework\App\Db\MySql */
+        $conn = $this->dbManager->getConnection();
+        $conn->createTable(
+            $conn->getTableName('module_setup'),
+            [
+                ['name' => 'class', 'type' => MySql::COL_TYPE_VARCHAR, 'length' => 256, 'null' => false]
+            ],
+            [
+                ['columns' => ['class'], 'type' => MySql::INDEX_UNIQUE]
+            ]
+        );
     }
 }

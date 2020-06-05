@@ -107,6 +107,19 @@ abstract class AbstractRequest
     }
 
     /**
+     * @param string $separator
+     * @return string
+     */
+    public function getFullPath($separator = '_')
+    {
+        return $this->getRouteName() .
+            $separator .
+            $this->getControllerName() .
+            $separator .
+            $this->getActionName();
+    }
+
+    /**
      * @return \CrazyCat\Framework\App\Io\AbstractResponse|null
      */
     public function getResponse()

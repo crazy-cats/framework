@@ -138,7 +138,10 @@ class Config extends \Symfony\Component\Console\Command\Command
         );
 
         $this->getInputSettings($this->settings);
-        file_put_contents(AppConfig::FILE, sprintf("<?php\nreturn %s;", (new DataObject())->toString($this->settings)));
+        file_put_contents(
+            DIR_APP . DS . AppConfig::DIR . DS . AppConfig::FILE,
+            sprintf("<?php\nreturn %s;\n", (new DataObject())->toString($this->settings))
+        );
 
         return 0;
     }

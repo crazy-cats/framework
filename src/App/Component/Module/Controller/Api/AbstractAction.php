@@ -32,7 +32,6 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
     {
         parent::__construct($context);
 
-        $this->request = $context->getRequest();
         $this->response = $context->getResponse();
     }
 

@@ -15,15 +15,10 @@ namespace CrazyCat\Framework\App\Component\Module\Controller\Backend;
  */
 abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractViewAction
 {
-    /**
-     * @var \CrazyCat\Framework\App\Io\Http\Session\Backend
-     */
-    protected $session;
-
-    public function __construct(Context $context)
-    {
-        parent::__construct($context);
-
-        $this->session = $context->getSession();
+    public function __construct(
+        Context $context,
+        \CrazyCat\Framework\App\Io\AbstractRequest $request
+    ) {
+        parent::__construct($context, $request);
     }
 }

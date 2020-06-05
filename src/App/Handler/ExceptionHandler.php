@@ -62,7 +62,7 @@ class ExceptionHandler
     {
         $exception = $exception->getMessage() . "\n" . $exception->getTraceAsString();
         $this->logException($exception);
-        echo $exception;
+        echo $exception . "\n\n";
     }
 
     /**

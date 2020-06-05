@@ -51,15 +51,17 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     private $isProcessed;
 
     /**
-     * @param string $areaCode
-     * @param string $route
+     * @param string      $areaCode
+     * @param string|null $route
      * @return string|null
      */
     public function getModuleNameByRoute($areaCode, $route)
     {
         foreach ($this->moduleManager->getEnabledModules() as $module) {
-            $moduleRoutes = $module->getData('config')['routes'];
+            $moduleConfig = $module->getData('config');
+            $moduleRoutes = $moduleConfig['routes'];
             if (isset($moduleRoutes[$areaCode]) && $moduleRoutes[$areaCode] == $route) {
+                $this->routeName = $moduleRoutes[$areaCode];
                 return $module->getData('name');
             }
         }
@@ -74,9 +76,14 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
      */
     protected function processPath(array $pathParts, $processParams = true)
     {
+        $isDefaultRoute = empty($pathParts);
         $pathParts = array_values(array_pad($pathParts, 3, 'index'));
         list($this->routeName, $this->controllerName, $this->actionName) = $pathParts;
-        if (!($this->moduleName = $this->getModuleNameByRoute(Area::CODE_BACKEND, $this->routeName))) {
+        if ($isDefaultRoute && $this->area->getCode() == Area::CODE_BACKEND) {
+            $this->routeName = 'system';
+        }
+        $this->moduleName = $this->getModuleNameByRoute($this->area->getCode(), $this->routeName);
+        if (!$this->moduleName) {
             throw new \Exception('System can not find matched route.');
         }
         if ($processParams) {
@@ -88,6 +95,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     /**
      * @return Response
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function process()
     {
@@ -131,7 +139,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
              */
             $pathParts = explode('/', $this->path);
             if (isset($pathParts[0])
-                && $pathParts[0] == $this->config->getData(Area::CODE_BACKEND)['route']
+                && $pathParts[0] == $this->config->getValue(Area::CODE_BACKEND)['route']
             ) {
                 $this->area->setCode(Area::CODE_BACKEND);
                 unset($pathParts[0]);
@@ -276,19 +284,6 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     {
         $this->isProcessed = true;
         return $this;
-    }
-
-    /**
-     * @param string $separator
-     * @return string
-     */
-    public function getFullPath($separator = '_')
-    {
-        return $this->getRouteName() .
-            $separator .
-            $this->getControllerName() .
-            $separator .
-            $this->getActionName();
     }
 
     /**

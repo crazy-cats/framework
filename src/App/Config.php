@@ -7,7 +7,7 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\App\Db\Manager;
+use CrazyCat\Framework\App\Db\MySql;
 
 /**
  * @category CrazyCat
@@ -22,18 +22,17 @@ class Config extends \CrazyCat\Framework\App\Data\DataObject
     const FILE = 'env.php';
 
     const SCOPE_GLOBAL = 'global';
-    const SCOPE_WEBSITE = 'website';
     const SCOPE_STAGE = 'stage';
 
     /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache
      */
-    private $cache;
+    protected $cache;
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
-    private $objectManager;
+    protected $objectManager;
 
     public function __construct(
         \CrazyCat\Framework\App\ObjectManager $objectManager
@@ -45,55 +44,39 @@ class Config extends \CrazyCat\Framework\App\Data\DataObject
 
     /**
      * @param string|null $scope global, website, stage
-     * @param string|null $id
+     * @param string|null $stageId
      * @return Config
      * @throws \ReflectionException
      */
-    private function collectConfigData($scope, $id)
+    protected function collectConfigData($scope, $stageId)
     {
         if ($this->cache === null) {
             $cacheManager = $this->objectManager->get(\CrazyCat\Framework\App\Cache\Manager::class);
             $this->cache = $cacheManager->create(self::CACHE_NAME);
         }
-
-        $key = $scope . '-' . $id;
-        if (!$this->cache->hasData($key)) {
-            /* @var $dbManager \CrazyCat\Framework\App\Db\Manager */
-            $dbManager = $this->objectManager->get(\CrazyCat\Framework\App\Db\Manager::class);
-            $conn = $dbManager->getConnection();
-            $sql = sprintf(
-                'SELECT `path`, `value` FROM %s WHERE `scope` = ? AND `id` = ?',
-                $conn->getTableName('config')
-            );
-            $this->cache->setData($key, $conn->fetchPairs($sql, [$scope, $id]))->save();
-        }
-        $this->setData($key, $this->cache->getData($key));
-
         return $this;
     }
 
     /**
      * @param string      $path
-     * @param string|null $scope global, website, stage
-     * @param string|null $id
+     * @param string|null $scope global, stage
+     * @param string|null $stageId
      * @return mixed
      * @throws \Exception
      */
-    public function getValue($path, $scope = self::SCOPE_GLOBAL, $id = null)
+    public function getValue($path, $scope = self::SCOPE_GLOBAL, $stageId = null)
     {
         $globalConfig = $this->getData(self::SCOPE_GLOBAL);
         if ($scope == self::SCOPE_GLOBAL) {
             return $globalConfig[$path] ?? null;
         }
         if (!in_array($scope, [self::SCOPE_WEBSITE, self::SCOPE_STAGE])
-            || $id === null
+            || $stageId === null
         ) {
             throw new \Exception('Invalid parameter.');
         }
-        if (!$this->hasData($scope . '-' . $id)) {
-            $this->collectConfigData($scope, $id);
-        }
-        $config = $this->getData($scope . '-' . $id);
+        $this->collectConfigData($scope, $stageId);
+        $config = $this->cache->getData($scope . '-' . $stageId);
         return $config[$path] ?? ($globalConfig[$path] ?? null);
     }
 }

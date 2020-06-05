@@ -47,7 +47,7 @@ class Manager
      */
     public function create($name)
     {
-        $config = $this->config->getData(Area::CODE_GLOBAL)['cache'];
+        $config = $this->config->getValue(Area::CODE_GLOBAL)['cache'];
         switch ($config['type']) {
             default:
                 $className = Files::class;
@@ -70,6 +70,14 @@ class Manager
             return $this->caches;
         }
         return $this->caches[$name] ?? null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllCacheNames()
+    {
+        return array_keys($this->caches);
     }
 
     /**

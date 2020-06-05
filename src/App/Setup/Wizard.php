@@ -41,6 +41,15 @@ class Wizard
 
     /**
      * @return void
+     * @throws \ReflectionException
+     */
+    private function initDb()
+    {
+        $this->objectManager->get(\CrazyCat\Framework\App\Component\Module\Manager::class)->initDb();
+    }
+
+    /**
+     * @return void
      * @throws \Exception
      */
     private function setupFromCli()
@@ -55,6 +64,8 @@ class Wizard
         $command = $this->objectManager->create(Config::class);
         $command->setApplication($consoleApplication);
         $command->run($consoleInput, $consoleOutput);
+
+        $this->initDb();
     }
 
     /**

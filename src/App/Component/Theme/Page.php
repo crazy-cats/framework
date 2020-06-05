@@ -22,7 +22,6 @@ use CrazyCat\Framework\App\Io\Http\Url;
  */
 class Page extends \CrazyCat\Framework\App\Data\DataObject
 {
-
     /**
      * @var \CrazyCat\Framework\App\Config
      */
@@ -129,6 +128,7 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject
     /**
      * @param array $blocksLayout
      * @return void
+     * @throws \ReflectionException
      */
     private function prepareBlocks(array $blocksLayout)
     {
@@ -235,10 +235,11 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject
 
     /**
      * @return string
+     * @throws \Exception
      */
     public function getCssScripts()
     {
-        if ($this->config->getData($this->theme->getData('config')['area'])['merge_css']) {
+        if ($this->config->getValue($this->theme->getData('config')['area'])['merge_css']) {
             return '';
         } else {
             $scripts = '';

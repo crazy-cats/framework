@@ -62,6 +62,7 @@ class EventManager
      * @param string $eventName
      * @param array  $data
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function dispatch($eventName, array $data = [])
     {

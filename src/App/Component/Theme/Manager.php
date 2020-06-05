@@ -148,7 +148,7 @@ class Manager
     public function getCurrentTheme()
     {
         if ($this->currentTheme === null) {
-            $themeName = $this->config->getData($this->area->getCode())['theme'];
+            $themeName = $this->config->getValue($this->area->getCode())['theme'];
             if (!isset($this->themes[$this->area->getCode()][$themeName])) {
                 throw new \Exception('Specified theme does not exist.');
             }

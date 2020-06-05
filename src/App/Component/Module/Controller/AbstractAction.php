@@ -40,13 +40,21 @@ abstract class AbstractAction
      */
     protected $objectManager;
 
-    public function __construct(Context $context)
-    {
+    /**
+     * @var \CrazyCat\Framework\App\Io\AbstractRequest;
+     */
+    protected $request;
+
+    public function __construct(
+        AbstractContext $context,
+        \CrazyCat\Framework\App\Io\AbstractRequest $request
+    ) {
         $this->area = $context->getArea();
         $this->config = $context->getConfig();
         $this->eventManager = $context->getEventManager();
         $this->logger = $context->getLogger();
         $this->objectManager = $context->getObjectManager();
+        $this->request = $request;
     }
 
     /**
@@ -79,6 +87,14 @@ abstract class AbstractAction
             'controller_execute_after',
             ['action' => $this]
         );
+    }
+
+    /**
+     * @return \CrazyCat\Framework\App\Io\Http\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 
     /**

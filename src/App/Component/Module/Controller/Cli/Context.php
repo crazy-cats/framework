@@ -5,7 +5,7 @@
  * See COPYRIGHT.txt for license details.
  */
 
-namespace CrazyCat\Framework\App\Component\Module\Controller\Api;
+namespace CrazyCat\Framework\App\Component\Module\Controller\Cli;
 
 /**
  * @category CrazyCat
@@ -15,11 +15,6 @@ namespace CrazyCat\Framework\App\Component\Module\Controller\Api;
  */
 class Context extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractContext
 {
-    /**
-     * @var \CrazyCat\Framework\App\Io\Http\Response
-     */
-    protected $response;
-
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
         \CrazyCat\Framework\App\Config $config,

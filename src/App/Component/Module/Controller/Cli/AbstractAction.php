@@ -19,11 +19,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractAction
 {
-
     /**
      * @var \Symfony\Component\Console\Command\Command
      */
     protected $command;
+
+    public function __construct(
+        Context $context,
+        \CrazyCat\Framework\App\Io\Cli\Request $request
+    ) {
+        parent::__construct($context, $request);
+    }
 
     /**
      * @param \Symfony\Component\Console\Command\Command $command

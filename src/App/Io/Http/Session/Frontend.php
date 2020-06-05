@@ -13,8 +13,7 @@ namespace CrazyCat\Framework\App\Io\Http\Session;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Frontend extends AbstractSession {
-
+class Frontend extends AbstractSession
+{
     const NAME = 'frontend';
-
 }

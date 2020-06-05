@@ -132,6 +132,41 @@ class Block extends \CrazyCat\Framework\App\Data\DataObject
     }
 
     /**
+     * @param string $url
+     * @return string
+     * @throws \Exception
+     */
+    public function getStaticUrl($url)
+    {
+        return $this->getPage()->getThemeUrl($url);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function getUrl($path)
+    {
+        return $this->url->getUrl($path);
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->url->getBaseUrl();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentUrl()
+    {
+        return $this->url->getCurrentUrl();
+    }
+
+    /**
      * @return string
      * @throws \Exception
      */

@@ -49,7 +49,13 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
                 $controllerAction = $this->objectManager->create($className);
                 $controllerAction->setCommand($command)->init();
 
-                $consoleApplication->add($command->setCode([$controllerAction, 'execute']));
+                $consoleApplication->add(
+                    $command->setCode(
+                        function ($input, $output) use ($controllerAction) {
+                            $controllerAction->run($input, $output);
+                        }
+                    )
+                );
             }
         }
         $consoleApplication->run();

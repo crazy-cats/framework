@@ -7,6 +7,7 @@
 
 namespace CrazyCat\Framework\App\Component;
 
+use CrazyCat\Framework\App\Io\AbstractRequest;
 use CrazyCat\Framework\Utility\File;
 use CrazyCat\Framework\Utility\Tools;
 
@@ -27,8 +28,8 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
      */
     private $configRules = [
         'namespace' => ['required' => true, 'type' => 'string'],
-        'version'   => ['required' => true, 'type' => 'string'],
         'depends'   => ['required' => true, 'type' => 'array'],
+        'setup'     => ['required' => false, 'type' => 'array'],
         'routes'    => ['required' => false, 'type' => 'array'],
         'settings'  => ['required' => false, 'type' => 'array']
     ];
@@ -169,34 +170,20 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
     }
 
     /**
-     * @param array $moduleConfig
-     * @return void
+     * @param string          $areaCode
+     * @param AbstractRequest $request
      * @throws \ReflectionException
      */
-    public function upgrade(&$moduleConfig)
-    {
-        if (class_exists(($setupClass = $this->data['config']['namespace'] . '\Setup\Upgrade'))) {
-            $currentVersion = isset($moduleConfig['version']) ? $moduleConfig['version'] : null;
-            $this->objectManager->get($setupClass)->execute($currentVersion);
-        }
-        $moduleConfig['version'] = $this->data['config']['version'];
-    }
-
-    /**
-     * @param string $areaCode
-     * @param string $controllerName
-     * @param string $actionName
-     * @throws \ReflectionException
-     */
-    public function launch($areaCode, $controllerName, $actionName)
+    public function launch($areaCode, AbstractRequest $request)
     {
         $namespace = trim($this->getData('config')['namespace'], '\\');
         $area = ucfirst($areaCode);
-        $controller = str_replace(' ', '', ucwords(implode(' ', explode('_', $controllerName))));
-        $action = str_replace(' ', '', ucwords(implode(' ', explode('_', $actionName))));
+        $controller = str_replace(' ', '', ucwords(implode(' ', explode('_', $request->getControllerName()))));
+        $action = str_replace(' ', '', ucwords(implode(' ', explode('_', $request->getActionName()))));
 
         $this->objectManager->create(
-            sprintf('%s\Controller\%s\%s\%s', $namespace, $area, $controller, $action)
+            sprintf('%s\Controller\%s\%s\%s', $namespace, $area, $controller, $action),
+            ['request' => $request]
         )->run();
     }
 }

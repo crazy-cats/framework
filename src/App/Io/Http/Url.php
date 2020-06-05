@@ -67,10 +67,11 @@ class Url
      * @param string $path
      * @param array  $params
      * @return string
+     * @throws \Exception
      */
     protected function getBackendUrl($path, array $params = [])
     {
-        return $this->getBaseUrl() . $this->config->getData('backend')['route'] . '/' .
+        return $this->getBaseUrl() . $this->config->getValue(Area::CODE_BACKEND)['route'] . '/' .
             $this->getRealPath($path) . (empty($params) ? '' : ('?' . http_build_query($params)));
     }
 
@@ -134,12 +135,13 @@ class Url
     /**
      * @param string $path
      * @return array
+     * @throws \Exception
      */
     public function parsePath($path)
     {
         $pathArr = array_diff(explode('/', trim($path, '/')), ['']);
 
-        if (isset($pathArr[0]) && $pathArr[0] == $this->config->getData(Area::CODE_BACKEND)['route']) {
+        if (isset($pathArr[0]) && $pathArr[0] == $this->config->getValue(Area::CODE_BACKEND)['route']) {
             $area = Area::CODE_BACKEND;
             array_shift($pathArr);
         } elseif (isset($pathArr[1]) && ($pathArr[0] . '/' . $pathArr[1] == HttpRequest::API_ROUTE)) {
@@ -157,11 +159,11 @@ class Url
         }
 
         return [
-            'area' => $area,
-            'route' => $route,
+            'area'       => $area,
+            'route'      => $route,
             'controller' => $controller,
-            'action' => $action,
-            'params' => $params
+            'action'     => $action,
+            'params'     => $params
         ];
     }
 

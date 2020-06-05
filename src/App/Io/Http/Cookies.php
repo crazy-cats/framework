@@ -34,15 +34,21 @@ class Cookies
      */
     protected $path;
 
+    /**
+     * @param Config                              $config
+     * @param \CrazyCat\Framework\App\Io\Http\Url $url
+     * @param Area                                $area
+     * @throws \Exception
+     */
     public function __construct(Config $config, Url $url, Area $area)
     {
         $baseUrl = $url->getBaseUrl();
         if ($area->getCode() == Area::CODE_BACKEND) {
-            $baseUrl = $baseUrl . $config->getData(Area::CODE_BACKEND)['route'] . '/';
+            $baseUrl = $baseUrl . $config->getValue(Area::CODE_BACKEND)['route'] . '/';
         }
         $urlInfo = parse_url($baseUrl);
 
-        $this->duration = $config->getData($area->getCode())['cookies']['duration'];
+        $this->duration = $config->getValue($area->getCode())['cookies']['duration'];
         $this->domain = $urlInfo['host'];
         $this->path = $urlInfo['path'];
     }

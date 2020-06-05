@@ -7,9 +7,7 @@
 
 namespace CrazyCat\Framework\App\Component\Language;
 
-use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
-use CrazyCat\Framework\App\Component\Module\Manager as ModuleManager;
-use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
+use CrazyCat\Framework\App\Config;
 use CrazyCat\Framework\Utility\File;
 
 /**
@@ -80,9 +78,8 @@ class Translator
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
 
-        $this->langCode = $config[$area->getCode()]
-            ? $config[$area->getCode()]['lang']
-            : $config[Area::CODE_GLOBAL]['lang'];
+        $settings = $config->getValue($area->getCode(), Config::SCOPE_GLOBAL);
+        $this->langCode = $settings['lang'];
     }
 
     /**

@@ -62,7 +62,7 @@ function spaceString()
  */
 function selectOptionsHtml(array $options, $value = null)
 {
-    return Html::selectOptionsHtml($options, $value);
+    return ObjectManager::getInstance()->get(Html::class)->selectOptionsHtml($options, $value);
 }
 
 /**

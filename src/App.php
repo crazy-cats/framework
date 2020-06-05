@@ -46,11 +46,6 @@ class App
     private $objectManager;
 
     /**
-     * @var \CrazyCat\Framework\App\Io\AbstractRequest
-     */
-    private $request;
-
-    /**
      * @var \CrazyCat\Framework\App\Component\Language\Translator
      */
     private $translator;
@@ -151,14 +146,15 @@ class App
          *     area code is specified in `process` method of the object.
          */
         profile_start('Process request');
+        /* @var $ioFactory \CrazyCat\Framework\App\Io\Factory */
         $ioFactory = $this->objectManager->get(\CrazyCat\Framework\App\Io\Factory::class);
-        $this->request = $ioFactory->create($areaCode);
-        $this->request->process();
+        $request = $ioFactory->create($areaCode);
+        $request->process();
         profile_end('Process request');
 
-        if (($moduleName = $this->request->getModuleName())) {
+        if (($moduleName = $request->getModuleName())) {
             $this->moduleManager->getModule($moduleName)
-                ->launch($this->area->getCode(), $this->request->getControllerName(), $this->request->getActionName());
+                ->launch($this->area->getCode(), $request);
         }
 
         profile_end('Run APP');

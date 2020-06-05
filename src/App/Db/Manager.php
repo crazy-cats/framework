@@ -17,8 +17,8 @@ use CrazyCat\Framework\App\ObjectManager;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Manager {
-
+class Manager
+{
     /**
      * @var \CrazyCat\Framework\App\Config
      */
@@ -27,14 +27,14 @@ class Manager {
     /**
      * @var \CrazyCat\Framework\App\Db\Connection[]
      */
-    private $conns = [];
+    private $connections = [];
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     private $objectManager;
 
-    public function __construct( Config $config, ObjectManager $objectManager )
+    public function __construct(Config $config, ObjectManager $objectManager)
     {
         $this->config = $config;
         $this->objectManager = $objectManager;
@@ -43,25 +43,28 @@ class Manager {
     /**
      * @param string $name
      * @return \CrazyCat\Framework\App\Db\AbstractAdapter
+     * @throws \ReflectionException
      */
-    public function getConnection( $name = 'default' )
+    public function getConnection($name = 'default')
     {
-        if ( !isset( $this->conns[$name] ) ) {
-            $dbSource = $this->config->getData( Area::CODE_GLOBAL )['db'];
-            if ( !isset( $dbSource[$name] ) ) {
-                throw new \Exception( 'Specified database connection does not exist.' );
+        if (!isset($this->connections[$name])) {
+            $dbSource = $this->config->getValue(Area::CODE_GLOBAL)['db'];
+            if (!isset($dbSource[$name])) {
+                throw new \Exception('Specified database connection does not exist.');
             }
-            switch ( $dbSource[$name]['type'] ) {
-
-                case MySql::TYPE :
-                    $this->conns[$name] = $this->objectManager->create( MySql::class, [ 'config' => $dbSource[$name] ] );
+            switch ($dbSource[$name]['type']) {
+                case MySql::TYPE:
+                    $this->connections[$name] = $this->objectManager->create(
+                        MySql::class,
+                        ['config' => $dbSource[$name]]
+                    );
                     break;
 
-                default :
-                    throw new \Exception( 'Incorrect database type.' );
+                default:
+                    throw new \Exception('Incorrect database type.');
             }
         }
-        return $this->conns[$name];
+        return $this->connections[$name];
     }
 
 }

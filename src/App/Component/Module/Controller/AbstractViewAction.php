@@ -24,11 +24,6 @@ abstract class AbstractViewAction extends AbstractAction
     protected $cookies;
 
     /**
-     * @var \CrazyCat\Framework\App\Io\Http\Request
-     */
-    protected $request;
-
-    /**
      * @var \CrazyCat\Framework\App\Io\Http\Response
      */
     protected $response;
@@ -42,6 +37,11 @@ abstract class AbstractViewAction extends AbstractAction
      * @var \CrazyCat\Framework\App\Io\Http\Session\Messenger
      */
     protected $messenger;
+
+    /**
+     * @var \CrazyCat\Framework\App\Io\Http\Session\AbstractSession
+     */
+    protected $session;
 
     /**
      * @var \CrazyCat\Framework\App\Component\Theme\Manager
@@ -88,15 +88,17 @@ abstract class AbstractViewAction extends AbstractAction
      */
     protected $skipRunning = false;
 
-    public function __construct(ViewContext $context)
-    {
-        parent::__construct($context);
+    public function __construct(
+        AbstractViewContext $context,
+        \CrazyCat\Framework\App\Io\AbstractRequest $request
+    ) {
+        parent::__construct($context, $request);
 
         $this->cookies = $context->getCookies();
         $this->messenger = $context->getMessenger();
-        $this->request = $context->getRequest();
-        $this->response = $context->getResponse();
+        $this->response = $request->getResponse();
         $this->registry = $context->getRegistry();
+        $this->session = $context->getSession();
         $this->themeManager = $context->getThemeManager();
         $this->translator = $context->getTranslator();
         $this->url = $context->getUrl();
@@ -180,6 +182,7 @@ abstract class AbstractViewAction extends AbstractAction
     /**
      * @return void
      * @throws \ReflectionException
+     * @throws \Exception
      */
     protected function render()
     {
@@ -207,14 +210,6 @@ abstract class AbstractViewAction extends AbstractAction
     }
 
     /**
-     * @return \CrazyCat\Framework\App\Io\Http\Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
      * @param string $path
      * @param array  $params
      * @return void
@@ -236,6 +231,7 @@ abstract class AbstractViewAction extends AbstractAction
     /**
      * @return void
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function run()
     {
