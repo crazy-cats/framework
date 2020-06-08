@@ -15,18 +15,14 @@ namespace CrazyCat\Framework\App\Component\Module\Controller\Api;
  */
 class Context extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractContext
 {
-    /**
-     * @var \CrazyCat\Framework\App\Io\Http\Response
-     */
-    protected $response;
-
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\Io\Http\Request $request,
         \CrazyCat\Framework\App\Logger $logger,
         \CrazyCat\Framework\App\ObjectManager $objectManager
     ) {
-        parent::__construct($area, $config, $eventManager, $logger, $objectManager);
+        parent::__construct($area, $config, $eventManager, $request, $logger, $objectManager);
     }
 }

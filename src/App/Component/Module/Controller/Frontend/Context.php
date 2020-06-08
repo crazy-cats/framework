@@ -7,20 +7,6 @@
 
 namespace CrazyCat\Framework\App\Component\Module\Controller\Frontend;
 
-use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\Io\Http\Cookies;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\Logger;
-use CrazyCat\Framework\App\Io\Http\Request;
-use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Registry;
-use CrazyCat\Framework\App\Io\Http\Session\Frontend as Session;
-use CrazyCat\Framework\App\Io\Http\Session\Messenger;
-use CrazyCat\Framework\App\Component\Theme\Manager as ThemeManager;
-use CrazyCat\Framework\App\Component\Language\Translator;
-use CrazyCat\Framework\App\Io\Http\Url;
-
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
@@ -36,6 +22,7 @@ class Context extends \CrazyCat\Framework\App\Component\Module\Controller\Abstra
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\EventManager $eventManager,
         \CrazyCat\Framework\App\Io\Http\Cookies $cookies,
+        \CrazyCat\Framework\App\Io\Http\Request $request,
         \CrazyCat\Framework\App\Io\Http\Session\Frontend $session,
         \CrazyCat\Framework\App\Io\Http\Session\Messenger $messenger,
         \CrazyCat\Framework\App\Io\Http\Url $url,
@@ -50,6 +37,7 @@ class Context extends \CrazyCat\Framework\App\Component\Module\Controller\Abstra
             $config,
             $eventManager,
             $cookies,
+            $request,
             $session,
             $messenger,
             $url,

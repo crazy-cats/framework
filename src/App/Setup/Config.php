@@ -2,8 +2,11 @@
 
 namespace CrazyCat\Framework\App\Setup;
 
+use CrazyCat\Framework\App\Cache\Manager as CacheManager;
 use CrazyCat\Framework\App\Config as AppConfig;
 use CrazyCat\Framework\App\Data\DataObject;
+use CrazyCat\Framework\App\Db\Manager as DbManager;
+use CrazyCat\Framework\App\Io\Http\Session\Manager as SessionManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
@@ -52,13 +55,13 @@ class Config extends \Symfony\Component\Console\Command\Command
     {
         $this->settings = [
             'global'   => [
-                'cache'           => [
+                CacheManager::CONFIG_KEY   => [
                     'type' => 'files'
                 ],
-                'session'         => [
+                SessionManager::CONFIG_KEY => [
                     'type' => 'files'
                 ],
-                'db'              => [
+                DbManager::CONFIG_KEY      => [
                     'default' => [
                         'type'     => 'mysql',
                         'host'     => self::VALUE_UNDEFINED,
@@ -68,8 +71,8 @@ class Config extends \Symfony\Component\Console\Command\Command
                         'prefix'   => self::VALUE_UNDEFINED . self::VALUE_SEPARATOR . self::VALUE_SHOW . self::VALUE_SEPARATOR . ''
                     ]
                 ],
-                'lang'            => 'en_US',
-                'production_mode' => false
+                'lang'                     => 'en_US',
+                'production_mode'          => false
             ],
             'api'      => [
                 'token' => md5(date('Y-m-d H:i:s') . uniqid())

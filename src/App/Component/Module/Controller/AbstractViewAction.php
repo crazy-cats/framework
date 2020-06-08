@@ -89,14 +89,13 @@ abstract class AbstractViewAction extends AbstractAction
     protected $skipRunning = false;
 
     public function __construct(
-        AbstractViewContext $context,
-        \CrazyCat\Framework\App\Io\AbstractRequest $request
+        AbstractViewContext $context
     ) {
-        parent::__construct($context, $request);
+        parent::__construct($context);
 
         $this->cookies = $context->getCookies();
         $this->messenger = $context->getMessenger();
-        $this->response = $request->getResponse();
+        $this->response = $context->getRequest()->getResponse();
         $this->registry = $context->getRegistry();
         $this->session = $context->getSession();
         $this->themeManager = $context->getThemeManager();

@@ -46,15 +46,14 @@ abstract class AbstractAction
     protected $request;
 
     public function __construct(
-        AbstractContext $context,
-        \CrazyCat\Framework\App\Io\AbstractRequest $request
+        AbstractContext $context
     ) {
         $this->area = $context->getArea();
         $this->config = $context->getConfig();
         $this->eventManager = $context->getEventManager();
         $this->logger = $context->getLogger();
         $this->objectManager = $context->getObjectManager();
-        $this->request = $request;
+        $this->request = $context->getRequest();
     }
 
     /**

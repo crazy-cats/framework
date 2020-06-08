@@ -19,6 +19,8 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Manager
 {
+    const CONFIG_KEY = 'db';
+
     /**
      * @var \CrazyCat\Framework\App\Config
      */

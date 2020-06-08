@@ -13,6 +13,7 @@
  */
 
 use CrazyCat\Framework\App\Component\Language\Translator;
+use CrazyCat\Framework\App\Io\Http\Url;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\Utility\Html;
 use CrazyCat\Framework\Utility\Profile;
@@ -59,10 +60,24 @@ function spaceString()
  * @param array             $options
  * @param array|string|null $value
  * @return string
+ * @throws ReflectionException
  */
 function selectOptionsHtml(array $options, $value = null)
 {
     return ObjectManager::getInstance()->get(Html::class)->selectOptionsHtml($options, $value);
+}
+
+/**
+ * This function should be used in layout and template only
+ *
+ * @param string $path
+ * @param array  $params
+ * @return string
+ * @throws \Exception
+ */
+function getUrl($path, array $params = [])
+{
+    return ObjectManager::getInstance()->get(Url::class)->getUrl($path, $params);
 }
 
 /**

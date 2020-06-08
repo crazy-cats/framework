@@ -16,9 +16,8 @@ namespace CrazyCat\Framework\App\Component\Module\Controller\Backend;
 abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\Controller\AbstractViewAction
 {
     public function __construct(
-        Context $context,
-        \CrazyCat\Framework\App\Io\AbstractRequest $request
+        Context $context
     ) {
-        parent::__construct($context, $request);
+        parent::__construct($context);
     }
 }

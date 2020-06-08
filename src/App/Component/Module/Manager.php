@@ -206,12 +206,10 @@ class Manager
                 $module = $this->objectManager->create(Module::class, ['data' => $data]);
                 $namespace = $module->getData('config')['namespace'];
                 if (!isset($moduleConfig[$data['name']])) {
-                    $moduleConfig[$data['name']] = [
-                        'enabled' => true
-                    ];
+                    $moduleConfig[$data['name']] = true;
                 }
-                $module->setData('enabled', $moduleConfig[$data['name']]['enabled']);
-                if ($moduleConfig[$data['name']]['enabled']) {
+                $module->setData('enabled', (bool)$moduleConfig[$data['name']]);
+                if ($moduleConfig[$data['name']]) {
                     $modulesData['enabled'][$namespace] = $module->getData();
                 } else {
                     $modulesData['disabled'][$namespace] = $module->getData();

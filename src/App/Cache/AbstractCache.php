@@ -15,7 +15,6 @@ namespace CrazyCat\Framework\App\Cache;
  */
 abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject
 {
-
     /**
      * @var string
      */
@@ -26,6 +25,11 @@ abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject
      */
     protected $config;
 
+    /**
+     * @var bool
+     */
+    protected $isEnabled;
+
     public function __construct($name, $config = [])
     {
         parent::__construct([]);
@@ -34,6 +38,41 @@ abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject
         $this->config = $config;
 
         $this->init();
+    }
+
+    /**
+     * @param bool|null
+     * @return bool|void
+     */
+    public function status($enabled = null)
+    {
+        if ($enabled === null) {
+            return $this->isEnabled;
+        }
+        $this->isEnabled = $enabled;
+    }
+
+    /**
+     * @param string|null $key
+     * @return mixed
+     */
+    public function getData($key = null)
+    {
+        if ($this->isEnabled) {
+            return parent::getData($key);
+        }
+        return null;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setData()
+    {
+        if ($this->isEnabled) {
+            return parent::setData();
+        }
+        return $this;
     }
 
     /**

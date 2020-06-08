@@ -59,9 +59,8 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     {
         foreach ($this->moduleManager->getEnabledModules() as $module) {
             $moduleConfig = $module->getData('config');
-            $moduleRoutes = $moduleConfig['routes'];
-            if (isset($moduleRoutes[$areaCode]) && $moduleRoutes[$areaCode] == $route) {
-                $this->routeName = $moduleRoutes[$areaCode];
+            if (isset($moduleConfig['routes'][$areaCode]) && $moduleConfig['routes'][$areaCode] == $route) {
+                $this->routeName = $moduleConfig['routes'][$areaCode];
                 return $module->getData('name');
             }
         }
@@ -81,11 +80,15 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
         list($this->routeName, $this->controllerName, $this->actionName) = $pathParts;
         if ($isDefaultRoute && $this->area->getCode() == Area::CODE_BACKEND) {
             $this->routeName = 'system';
+        } elseif ($this->routeName == '' && $this->area->getCode() == Area::CODE_FRONTEND) {
+            $this->routeName = 'index';
         }
+
         $this->moduleName = $this->getModuleNameByRoute($this->area->getCode(), $this->routeName);
         if (!$this->moduleName) {
             throw new \Exception('System can not find matched route.');
         }
+
         if ($processParams) {
             unset($pathParts[0], $pathParts[1], $pathParts[2]);
             $this->requestData = array_merge($this->requestData, $pathParts);

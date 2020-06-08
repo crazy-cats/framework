@@ -25,10 +25,9 @@ abstract class AbstractAction extends \CrazyCat\Framework\App\Component\Module\C
     protected $command;
 
     public function __construct(
-        Context $context,
-        \CrazyCat\Framework\App\Io\Cli\Request $request
+        Context $context
     ) {
-        parent::__construct($context, $request);
+        parent::__construct($context);
     }
 
     /**

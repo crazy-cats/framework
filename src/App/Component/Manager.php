@@ -8,7 +8,7 @@
 namespace CrazyCat\Framework\App\Component;
 
 use CrazyCat\Framework\App\Area;
-use CrazyCat\Framework\App\Cache\Manager as CacheFactory;
+use CrazyCat\Framework\App\Cache\Manager as CacheManager;
 use CrazyCat\Framework\App\ObjectManager;
 use CrazyCat\Framework\Utility\File;
 
@@ -43,11 +43,6 @@ class Manager
     ];
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\Manager
-     */
-    private $cacheFactory;
-
-    /**
      * @var \CrazyCat\Framework\App\ObjectManager
      */
     private $objectManager;
@@ -72,12 +67,12 @@ class Manager
      * Use this method instead of injecting the cache factory in construct method,
      *     in order not to meet error when registering a component.
      *
-     * @return void
+     * @return CacheManager
      * @throws \ReflectionException
      */
     private function getCache()
     {
-        return $this->objectManager->get(CacheFactory::class)
+        return $this->objectManager->get(CacheManager::class)
             ->create(self::CACHE_NAME);
     }
 

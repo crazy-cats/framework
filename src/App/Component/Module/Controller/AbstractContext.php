@@ -42,10 +42,16 @@ abstract class AbstractContext
      */
     protected $objectManager;
 
+    /**
+     * @var \CrazyCat\Framework\App\Io\AbstractRequest
+     */
+    protected $request;
+
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\Io\AbstractRequest $request,
         \CrazyCat\Framework\App\Logger $logger,
         \CrazyCat\Framework\App\ObjectManager $objectManager
     ) {
@@ -54,6 +60,7 @@ abstract class AbstractContext
         $this->eventManager = $eventManager;
         $this->logger = $logger;
         $this->objectManager = $objectManager;
+        $this->request = $request;
     }
 
     /**

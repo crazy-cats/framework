@@ -119,6 +119,7 @@ class Url
      * @param string $path
      * @param array  $params
      * @return string
+     * @throws \Exception
      */
     public function getUrl($path, array $params = [])
     {

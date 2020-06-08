@@ -8,6 +8,7 @@
 namespace CrazyCat\Framework\App\Cache;
 
 use CrazyCat\Framework\App\Area;
+use CrazyCat\Framework\App\Config;
 
 /**
  * @category CrazyCat
@@ -17,10 +18,13 @@ use CrazyCat\Framework\App\Area;
  */
 class Manager
 {
+    const CONFIG_KEY = 'cache';
+    const CONFIG_FILE = 'caches.php';
+
     /**
-     * @var \CrazyCat\Framework\App\Cache\AbstractCache[]
+     * @var array
      */
-    private $caches;
+    private $cacheStatus;
 
     /**
      * @var \CrazyCat\Framework\App\Config
@@ -38,6 +42,33 @@ class Manager
     ) {
         $this->config = $config;
         $this->objectManager = $objectManager;
+
+        $this->init();
+    }
+
+    /**
+     * @return void
+     */
+    private function init()
+    {
+        $file = DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE;
+        if (is_file($file)) {
+            $this->cacheStatus = require $file;
+        }
+        if (!isset($config) || !is_array($config) || empty($config)) {
+            $this->cacheStatus = [];
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function updateConfig()
+    {
+        file_put_contents(
+            DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE,
+            sprintf("<?php\nreturn %s;\n", $this->config->toString($this->cacheStatus))
+        );
     }
 
     /**
@@ -47,7 +78,7 @@ class Manager
      */
     public function create($name)
     {
-        $config = $this->config->getValue(Area::CODE_GLOBAL)['cache'];
+        $config = $this->config->getValue(Area::CODE_GLOBAL)[self::CONFIG_KEY];
         switch ($config['type']) {
             default:
                 $className = Files::class;
@@ -55,6 +86,10 @@ class Manager
         }
 
         $cache = $this->objectManager->create($className, ['name' => $name, 'config' => $config]);
+        if (!isset($this->cacheStatus[$name])) {
+            $this->cacheStatus[$name] = true;
+        }
+        $cache->status($this->cacheStatus[$name]);
         $this->caches[$name] = $cache;
 
         return $cache;
@@ -88,5 +123,35 @@ class Manager
         foreach ($this->caches as $cache) {
             $cache->clear();
         }
+    }
+
+    /**
+     * @param string $cacheName
+     * @return void
+     */
+    public function enable($cacheName)
+    {
+        $this->get($cacheName)->status(true);
+        $this->cacheStatus[$cacheName] = true;
+        $this->updateConfig();
+    }
+
+    /**
+     * @param string $cacheName
+     * @return void
+     */
+    public function disable($cacheName)
+    {
+        $this->get($cacheName)->status(false);
+        $this->cacheStatus[$cacheName] = false;
+        $this->updateConfig();
+    }
+
+    /**
+     * @return void
+     */
+    public function __destruct()
+    {
+        $this->updateConfig();
     }
 }

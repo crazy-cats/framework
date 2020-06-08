@@ -62,6 +62,7 @@ abstract class AbstractViewContext extends AbstractContext
         \CrazyCat\Framework\App\Config $config,
         \CrazyCat\Framework\App\EventManager $eventManager,
         \CrazyCat\Framework\App\Io\Http\Cookies $cookies,
+        \CrazyCat\Framework\App\Io\Http\Request $request,
         \CrazyCat\Framework\App\Io\Http\Session\AbstractSession $session,
         \CrazyCat\Framework\App\Io\Http\Session\Messenger $messenger,
         \CrazyCat\Framework\App\Io\Http\Url $url,
@@ -69,7 +70,7 @@ abstract class AbstractViewContext extends AbstractContext
         \CrazyCat\Framework\App\ObjectManager $objectManager,
         \CrazyCat\Framework\App\Registry $registry
     ) {
-        parent::__construct($area, $config, $eventManager, $logger, $objectManager);
+        parent::__construct($area, $config, $eventManager, $request, $logger, $objectManager);
 
         $this->cookies = $cookies;
         $this->messenger = $messenger;
