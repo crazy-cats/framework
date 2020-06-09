@@ -13,34 +13,34 @@ namespace CrazyCat\Framework\App\Component\Module\Model\Source;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-abstract class AbstractSource {
-
+abstract class AbstractSource
+{
     /**
      * [ label => value ]
-     * 
+     *
      * @var array
      */
     protected $sourceData = [];
 
     /**
-     * @param bool $withEmpty
+     * @param bool       $withEmpty
      * @param array|null $array
      * @return array
      */
-    public function toOptionArray( $withEmpty = false, $array = null )
+    public function toOptionArray($withEmpty = false, $array = null)
     {
-        if ( $array === null ) {
+        if ($array === null) {
             $array = $this->sourceData;
         }
         $options = [];
-        foreach ( $array as $label => $value ) {
-            if ( is_array( $value ) ) {
-                $value = $this->toOptionArray( $withEmpty, $value );
+        foreach ($array as $label => $value) {
+            if (is_array($value)) {
+                $value = $this->toOptionArray($withEmpty, $value);
             }
-            $options[] = [ 'label' => $label, 'value' => $value ];
+            $options[] = ['label' => $label, 'value' => $value];
         }
-        if ( $withEmpty ) {
-            array_unshift( $options, [ 'label' => '', 'value' => '' ] );
+        if ($withEmpty) {
+            array_unshift($options, ['label' => '', 'value' => '']);
         }
         return $options;
     }
@@ -49,16 +49,15 @@ abstract class AbstractSource {
      * @param array|null $array
      * @return array
      */
-    public function toHashArray( $array = null )
+    public function toHashArray($array = null)
     {
-        if ( $array === null ) {
+        if ($array === null) {
             $array = $this->sourceData;
         }
-        foreach ( $array as $label => $value ) {
-            if ( is_array( $value ) ) {
-                $array = array_merge( $array, $this->toHashArray( $value ) );
-            }
-            else {
+        foreach ($array as $label => $value) {
+            if (is_array($value)) {
+                $array = array_merge($array, $this->toHashArray($value));
+            } else {
                 $array[$value] = $label;
             }
         }
@@ -69,18 +68,16 @@ abstract class AbstractSource {
      * @param string $value
      * @return string|null
      */
-    public function getLabel( $value )
+    public function getLabel($value)
     {
         $tmp = $this->toHashArray();
-        if ( is_array( $value ) ) {
-            foreach ( $value as &$v ) {
-                $v = isset( $tmp[$v] ) ? $tmp[$v] : null;
+        if (is_array($value)) {
+            foreach ($value as &$v) {
+                $v = isset($tmp[$v]) ? $tmp[$v] : null;
             }
-            return implode( ', ', $value );
-        }
-        else {
-            return isset( $tmp[$value] ) ? $tmp[$value] : null;
+            return implode(', ', $value);
+        } else {
+            return isset($tmp[$value]) ? $tmp[$value] : null;
         }
     }
-
 }

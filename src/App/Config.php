@@ -7,7 +7,8 @@
 
 namespace CrazyCat\Framework\App;
 
-use CrazyCat\Framework\App\Db\MySql;
+use CrazyCat\Framework\App\Data\DataObject;
+use Exception;
 
 /**
  * @category CrazyCat
@@ -15,26 +16,46 @@ use CrazyCat\Framework\App\Db\MySql;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Config extends \CrazyCat\Framework\App\Data\DataObject
+class Config
 {
-    const DIR = 'config';
-    const FILE = 'env.php';
+    public const DIR = 'config';
+    public const FILE = 'env.php';
 
-    const SCOPE_GLOBAL = 'global';
+    /**
+     * @var \CrazyCat\Framework\Utility\ArrayTools
+     */
+    private $arrayTools;
 
-    public function __construct()
-    {
-        parent::__construct([self::SCOPE_GLOBAL => require DIR_APP . DS . self::DIR . DS . self::FILE]);
+    /**
+     * @var array|mixed
+     */
+    private $settings;
+
+    public function __construct(
+        \CrazyCat\Framework\Utility\ArrayTools $arrayTools
+    ) {
+        $this->arrayTools = $arrayTools;
+        $this->settings = (require DIR_APP . DS . self::DIR . DS . self::FILE) ?: [];
     }
 
     /**
      * @param string $path
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getValue($path)
     {
-        $config = $this->getData(self::SCOPE_GLOBAL);
-        return $config[$path] ?? null;
+        return $this->settings[$path] ?? null;
+    }
+
+    /**
+     * @return void
+     */
+    public function save()
+    {
+        file_put_contents(
+            DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE,
+            sprintf("<?php\nreturn %s;\n", $this->arrayTools->arrayToString($this->settings))
+        );
     }
 }

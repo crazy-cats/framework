@@ -19,7 +19,7 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Profile
 {
-    const PATH_SEPARATOR = '|||';
+    private const PATH_SEPARATOR = '|||';
 
     /**
      * @var array

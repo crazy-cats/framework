@@ -22,13 +22,18 @@ use CrazyCat\Framework\App\ObjectManager;
  */
 class Manager
 {
-    const CACHE_NAME = 'modules';
-    const CONFIG_FILE = 'modules.php';
+    public const CACHE_NAME = 'modules';
+    public const CONFIG_FILE = 'modules.php';
 
     /**
      * @var \CrazyCat\Framework\App\Area
      */
     private $area;
+
+    /**
+     * @var \CrazyCat\Framework\Utility\ArrayTools
+     */
+    private $arrayTools;
 
     /**
      * @var \CrazyCat\Framework\App\Config
@@ -81,9 +86,11 @@ class Manager
         \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Db\Manager $dbManager,
         \CrazyCat\Framework\App\EventManager $eventManager,
-        \CrazyCat\Framework\App\ObjectManager $objectManager
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\Utility\ArrayTools $arrayTools
     ) {
         $this->area = $area;
+        $this->arrayTools = $arrayTools;
         $this->config = $config;
         $this->dbManager = $dbManager;
         $this->eventManager = $eventManager;
@@ -188,7 +195,7 @@ class Manager
     {
         file_put_contents(
             DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE,
-            sprintf("<?php\nreturn %s;\n", $this->config->toString($config))
+            sprintf("<?php\nreturn %s;\n", $this->arrayTools->arrayToString($config))
         );
     }
 
@@ -266,6 +273,7 @@ class Manager
 
     /**
      * @param string $areaCode
+     * @throws \ReflectionException
      */
     public function collectConfig($areaCode = Area::CODE_GLOBAL)
     {
@@ -291,6 +299,7 @@ class Manager
         foreach ($events as $eventName => $observers) {
             $this->eventManager->addEvent($eventName, $observers);
         }
+        $this->eventManager->dispatch('after_collect_config', ['di' => $di, 'events' => $events]);
     }
 
     /**

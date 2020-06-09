@@ -13,10 +13,15 @@ use Symfony\Component\Console\Question\Question;
 
 class Config extends \Symfony\Component\Console\Command\Command
 {
-    const VALUE_SEPARATOR = '|||';
-    const VALUE_UNDEFINED = '__SETTING_VALUE_UNDEFINED__';
-    const VALUE_HIDE = '1';
-    const VALUE_SHOW = '0';
+    private const VALUE_SEPARATOR = '|||';
+    private const VALUE_UNDEFINED = '__SETTING_VALUE_UNDEFINED__';
+    private const VALUE_HIDE = '1';
+    private const VALUE_SHOW = '0';
+
+    /**
+     * @var \CrazyCat\Framework\Utility\ArrayTools
+     */
+    private $arrayTools;
 
     /**
      * @var \Symfony\Component\Console\Input\InputInterface
@@ -40,8 +45,10 @@ class Config extends \Symfony\Component\Console\Command\Command
 
     public function __construct(
         \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\Utility\ArrayTools $arrayTools,
         string $name = null
     ) {
+        $this->arrayTools = $arrayTools;
         $this->objectManager = $objectManager;
         $this->initSettings();
 
@@ -109,7 +116,7 @@ class Config extends \Symfony\Component\Console\Command\Command
                 $this->getInputSettings($childSettings, $path ? ($path . '/' . $field) : $field);
             }
         } elseif (strpos($setting, self::VALUE_UNDEFINED) === 0) {
-            list(, $isHidden, $default) = array_pad(explode(self::VALUE_SEPARATOR, $setting), 3, null);
+            [, $isHidden, $default] = array_pad(explode(self::VALUE_SEPARATOR, $setting), 3, null);
             $question = $this->objectManager->create(
                 Question::class,
                 [
@@ -143,7 +150,7 @@ class Config extends \Symfony\Component\Console\Command\Command
         $this->getInputSettings($this->settings);
         file_put_contents(
             DIR_APP . DS . AppConfig::DIR . DS . AppConfig::FILE,
-            sprintf("<?php\nreturn %s;\n", (new DataObject())->toString($this->settings))
+            sprintf("<?php\nreturn %s;\n", $this->arrayTools->arrayToString($this->settings))
         );
 
         return 0;

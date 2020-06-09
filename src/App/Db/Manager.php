@@ -46,6 +46,7 @@ class Manager
      * @param string $name
      * @return \CrazyCat\Framework\App\Db\AbstractAdapter
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function getConnection($name = 'default')
     {

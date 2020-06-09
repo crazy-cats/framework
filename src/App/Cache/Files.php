@@ -15,14 +15,14 @@ namespace CrazyCat\Framework\App\Cache;
  */
 class Files extends AbstractCache
 {
-    const DIR = DIR_VAR . DS . 'cache';
+    public const DIR = 'cache';
 
     /**
      * @return void
      */
     protected function init()
     {
-        $file = self::DIR . DS . $this->name;
+        $file = DIR_VAR . DS . self::DIR . DS . $this->name;
         $this->data = is_file($file) ? json_decode(file_get_contents($file), true) : [];
     }
 
@@ -31,10 +31,12 @@ class Files extends AbstractCache
      */
     public function save()
     {
-        if (!is_dir(self::DIR)) {
-            mkdir(self::DIR, 0755, true);
+        if ($this->isEnabled) {
+            if (!is_dir(DIR_VAR . DS . self::DIR)) {
+                mkdir(DIR_VAR . DS . self::DIR, 0755, true);
+            }
+            file_put_contents(DIR_VAR . DS . self::DIR . DS . $this->name, json_encode($this->data));
         }
-        file_put_contents(self::DIR . DS . $this->name, json_encode($this->data));
     }
 
     /**
@@ -42,8 +44,8 @@ class Files extends AbstractCache
      */
     public function clear()
     {
-        if (is_file(self::DIR . DS . $this->name)) {
-            unlink(self::DIR . DS . $this->name);
+        if ($this->isEnabled && is_file(DIR_VAR . DS . self::DIR . DS . $this->name)) {
+            unlink(DIR_VAR . DS . self::DIR . DS . $this->name);
         }
     }
 }

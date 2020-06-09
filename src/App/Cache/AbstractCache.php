@@ -70,7 +70,7 @@ abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject
     public function setData()
     {
         if ($this->isEnabled) {
-            return parent::setData();
+            return call_user_func_array('parent::setData', func_get_args());
         }
         return $this;
     }

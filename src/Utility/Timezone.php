@@ -15,7 +15,7 @@ namespace CrazyCat\Framework\Utility;
  */
 class Timezone
 {
-    public static function zones()
+    public function zones()
     {
         $zones = [];
         foreach ((new \DateTimeZone('UTC'))->listAbbreviations() as $zoneAreas) {

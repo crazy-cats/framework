@@ -7,8 +7,7 @@
 
 namespace CrazyCat\Framework\App\Component\Language;
 
-use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\Utility\File;
+use CrazyCat\Framework\App\Area;
 
 /**
  * @category CrazyCat
@@ -18,12 +17,11 @@ use CrazyCat\Framework\Utility\File;
  */
 class Translator
 {
-    const CACHE_LANG_NAME = 'languages';
-    const CACHE_TRANSLATIONS_NAME = 'translations';
+    public const CACHE_LANG_NAME = 'languages';
+    public const CACHE_TRANSLATIONS_NAME = 'translations';
 
-    const DIR = 'i18n';
-
-    const REQUEST_KEY = 'lang';
+    public const DIR = 'i18n';
+    public const REQUEST_KEY = 'lang';
 
     /**
      * @var \CrazyCat\Framework\App\Area
@@ -39,6 +37,11 @@ class Translator
      * @var \CrazyCat\Framework\App\Cache\AbstractCache
      */
     private $cache;
+
+    /**
+     * @var \CrazyCat\Framework\Utility\File
+     */
+    private $fileHelper;
 
     /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache[]
@@ -70,15 +73,17 @@ class Translator
         \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
-        \CrazyCat\Framework\App\Config $config
+        \CrazyCat\Framework\App\Config $config,
+        \CrazyCat\Framework\Utility\File $fileHelper
     ) {
         $this->area = $area;
         $this->cache = $cacheManager->create(self::CACHE_LANG_NAME);
         $this->cacheManager = $cacheManager;
+        $this->fileHelper = $fileHelper;
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
 
-        $settings = $config->getValue($area->getCode(), Config::SCOPE_GLOBAL);
+        $settings = $config->getValue(Area::CODE_GLOBAL);
         $this->langCode = $settings['lang'];
     }
 
@@ -95,7 +100,7 @@ class Translator
 
         $translations = [];
         $fp = fopen($dir . DS . $langCode . '.csv', 'r');
-        while ($row = File::getCsv($fp)) {
+        while ($row = $this->fileHelper->getCsv($fp)) {
             if (count($row) >= 2) {
                 $translations[$row[0]] = $row[1];
             }

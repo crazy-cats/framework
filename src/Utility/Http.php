@@ -18,7 +18,7 @@ class Http
     /**
      * @return string
      */
-    public static function getRemoteIp()
+    public function getRemoteIp()
     {
         $server = $_SERVER;
 

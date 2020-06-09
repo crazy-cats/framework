@@ -7,6 +7,8 @@
 
 namespace CrazyCat\Framework\App\Data;
 
+use CrazyCat\Framework\App\ObjectManager;
+
 /**
  * @category CrazyCat
  * @package  CrazyCat\Framework
@@ -214,44 +216,6 @@ class DataObject implements \ArrayAccess
     }
 
     /**
-     * @param array $data
-     * @return string
-     */
-    public function toString(array $data, $level = 1)
-    {
-        $prefix = str_repeat(' ', $level * 4);
-
-        $arrString = [];
-        foreach ($data as $key => $value) {
-            switch (strtolower(gettype($value))) {
-                case 'integer':
-                case 'double':
-                    $value = $value;
-                    break;
-
-                case 'string':
-                    $value = '\'' . str_replace('\'', '\\\'', $value) . '\'';
-                    break;
-
-                case 'null':
-                    $value = 'null';
-                    break;
-
-                case 'boolean':
-                    $value = $value ? 'true' : 'false';
-                    break;
-
-                case 'array':
-                    $value = $this->toString($value, $level + 1);
-                    break;
-            }
-            $arrString[] = $prefix . sprintf('\'%s\' => %s', str_replace('\'', '\\\'', $key), $value);
-        }
-
-        return sprintf("[\n%s\n%s]", implode(",\n", $arrString), str_repeat(' ', ($level - 1) * 4));
-    }
-
-    /**
      * @param array|null $data
      * @return array
      */
@@ -283,16 +247,19 @@ class DataObject implements \ArrayAccess
 
     /**
      * @return string
+     * @throws \ReflectionException
      */
     public function __toString()
     {
-        return $this->toString($this->getData());
+        return ObjectManager::getInstance()
+            ->get(\CrazyCat\Framework\Utility\ArrayTools::class)
+            ->toString($this->getData());
     }
 
     /**
      * @return array
      */
-    public function __debuginfo()
+    public function __debugInfo()
     {
         return $this->debug();
     }

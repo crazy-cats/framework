@@ -18,8 +18,13 @@ use CrazyCat\Framework\App\Config;
  */
 class Manager
 {
-    const CONFIG_KEY = 'cache';
-    const CONFIG_FILE = 'caches.php';
+    public const CONFIG_KEY = 'cache';
+    public const CONFIG_FILE = 'caches.php';
+
+    /**
+     * @var \CrazyCat\Framework\Utility\ArrayTools
+     */
+    private $arrayTools;
 
     /**
      * @var array
@@ -38,8 +43,10 @@ class Manager
 
     public function __construct(
         \CrazyCat\Framework\App\Config $config,
-        \CrazyCat\Framework\App\ObjectManager $objectManager
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\Utility\ArrayTools $arrayTools
     ) {
+        $this->arrayTools = $arrayTools;
         $this->config = $config;
         $this->objectManager = $objectManager;
 
@@ -67,7 +74,7 @@ class Manager
     {
         file_put_contents(
             DIR_APP . DS . Config::DIR . DS . self::CONFIG_FILE,
-            sprintf("<?php\nreturn %s;\n", $this->config->toString($this->cacheStatus))
+            sprintf("<?php\nreturn %s;\n", $this->arrayTools->arrayToString($this->cacheStatus))
         );
     }
 

@@ -17,8 +17,8 @@ use CrazyCat\Framework\App\Data\DataObject;
  */
 class EventManager
 {
-    const CACHE_NAME = 'events';
-    const CONFIG_FILE = 'events.php';
+    public const CACHE_NAME = 'events';
+    public const CONFIG_FILE = 'events.php';
 
     /**
      * @var array

@@ -8,8 +8,6 @@
 namespace CrazyCat\Framework\App\Component;
 
 use CrazyCat\Framework\App\Io\AbstractRequest;
-use CrazyCat\Framework\Utility\File;
-use CrazyCat\Framework\Utility\Tools;
 
 /**
  * @category CrazyCat
@@ -49,14 +47,28 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
      */
     private $objectManager;
 
+    /**
+     * @var \CrazyCat\Framework\Utility\Coding
+     */
+    private $codingHelper;
+
+    /**
+     * @var \CrazyCat\Framework\Utility\File
+     */
+    private $fileHelper;
+
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
         \CrazyCat\Framework\App\EventManager $eventManager,
         \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\Utility\Coding $codingHelper,
+        \CrazyCat\Framework\Utility\File $fileHelper,
         array $data
     ) {
         $this->area = $area;
+        $this->codingHelper = $codingHelper;
         $this->eventManager = $eventManager;
+        $this->fileHelper = $fileHelper;
         $this->objectManager = $objectManager;
 
         parent::__construct($this->init($data));
@@ -141,11 +153,11 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
             $area = ucfirst($areaCode);
             $dir = $controllerDir . DS . $area;
             if (is_dir($dir)) {
-                foreach (File::getFolders($dir) as $controller) {
-                    foreach (File::getFiles($dir . DS . $controller) as $action) {
+                foreach ($this->fileHelper->getFolders($dir) as $controller) {
+                    foreach ($this->fileHelper->getFiles($dir . DS . $controller) as $action) {
                         $action = str_replace('.php', '', $action);
                         $actions[$areaCode][strtolower(
-                            $routes[$areaCode] . '/' . Tools::strToSeparated($controller) . '/' . Tools::strToSeparated(
+                            $routes[$areaCode] . '/' . $this->codingHelper->strToSeparated($controller) . '/' . $this->codingHelper->strToSeparated(
                                 $action
                             )
                         )] = $namespace . '\\Controller\\' . $area . '\\' . $controller . '\\' . $action;

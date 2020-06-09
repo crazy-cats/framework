@@ -22,7 +22,7 @@ class File
      * @param bool   $recursive
      * @return string[]
      */
-    public static function getFolders($dir, $recursive = false)
+    public function getFolders($dir, $recursive = false)
     {
         $subDirs = [];
         if (($dh = opendir($dir))) {
@@ -30,7 +30,7 @@ class File
                 if ($file !== '.' && $file !== '..' && is_dir($dir . '/' . $file)) {
                     $subDirs[] = $file;
                     if ($recursive) {
-                        $subDirs = array_merge($subDirs, self::getFolders($dir . DS . $file, true));
+                        $subDirs = array_merge($subDirs, $this->getFolders($dir . DS . $file, true));
                     }
                 }
             }
@@ -46,7 +46,7 @@ class File
      * @param bool   $recursive
      * @return string[]
      */
-    public static function getFiles($dir, $recursive = false)
+    public function getFiles($dir, $recursive = false)
     {
         $files = [];
         if (($dh = opendir($dir))) {
@@ -55,7 +55,7 @@ class File
                     $files[] = $file;
                 }
                 if ($recursive && ($file !== '.' && $file !== '..' && is_dir($dir . '/' . $file))) {
-                    $files = array_merge($files, self::getFiles($dir . DS . $file, true));
+                    $files = array_merge($files, $this->getFiles($dir . DS . $file, true));
                 }
             }
             closedir($dh);
@@ -73,7 +73,7 @@ class File
      * @param string   $enclosure
      * @return string[]
      */
-    public static function getCsv($handle, $length = null, $delimiter = ',', $enclosure = '"')
+    public function getCsv($handle, $length = null, $delimiter = ',', $enclosure = '"')
     {
         $separator = preg_quote($delimiter);
         $quoteSymbol = preg_quote($enclosure);

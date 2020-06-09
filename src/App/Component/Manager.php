@@ -10,7 +10,6 @@ namespace CrazyCat\Framework\App\Component;
 use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Cache\Manager as CacheManager;
 use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\Utility\File;
 
 /**
  * @category CrazyCat
@@ -20,27 +19,32 @@ use CrazyCat\Framework\Utility\File;
  */
 class Manager
 {
-    const CACHE_NAME = 'components';
-    const REG_FILE = 'registration.php';
+    public const CACHE_NAME = 'components';
+    public const REG_FILE = 'registration.php';
 
     /**
      * paths of app folders
      */
-    const DIR_APP_MODULES = 'modules';
-    const DIR_APP_THEMES = 'themes';
+    public const DIR_APP_MODULES = 'modules';
+    public const DIR_APP_THEMES = 'themes';
 
     /**
      * types
      */
-    const TYPE_LANG = 'lang';
-    const TYPE_MODULE = 'module';
-    const TYPE_THEME = 'theme';
+    public const TYPE_LANG = 'lang';
+    public const TYPE_MODULE = 'module';
+    public const TYPE_THEME = 'theme';
 
     private $components = [
         self::TYPE_LANG   => [],
         self::TYPE_MODULE => [],
         self::TYPE_THEME  => []
     ];
+
+    /**
+     * @var \CrazyCat\Framework\Utility\File
+     */
+    private $fileHelper;
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
@@ -58,8 +62,11 @@ class Manager
         return ObjectManager::getInstance()->get(self::class);
     }
 
-    public function __construct(ObjectManager $objectManager)
-    {
+    public function __construct(
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\Utility\File $fileHelper
+    ) {
+        $this->fileHelper = $fileHelper;
         $this->objectManager = $objectManager;
     }
 
@@ -95,8 +102,8 @@ class Manager
                 if (!is_dir($dir)) {
                     continue;
                 }
-                foreach (File::getFolders($dir) as $vendor) {
-                    foreach (File::getFolders($dir . '/' . $vendor) as $module) {
+                foreach ($this->fileHelper->getFolders($dir) as $vendor) {
+                    foreach ($this->fileHelper->getFolders($dir . '/' . $vendor) as $module) {
                         $prefix = $vendor . '\\' . $module . '\\';
                         $path = $dir . DS . $vendor . DS . $module;
                         if (is_file($path . DS . self::REG_FILE)) {
@@ -116,7 +123,7 @@ class Manager
                 if (!is_dir($dir)) {
                     mkdir($dir, 0755, true);
                 }
-                foreach (File::getFolders($dir) as $path) {
+                foreach ($this->fileHelper->getFolders($dir) as $path) {
                     if (is_file($dir . DS . $path . DS . self::REG_FILE)) {
                         require $dir . DS . $path . DS . self::REG_FILE;
                     }

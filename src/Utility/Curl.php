@@ -15,10 +15,10 @@ namespace CrazyCat\Framework\Utility;
  */
 class Curl
 {
-    const METHOD_GET = 'GET';
-    const METHOD_POST = 'POST';
-    const METHOD_PUT = 'PUT';
-    const METHOD_DELETE = 'DELETE';
+    public const METHOD_GET = 'GET';
+    public const METHOD_POST = 'POST';
+    public const METHOD_PUT = 'PUT';
+    public const METHOD_DELETE = 'DELETE';
 
     /**
      * @param string            $method
@@ -28,7 +28,7 @@ class Curl
      * @return mixed
      * @throws \Exception
      */
-    private static function request($method, $url, $data = null, $headers = [])
+    private function request($method, $url, $data = null, $headers = [])
     {
         $opts = [
             CURLOPT_HEADER         => 0,
@@ -86,9 +86,9 @@ class Curl
      * @return mixed
      * @throws \Exception
      */
-    public static function get($url, $data = null, $headers = [])
+    public function get($url, $data = null, $headers = [])
     {
-        return self::request(self::METHOD_GET, $url, $data, $headers);
+        return $this->request(self::METHOD_GET, $url, $data, $headers);
     }
 
     /**
@@ -98,9 +98,9 @@ class Curl
      * @return mixed
      * @throws \Exception
      */
-    public static function post($url, $data = null, $headers = [])
+    public function post($url, $data = null, $headers = [])
     {
-        return self::request(self::METHOD_POST, $url, $data, $headers);
+        return $this->request(self::METHOD_POST, $url, $data, $headers);
     }
 
     /**
@@ -110,9 +110,9 @@ class Curl
      * @return mixed
      * @throws \Exception
      */
-    public static function put($url, $data = null, $headers = [])
+    public function put($url, $data = null, $headers = [])
     {
-        return self::request(self::METHOD_PUT, $url, $data, $headers);
+        return $this->request(self::METHOD_PUT, $url, $data, $headers);
     }
 
     /**
@@ -122,8 +122,8 @@ class Curl
      * @return mixed
      * @throws \Exception
      */
-    public static function delete($url, $data = null, $headers = [])
+    public function delete($url, $data = null, $headers = [])
     {
-        return self::request(self::METHOD_DELETE, $url, $data, $headers);
+        return $this->request(self::METHOD_DELETE, $url, $data, $headers);
     }
 }

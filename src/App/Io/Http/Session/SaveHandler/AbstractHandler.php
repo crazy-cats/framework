@@ -12,8 +12,8 @@ namespace CrazyCat\Framework\App\Io\Http\Session\SaveHandler;
  *
  * @author Bruce
  */
-abstract class AbstractHandler implements \SessionHandlerInterface {
-
+abstract class AbstractHandler implements \SessionHandlerInterface
+{
     /**
      * @var string
      */
@@ -24,7 +24,7 @@ abstract class AbstractHandler implements \SessionHandlerInterface {
      */
     protected $config;
 
-    public function __construct( $config, $areaCode )
+    public function __construct($config, $areaCode)
     {
         $this->areaCode = $areaCode;
         $this->config = $config;
