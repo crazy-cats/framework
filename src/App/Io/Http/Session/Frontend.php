@@ -15,5 +15,5 @@ namespace CrazyCat\Framework\App\Io\Http\Session;
  */
 class Frontend extends AbstractSession
 {
-    const NAME = 'frontend';
+    public const NAME = 'frontend';
 }

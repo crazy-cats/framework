@@ -21,18 +21,18 @@ class Theme extends \CrazyCat\Framework\App\Data\DataObject
     /**
      * Caches of static files
      */
-    const CACHE_STATIC_URL_NAME = 'static_url';
-    const CACHE_STATIC_FILE_NAME = 'static_file';
+    public const CACHE_STATIC_URL_NAME = 'static_url';
+    public const CACHE_STATIC_FILE_NAME = 'static_file';
 
     /**
      * Root of static files
      */
-    const DIR_STATIC = DIR_PUB . DS . 'static';
+    public const DIR_STATIC = 'static';
 
     /**
      * Config file name
      */
-    const FILE_CONFIG = 'config' . DS . 'theme.php';
+    public const FILE_CONFIG = 'config' . DS . 'theme.php';
 
     /**
      * @var array
@@ -221,7 +221,7 @@ class Theme extends \CrazyCat\Framework\App\Data\DataObject
         if (($pos = strpos($path, '::')) !== false &&
             ($module = $this->moduleManager->getModule(trim(substr($path, 0, $pos))))) {
             $relatedFilePath = str_replace(['\\', '::'], '/', $path);
-            $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath;
+            $targetFile = DIR_PUB . DS . self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath;
             $sourceFile = $module->getData('dir') .
                 DS . 'view' . DS . $themeArea . DS . 'web' . DS . substr($path, $pos + 2);
             if (!is_file($targetFile) && is_file($sourceFile)) {
@@ -233,7 +233,7 @@ class Theme extends \CrazyCat\Framework\App\Data\DataObject
              * Static files in theme
              */
             $relatedFilePath = $path;
-            $targetFile = self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath;
+            $targetFile = DIR_PUB . DS . self::DIR_STATIC . DS . $themeArea . DS . $themeName . DS . $relatedFilePath;
             $sourceFile = $this->getData('dir') . DS . 'view' . DS . 'web' . DS . $relatedFilePath;
             if (!is_file($targetFile) && is_file($sourceFile)) {
                 $this->generateSymlink($targetFile, $sourceFile);

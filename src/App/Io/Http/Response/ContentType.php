@@ -13,44 +13,62 @@ namespace CrazyCat\Framework\App\Io\Http\Response;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class ContentType {
-
+class ContentType
+{
     /**
      * @param string $ext
      * @return string
      */
-    public function getByExt( $ext )
+    public function getByExt($ext)
     {
-        switch ( $ext ) {
+        switch ($ext) {
+            case 'js':
+                return 'application/javascript';
+                return 'application/javascript';
+            case 'json':
+                return 'application/json';
+            case 'xml':
+                return 'application/xml';
+            case 'css':
+                return 'text/css';
+            case 'csv':
+                return 'text/csv';
 
-            case 'js' : return 'application/javascript';
-            case 'jsonp' : return 'application/javascript';
-            case 'json' : return 'application/json';
-            case 'xml' : return 'application/xml';
-            case 'css' : return 'text/css';
-            case 'csv' : return 'text/csv';
+            case 'ico':
+                return 'image/x-icon';
+            case 'gif':
+                return 'image/gif';
+            case 'png':
+                return 'image/png';
+            case 'jpeg':
+            case 'jpg':
+                return 'image/jpeg';
+            case 'svg':
+                return 'image/svg+xml';
 
-            case 'ico' : return 'image/x-icon';
-            case 'gif' : return 'image/gif';
-            case 'png' : return 'image/png';
-            case 'jpeg' : return 'image/jpeg';
-            case 'jpg' : return 'image/jpeg';
-            case 'svg' : return 'image/svg+xml';
+            case 'eot':
+                return 'application/vnd.ms-fontobject';
+            case 'ttf':
+                return 'application/x-font-ttf';
+            case 'otf':
+                return 'application/x-font-otf';
+            case 'woff':
+                return 'application/x-font-woff';
+            case 'woff2':
+                return 'application/x-font-woff2';
 
-            case 'eot' : return 'application/vnd.ms-fontobject';
-            case 'ttf' : return 'application/x-font-ttf';
-            case 'otf' : return 'application/x-font-otf';
-            case 'woff' : return 'application/x-font-woff';
-            case 'woff2' : return 'application/x-font-woff2';
+            case 'gzip':
+                return 'application/gzip';
+            case 'gz':
+                return 'application/x-gzip';
+            case 'bz2':
+                return 'application/x-bzip2';
 
-            case 'gzip' : return 'application/gzip';
-            case 'gz' : return 'application/x-gzip';
-            case 'bz2' : return 'application/x-bzip2';
+            case 'swf':
+                return 'application/x-shockwave-flash';
 
-            case 'swf' : return 'application/x-shockwave-flash';
-
-            default : return 'text/plain';
+            default:
+                return 'text/plain';
         }
     }
-
 }

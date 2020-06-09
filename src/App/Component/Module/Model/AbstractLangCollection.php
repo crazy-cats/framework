@@ -19,8 +19,8 @@ use CrazyCat\Framework\App\Component\Language\Translator;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-abstract class AbstractLangCollection extends AbstractCollection {
-
+abstract class AbstractLangCollection extends AbstractCollection
+{
     /**
      * @var \CrazyCat\Framework\App\Component\Language\Translator
      */
@@ -41,123 +41,161 @@ abstract class AbstractLangCollection extends AbstractCollection {
      */
     protected $langFields;
 
-    public function __construct( Translator $translator, ObjectManager $objectManager, EventManager $eventManager, DbManager $dbManager )
-    {
+    public function __construct(
+        Translator $translator,
+        ObjectManager $objectManager,
+        EventManager $eventManager,
+        DbManager $dbManager
+    ) {
         $this->translator = $translator;
 
-        parent::__construct( $objectManager, $eventManager, $dbManager );
+        parent::__construct($objectManager, $eventManager, $dbManager);
     }
 
     /**
      * @param string $modelClassName
+     * @throws \ReflectionException
      */
-    protected function init( $modelClassName )
+    protected function init($modelClassName)
     {
-        parent::init( $modelClassName );
+        parent::init($modelClassName);
 
         $this->langTable = $this->mainTable . '_lang';
-        $this->langFields = $this->objectManager->get( $modelClassName )->getLangFields();
+        $this->langFields = $this->objectManager->get($modelClassName)->getLangFields();
     }
 
     /**
      * @param string $field
      * @return string
      */
-    protected function getFieldNameSql( $field )
+    protected function getFieldNameSql($field)
     {
-        return in_array( $field, $this->langFields ) ?
-                ( 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` )' ) :
-                ( '`main`.`' . $field . '`' );
+        return in_array($field, $this->langFields) ?
+            ('IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` )') :
+            ('`main`.`' . $field . '`');
     }
 
     /**
      * @param string|array $field
-     * @param array|null $conditions
+     * @param array|null   $conditions
      * @return array [ sql, binds ]
      */
-    protected function parseConditions( $field, $conditions = null )
+    protected function parseConditions($field, $conditions = null)
     {
         $sql = '';
         $binds = [];
-        if ( is_array( $field ) ) {
-            foreach ( $field as $orConditions ) {
-                list( $orSql, $orBinds ) = $this->parseConditions( $orConditions['field'], $orConditions['conditions'] );
+        if (is_array($field)) {
+            foreach ($field as $orConditions) {
+                [$orSql, $orBinds] = $this->parseConditions($orConditions['field'], $orConditions['conditions']);
                 $sql .= ' OR ( ' . $orSql . ' )';
-                $binds = array_merge( $binds, $orBinds );
+                $binds = array_merge($binds, $orBinds);
             }
-            $sql = '( ' . ltrim( $sql, ' OR ' ) . ' )';
-        }
-        else {
-            foreach ( $conditions as $symbol => $value ) {
-                if ( in_array( $symbol, [ 'in', 'nin' ] ) ) {
+            $sql = '( ' . ltrim($sql, ' OR ') . ' )';
+        } else {
+            foreach ($conditions as $symbol => $value) {
+                if (in_array($symbol, ['in', 'nin'])) {
                     $mask = '';
-                    foreach ( $value as $val ) {
+                    foreach ($value as $val) {
                         $mask .= ', ?';
                         $binds[] = $val;
                     }
-                    $sql .= sprintf( strtr( $this->keyMap[$symbol], [ '?' => ltrim( $mask, ', ' ) ] ), $this->getFieldNameSql( $field ) );
-                }
-                else {
-                    $sql .= sprintf( $this->keyMap[$symbol], $this->getFieldNameSql( $field ) );
+                    $sql .= sprintf(
+                        strtr($this->keyMap[$symbol], ['?' => ltrim($mask, ', ')]),
+                        $this->getFieldNameSql($field)
+                    );
+                } else {
+                    $sql .= sprintf($this->keyMap[$symbol], $this->getFieldNameSql($field));
                     $binds[] = $value;
                 }
             }
         }
-        return [ $sql, $binds ];
+        return [$sql, $binds];
     }
 
     /**
      * @return $this
+     * @throws \ReflectionException
      */
     public function load()
     {
-        if ( $this->loaded ) {
+        if ($this->loaded) {
             return $this;
         }
 
         $this->beforeLoad();
 
-        if ( empty( $this->fields ) ) {
-            $fieldsSql = '`main`.*, ' . implode( ', ', array_map( function( $field ) {
-                                return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
-                            }, $this->langFields ) );
-        }
-        else {
-            if ( !in_array( $this->idFieldName, $this->fields ) ) {
-                array_unshift( $this->fields, $this->idFieldName );
+        if (empty($this->fields)) {
+            $tmp = array_map(
+                function ($field) {
+                    return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
+                },
+                $this->langFields
+            );
+            $fieldsSql = '`main`.*, ' . implode(', ', $tmp);
+        } else {
+            if (!in_array($this->idFieldName, $this->fields)) {
+                array_unshift($this->fields, $this->idFieldName);
             }
-            $fieldsSql = '`main`.`' . implode( '`, `main`.`', array_diff( $this->fields, $this->langFields ) ) . '`, ' .
-                    implode( ', ', array_map( function( $field ) {
-                                return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
-                            }, array_intersect( $this->fields, $this->langFields ) ) );
+            $fieldsSql = '`main`.`' . implode('`, `main`.`', array_diff($this->fields, $this->langFields)) . '`, ' .
+                implode(
+                    ', ',
+                    array_map(
+                        function ($field) {
+                            return 'IFNULL( `lang`.`' . $field . '`, `defLang`.`' . $field . '` ) AS `' . $field . '`';
+                        },
+                        array_intersect($this->fields, $this->langFields)
+                    )
+                );
         }
 
-        $maintable = $this->conn->getTableName( $this->mainTable );
-        $langTable = $this->conn->getTableName( $this->langTable );
+        $mainTable = $this->conn->getTableName($this->mainTable);
+        $langTable = $this->conn->getTableName($this->langTable);
 
-        $config = $this->objectManager->get( Config::class );
-        $defLangCode = $config->getValue( 'general/default_languages' ) ?: $config->getValue( 'lang' );
+        $config = $this->objectManager->get(Config::class);
+        $defLangCode = $config->getValue('general/default_languages') ?: $config->getValue('lang');
 
         /**
          * Structure of attribute `conditions` is like:
          *     [ [ cond1 OR cond2 ] AND [ cond3 OR cond4 ] AND [ cond5 ] ]
          */
         $txtConditions = '';
-        $binds = [ $this->translator->getLangCode(), $defLangCode ];
-        foreach ( $this->conditions as $conditionGroup ) {
-            list( $andSql, $andBinds ) = $this->parseConditions( $conditionGroup );
+        $binds = [$this->translator->getLangCode(), $defLangCode];
+        foreach ($this->conditions as $conditionGroup) {
+            [$andSql, $andBinds] = $this->parseConditions($conditionGroup);
             $txtConditions .= ' AND ( ' . $andSql . ' )';
-            $binds = array_merge( $binds, $andBinds );
+            $binds = array_merge($binds, $andBinds);
         }
-        $sortOrders = empty( $this->sortOrders ) ? '' : ( 'ORDER BY ' . implode( ', ', $this->sortOrders ) );
-        $limitation = $this->pageSize ? ( 'LIMIT ' . $this->pageSize * ( $this->currentPage - 1 ) . ', ' . $this->pageSize ) : '';
+        $sortOrders = empty($this->sortOrders) ? '' : ('ORDER BY ' . implode(', ', $this->sortOrders));
+        $limitation = $this->pageSize ? ('LIMIT ' . $this->pageSize * ($this->currentPage - 1) . ', ' . $this->pageSize) : '';
         $sql = 'SELECT %s ' .
-                'FROM `%s` AS `main` ' .
-                'LEFT JOIN `%s` AS `lang` ON `lang`.`%s` = `main`.`%s` AND `lang`.`%s` = ? ' .
-                'LEFT JOIN `%s` AS `defLang` ON `defLang`.`%s` = `main`.`%s` AND `defLang`.`%s` = ? ' .
-                'WHERE 1=1 %s %s %s';
-        foreach ( $this->conn->fetchAll( sprintf( $sql, $fieldsSql, $maintable, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $langTable, $this->idFieldName, $this->idFieldName, $this->langFieldName, $txtConditions, $sortOrders, $limitation ), $binds ) as $itemData ) {
-            $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create( $this->modelClass, [ 'data' => $itemData ] );
+            'FROM `%s` AS `main` ' .
+            'LEFT JOIN `%s` AS `lang` ON `lang`.`%s` = `main`.`%s` AND `lang`.`%s` = ? ' .
+            'LEFT JOIN `%s` AS `defLang` ON `defLang`.`%s` = `main`.`%s` AND `defLang`.`%s` = ? ' .
+            'WHERE 1=1 %s %s %s';
+        $itemsData = $this->conn->fetchAll(
+            sprintf(
+                $sql,
+                $fieldsSql,
+                $mainTable,
+                $langTable,
+                $this->idFieldName,
+                $this->idFieldName,
+                $this->langFieldName,
+                $langTable,
+                $this->idFieldName,
+                $this->idFieldName,
+                $this->langFieldName,
+                $txtConditions,
+                $sortOrders,
+                $limitation
+            ),
+            $binds
+        );
+        foreach ($itemsData as $itemData) {
+            $this->items[$itemData[$this->idFieldName]] = $this->objectManager->create(
+                $this->modelClass,
+                ['data' => $itemData]
+            );
         }
 
         $this->loaded = true;
@@ -165,5 +203,4 @@ abstract class AbstractLangCollection extends AbstractCollection {
 
         return $this;
     }
-
 }

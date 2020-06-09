@@ -19,7 +19,7 @@ use CrazyCat\Framework\App\Io\Http\Request as HttpRequest;
  */
 class Url
 {
-    const ID_NAME = 'id';
+    public const ID_NAME = 'id';
 
     /**
      * @var \CrazyCat\Framework\App\Area

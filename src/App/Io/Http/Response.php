@@ -15,11 +15,11 @@ namespace CrazyCat\Framework\App\Io\Http;
  */
 class Response extends \CrazyCat\Framework\App\Io\AbstractResponse
 {
-    const TYPE_JSON = 'application/json';
-    const TYPE_XML = 'application/xml';
-    const TYPE_PAGE = 'text/html';
-    const TYPE_PLAIN = 'text/plain';
-    const TYPE_REDIRECT = 'redirect';
+    public const TYPE_JSON = 'application/json';
+    public const TYPE_XML = 'application/xml';
+    public const TYPE_PAGE = 'text/html';
+    public const TYPE_PLAIN = 'text/plain';
+    public const TYPE_REDIRECT = 'redirect';
 
     /**
      * @var string

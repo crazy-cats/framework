@@ -15,8 +15,8 @@ namespace CrazyCat\Framework\App;
  */
 class ObjectManager
 {
-    const CACHE_NAME = 'di';
-    const CONFIG_FILE = 'di.php';
+    public const CACHE_NAME = 'di';
+    public const CONFIG_FILE = 'di.php';
 
     /**
      * @var \CrazyCat\Framework\App\ObjectManager
@@ -63,9 +63,10 @@ class ObjectManager
 
     /**
      * @param string $preference
-     * @param array $argumentArr
+     * @param array  $argumentArr
      * @return object
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function create($preference, $argumentArr = [])
     {
@@ -91,7 +92,7 @@ class ObjectManager
                 $arguments[] = $this->get($injectedClass->getName());
             } else {
                 throw new \Exception(
-                    sprintf('Argument `%s` of class `%s` is required.', $parameter->getName(), $class)
+                    sprintf('Argument `%s` of class `%s` is required.', $parameter->getName(), $preference)
                 );
             }
         }

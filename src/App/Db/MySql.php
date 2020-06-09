@@ -15,26 +15,26 @@ namespace CrazyCat\Framework\App\Db;
  */
 class MySql extends AbstractAdapter
 {
-    const TYPE = 'mysql';
+    public const TYPE = 'mysql';
 
     /**
      * Column types
      */
-    const COL_TYPE_INT = 'int';
-    const COL_TYPE_TINYINT = 'tinyint';
-    const COL_TYPE_DOUBLE = 'double';
-    const COL_TYPE_VARCHAR = 'varchar';
-    const COL_TYPE_TEXT = 'text';
-    const COL_TYPE_MEDIUMTEXT = 'mediumtext';
-    const COL_TYPE_DATETIME = 'datetime';
+    public const COL_TYPE_INT = 'int';
+    public const COL_TYPE_TINYINT = 'tinyint';
+    public const COL_TYPE_DOUBLE = 'double';
+    public const COL_TYPE_VARCHAR = 'varchar';
+    public const COL_TYPE_TEXT = 'text';
+    public const COL_TYPE_MEDIUMTEXT = 'mediumtext';
+    public const COL_TYPE_DATETIME = 'datetime';
 
     /**
      * Index types
      */
-    const INDEX_NORMAL = '';
-    const INDEX_PRIMARY = 'PRIMARY';
-    const INDEX_UNIQUE = 'UNIQUE';
-    const INDEX_FULLTEXT = 'FULLTEXT';
+    public const INDEX_NORMAL = '';
+    public const INDEX_PRIMARY = 'PRIMARY';
+    public const INDEX_UNIQUE = 'UNIQUE';
+    public const INDEX_FULLTEXT = 'FULLTEXT';
 
     /**
      * @var \PDO
@@ -67,7 +67,7 @@ class MySql extends AbstractAdapter
     {
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
@@ -83,7 +83,7 @@ class MySql extends AbstractAdapter
     {
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
         $data = [];
@@ -103,7 +103,7 @@ class MySql extends AbstractAdapter
     {
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
         $data = [];
@@ -123,7 +123,7 @@ class MySql extends AbstractAdapter
     {
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
         return $statement->fetch(\PDO::FETCH_ASSOC) ?: [];
@@ -139,7 +139,7 @@ class MySql extends AbstractAdapter
     {
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
         return $statement->fetchColumn();
@@ -181,7 +181,7 @@ class MySql extends AbstractAdapter
         }
         $statement->execute();
 
-        list(, , $errorInfo) = $statement->errorInfo();
+        [, , $errorInfo] = $statement->errorInfo();
         if ($errorInfo) {
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
@@ -218,7 +218,7 @@ class MySql extends AbstractAdapter
      */
     public function insertArray($table, array $data)
     {
-        list($keyMarks, $valueMarks) = $this->processKeyValue($data);
+        [$keyMarks, $valueMarks] = $this->processKeyValue($data);
 
         $k = 0;
         $sql = sprintf(
@@ -235,7 +235,7 @@ class MySql extends AbstractAdapter
         }
 
         if (!$statement->execute()) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
     }
@@ -249,7 +249,7 @@ class MySql extends AbstractAdapter
      */
     public function insertUpdate($table, array $data, $updateFields)
     {
-        list($keyMarks, $valueMarks) = $this->processKeyValue($data);
+        [$keyMarks, $valueMarks] = $this->processKeyValue($data);
 
         $keyMarksTxt = implode(', ', $keyMarks);
         $valueMarksTxt = implode('), (', $valueMarks);
@@ -279,7 +279,7 @@ class MySql extends AbstractAdapter
         }
 
         if (!$statement->execute()) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
     }
@@ -314,7 +314,7 @@ class MySql extends AbstractAdapter
         $sql = sprintf('UPDATE `%s` SET %s WHERE 1=1 %s', $this->getTableName($table), $updateMarks, $conditionSql);
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
     }
@@ -338,7 +338,7 @@ class MySql extends AbstractAdapter
         $sql = sprintf('DELETE FROM `%s` WHERE 1=1 %s', $this->getTableName($table), $conditionSql);
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute($binds)) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
     }
@@ -396,7 +396,7 @@ class MySql extends AbstractAdapter
 
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute()) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
     }
@@ -429,7 +429,7 @@ class MySql extends AbstractAdapter
         );
         $statement = $this->pdo->prepare($sql);
         if (!$statement->execute()) {
-            list(, , $errorInfo) = $statement->errorInfo();
+            [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
         }
     }

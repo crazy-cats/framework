@@ -19,7 +19,7 @@ use CrazyCat\Framework\App\Component\Manager as ComponentManager;
  */
 class Manager
 {
-    const CACHE_NAME = 'themes';
+    public const CACHE_NAME = 'themes';
 
     /**
      * @var \CrazyCat\Framework\App\Area

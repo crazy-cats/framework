@@ -17,8 +17,8 @@ use CrazyCat\Framework\App\Area;
  */
 class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
 {
-    const AJAX_PARAM = 'ajax';
-    const API_ROUTE = 'rest/V1';
+    public const AJAX_PARAM = 'ajax';
+    public const API_ROUTE = 'rest/V1';
 
     /**
      * @var array

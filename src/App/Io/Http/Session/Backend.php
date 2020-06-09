@@ -13,26 +13,25 @@ namespace CrazyCat\Framework\App\Io\Http\Session;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Backend extends AbstractSession {
-
-    const NAME = 'backend';
+class Backend extends AbstractSession
+{
+    public const NAME = 'backend';
 
     /**
      * @return array|null
      */
-    public function getGridBookmarks( $key )
+    public function getGridBookmarks($key)
     {
-        return $this->storage->getData( 'grid_bookmarks_' . $key );
+        return $this->storage->getData('grid_bookmarks_' . $key);
     }
 
     /**
      * @param array $bookmarks
      * @return $this
      */
-    public function setGridBookmarks( $key, array $bookmarks )
+    public function setGridBookmarks($key, array $bookmarks)
     {
-        $this->storage->setData( 'grid_bookmarks_' . $key, $bookmarks );
+        $this->storage->setData('grid_bookmarks_' . $key, $bookmarks);
         return $this;
     }
-
 }

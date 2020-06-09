@@ -17,9 +17,9 @@ use CrazyCat\Framework\App\Io\AbstractRequest;
  */
 class Module extends \CrazyCat\Framework\App\Data\DataObject
 {
-    const CODE_DIR = 'code';
-    const CONFIG_DIR = 'config';
-    const CONFIG_FILE = 'module.php';
+    public const CODE_DIR = 'code';
+    public const CONFIG_DIR = 'config';
+    public const CONFIG_FILE = 'module.php';
 
     /**
      * @var array

@@ -17,9 +17,9 @@ use CrazyCat\Framework\App\Area;
  */
 class Manager
 {
-    const CONFIG_KEY = 'session';
+    public const CONFIG_KEY = 'session';
 
-    const SESSION_NAME = 'SID';
+    public const SESSION_NAME = 'SID';
 
     /**
      * @var \CrazyCat\Framework\App\Area

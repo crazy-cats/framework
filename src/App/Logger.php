@@ -18,7 +18,7 @@ use Monolog\Logger as Processor;
  */
 class Logger
 {
-    const DIR = DIR_VAR . DS . 'log';
+    public const DIR = 'log';
 
     /**
      * @var \Monolog\Handler\StreamHandler[]
@@ -51,13 +51,13 @@ class Logger
     public function log($content, $file = 'system.log', $level = Processor::INFO)
     {
         if (!isset($this->handlers[$file])) {
-            $dir = self::DIR . DS . dirname($file);
+            $dir = DIR_VAR . DS . self::DIR . DS . dirname($file);
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
             $this->handlers[$file] = $this->objectManager->create(
                 StreamHandler::class,
-                ['stream' => self::DIR . DS . $file]
+                ['stream' => DIR_VAR . DS . self::DIR . DS . $file]
             );
             $this->processor->pushHandler($this->handlers[$file]);
         }

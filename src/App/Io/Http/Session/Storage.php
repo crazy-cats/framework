@@ -13,41 +13,45 @@ namespace CrazyCat\Framework\App\Io\Http\Session;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Storage {
-
+class Storage
+{
     /**
      * @var string
      */
     private $namespace;
 
-    public function __construct( $namespace )
+    public function __construct($namespace)
     {
         $this->namespace = $namespace;
     }
 
+    /**
+     * @return void
+     */
     public function init()
     {
-        if ( !isset( $_SESSION[$this->namespace] ) ) {
+        if (!isset($_SESSION[$this->namespace])) {
             $_SESSION[$this->namespace] = [];
         }
     }
 
     /**
      * @param string $key
+     * @return mixed|null
      */
-    public function getData( $key = null )
+    public function getData($key = null)
     {
-        if ( $key === null ) {
+        if ($key === null) {
             return $_SESSION[$this->namespace];
         }
-        return isset( $_SESSION[$this->namespace][$key] ) ? $_SESSION[$this->namespace][$key] : null;
+        return isset($_SESSION[$this->namespace][$key]) ? $_SESSION[$this->namespace][$key] : null;
     }
 
     /**
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      */
-    public function setData( $key, $value )
+    public function setData($key, $value)
     {
         $_SESSION[$this->namespace][$key] = $value;
     }
@@ -55,9 +59,9 @@ class Storage {
     /**
      * @param string $key
      */
-    public function unsetData( $key )
+    public function unsetData($key)
     {
-        unset( $_SESSION[$this->namespace][$key] );
+        unset($_SESSION[$this->namespace][$key]);
     }
 
     /**
@@ -75,5 +79,4 @@ class Storage {
     {
         $_SESSION = [];
     }
-
 }

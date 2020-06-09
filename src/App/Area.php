@@ -15,12 +15,12 @@ namespace CrazyCat\Framework\App;
  */
 class Area
 {
-    const CODE_GLOBAL = 'global';
-    const CODE_CLI = 'cli';
-    const CODE_CRON = 'cron';
-    const CODE_API = 'api';
-    const CODE_BACKEND = 'backend';
-    const CODE_FRONTEND = 'frontend';
+    public const CODE_GLOBAL = 'global';
+    public const CODE_CLI = 'cli';
+    public const CODE_CRON = 'cron';
+    public const CODE_API = 'api';
+    public const CODE_BACKEND = 'backend';
+    public const CODE_FRONTEND = 'frontend';
 
     /**
      * @var \CrazyCat\Framework\App\EventManager

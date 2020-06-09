@@ -13,27 +13,27 @@ namespace CrazyCat\Framework\App\Io\Http\Session;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Messenger extends AbstractSession {
-
-    const NAME = 'messenger';
+class Messenger extends AbstractSession
+{
+    public const NAME = 'messenger';
 
     /**
      * Message types
      */
-    const TYPE_NOTICE = 'notice';
-    const TYPE_SUCCESS = 'success';
-    const TYPE_ERROR = 'error';
+    public const TYPE_NOTICE = 'notice';
+    public const TYPE_SUCCESS = 'success';
+    public const TYPE_ERROR = 'error';
 
     /**
      * @param string $message
      * @param string $type
      * @return $this
      */
-    public function addMessage( $message, $type = self::TYPE_NOTICE )
+    public function addMessage($message, $type = self::TYPE_NOTICE)
     {
-        $messages = $this->storage->getData( $type ) ?: [];
+        $messages = $this->storage->getData($type) ?: [];
         $messages[] = $message;
-        $this->storage->setData( $type, $messages );
+        $this->storage->setData($type, $messages);
         return $this;
     }
 
@@ -41,9 +41,9 @@ class Messenger extends AbstractSession {
      * @param string $message
      * @return $this
      */
-    public function addSuccess( $message )
+    public function addSuccess($message)
     {
-        $this->addMessage( $message, self::TYPE_SUCCESS );
+        $this->addMessage($message, self::TYPE_SUCCESS);
         return $this;
     }
 
@@ -51,9 +51,9 @@ class Messenger extends AbstractSession {
      * @param string $message
      * @return $this
      */
-    public function addError( $message )
+    public function addError($message)
     {
-        $this->addMessage( $message, self::TYPE_ERROR );
+        $this->addMessage($message, self::TYPE_ERROR);
         return $this;
     }
 
@@ -61,13 +61,12 @@ class Messenger extends AbstractSession {
      * @param bool $clear
      * @return mixed
      */
-    public function getMessages( $clear = false )
+    public function getMessages($clear = false)
     {
         $messages = $this->storage->getData();
-        if ( $clear ) {
+        if ($clear) {
             $this->storage->clearData();
         }
         return $messages;
     }
-
 }

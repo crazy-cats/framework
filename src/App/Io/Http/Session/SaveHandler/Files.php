@@ -13,14 +13,14 @@ namespace CrazyCat\Framework\App\Io\Http\Session\SaveHandler;
  * @author   Liwei Zeng <zengliwei@163.com>
  * @link     https://crazy-cat.cn
  */
-class Files extends AbstractHandler {
-
-    const TYPE = 'files';
+class Files extends AbstractHandler
+{
+    public const TYPE = 'files';
 
     /**
      * Default storage folder
      */
-    const DIR = DIR_VAR . DS . 'session';
+    public const DIR = DIR_VAR . DS . 'session';
 
     /**
      * @var string
@@ -29,34 +29,34 @@ class Files extends AbstractHandler {
 
     protected function init()
     {
-        session_module_name( 'files' );
+        session_module_name('files');
 
-        if ( !empty( $this->config['storage_dir'] ) ) {
+        if (!empty($this->config['storage_dir'])) {
             $this->storageDir = $this->config['storage_dir'];
         }
     }
 
-    public function open( $savePath, $sessionName )
+    public function open($savePath, $sessionName)
     {
-        if ( !empty( $savePath ) && is_dir( $savePath ) ) {
+        if (!empty($savePath) && is_dir($savePath)) {
             $this->storageDir = $savePath;
         }
-        if ( !is_dir( $this->storageDir ) ) {
-            mkdir( $this->storageDir, 0755, true );
+        if (!is_dir($this->storageDir)) {
+            mkdir($this->storageDir, 0755, true);
         }
         return true;
     }
 
-    public function read( $sessionId )
+    public function read($sessionId)
     {
-        return is_file( $this->storageDir . DS . $sessionId ) ?
-                file_get_contents( $this->storageDir . DS . $sessionId ) :
-                '';
+        return is_file($this->storageDir . DS . $sessionId) ?
+            file_get_contents($this->storageDir . DS . $sessionId) :
+            '';
     }
 
-    public function write( $sessionId, $sessionData )
+    public function write($sessionId, $sessionData)
     {
-        return file_put_contents( $this->storageDir . DS . $sessionId, $sessionData ) === false ? false : true;
+        return file_put_contents($this->storageDir . DS . $sessionId, $sessionData) === false ? false : true;
     }
 
     public function close()
@@ -64,22 +64,21 @@ class Files extends AbstractHandler {
         return true;
     }
 
-    public function destroy( $sessionId )
+    public function destroy($sessionId)
     {
-        if ( is_file( $this->storageDir . DS . $sessionId ) ) {
-            unlink( $this->storageDir . DS . $sessionId );
+        if (is_file($this->storageDir . DS . $sessionId)) {
+            unlink($this->storageDir . DS . $sessionId);
         }
         return true;
     }
 
-    public function gc( $maxLifetime )
+    public function gc($maxLifetime)
     {
-        foreach ( glob( $this->storageDir . DS . 'sess_*' ) as $file ) {
-            if ( is_file( $file ) && ( filemtime( $file ) + $maxLifetime ) < time() ) {
-                unlink( $file );
+        foreach (glob($this->storageDir . DS . 'sess_*') as $file) {
+            if (is_file($file) && (filemtime($file) + $maxLifetime) < time()) {
+                unlink($file);
             }
         }
         return true;
     }
-
 }
