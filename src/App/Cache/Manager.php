@@ -62,7 +62,7 @@ class Manager
         if (is_file($file)) {
             $this->cacheStatus = require $file;
         }
-        if (!isset($config) || !is_array($config) || empty($config)) {
+        if (!is_array($this->cacheStatus) || empty($this->cacheStatus)) {
             $this->cacheStatus = [];
         }
     }
@@ -119,16 +119,18 @@ class Manager
      */
     public function getAllCacheNames()
     {
-        return array_keys($this->caches);
+        return array_keys($this->cacheStatus);
     }
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     public function flushAll()
     {
-        foreach ($this->caches as $cache) {
-            $cache->clear();
+        foreach (array_keys($this->cacheStatus) as $cacheName) {
+            $cache = $this->get($cacheName) ?: $this->create($cacheName);
+            $cache->clear(true);
         }
     }
 

@@ -40,11 +40,14 @@ class Files extends AbstractCache
     }
 
     /**
+     * @param bool $force
      * @return void
      */
-    public function clear()
+    public function clear($force = false)
     {
-        if ($this->isEnabled && is_file(DIR_VAR . DS . self::DIR . DS . $this->name)) {
+        if (($this->isEnabled || $force)
+            && is_file(DIR_VAR . DS . self::DIR . DS . $this->name)
+        ) {
             unlink(DIR_VAR . DS . self::DIR . DS . $this->name);
         }
     }

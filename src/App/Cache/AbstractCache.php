@@ -87,6 +87,8 @@ abstract class AbstractCache extends \CrazyCat\Framework\App\Data\DataObject
 
     /**
      * Clear data storage
+     *
+     * @param bool $force
      */
-    abstract public function clear();
+    abstract public function clear($force = false);
 }
