@@ -212,6 +212,7 @@ abstract class AbstractViewAction extends AbstractAction
      * @param string $path
      * @param array  $params
      * @return void
+     * @throws \Exception
      */
     public function redirect($path, $params = [])
     {
@@ -244,15 +245,15 @@ abstract class AbstractViewAction extends AbstractAction
         }
 
         if (!$this->skipRunning) {
+            profile_start('Initializing themes');
+            $this->themeManager->init();
+            profile_end('Initializing themes');
+
             /**
              * Theme manager initialization does NOT include setting current theme.
              *     We need to do something before executing the specified view action,
              *     such as setting current theme, initializing language etc..
              */
-            profile_start('Initializing themes');
-            $this->themeManager->init();
-            profile_end('Initializing themes');
-
             $this->eventManager->dispatch('themes_init_after', ['theme_manager' => $this->themeManager]);
 
             profile_start('Execute action');
