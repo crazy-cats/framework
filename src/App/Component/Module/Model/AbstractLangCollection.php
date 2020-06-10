@@ -84,7 +84,9 @@ abstract class AbstractLangCollection extends AbstractCollection
     {
         $sql = '';
         $binds = [];
-        if (is_array($field)) {
+        if (empty($field)) {
+            return [$sql, $binds];
+        } elseif (is_array($field)) {
             foreach ($field as $orConditions) {
                 [$orSql, $orBinds] = $this->parseConditions($orConditions['field'], $orConditions['conditions']);
                 $sql .= ' OR ( ' . $orSql . ' )';

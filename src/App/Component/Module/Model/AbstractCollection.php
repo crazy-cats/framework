@@ -121,6 +121,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
 
     /**
      * @param string $modelClass
+     * @throws \ReflectionException
      */
     protected function init($modelClass)
     {
