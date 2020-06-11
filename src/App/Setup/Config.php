@@ -94,8 +94,6 @@ class Config extends \Symfony\Component\Console\Command\Command
                 ]
             ],
             'frontend' => [
-                'lang'      => 'en_US',
-                'theme'     => 'default',
                 'merge_css' => false,
                 'cookies'   => [
                     'duration' => 3600
