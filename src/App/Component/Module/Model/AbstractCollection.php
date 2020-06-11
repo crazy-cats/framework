@@ -21,14 +21,14 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
     protected $conn;
 
     /**
-     * @var \CrazyCat\Framework\App\ObjectManager
-     */
-    protected $objectManager;
-
-    /**
      * @var \CrazyCat\Framework\App\EventManager
      */
     protected $eventManager;
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    protected $objectManager;
 
     /**
      * @var string

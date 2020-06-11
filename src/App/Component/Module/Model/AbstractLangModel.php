@@ -7,11 +7,8 @@
 
 namespace CrazyCat\Framework\App\Component\Module\Model;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\Db\Manager as DbManager;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Component\Language\Translator;
 
 /**
  * @category CrazyCat
@@ -25,6 +22,11 @@ abstract class AbstractLangModel extends AbstractModel
      * @var array
      */
     protected static $langFields = [];
+
+    /**
+     * @var \CrazyCat\Framework\App\ObjectManager
+     */
+    protected $objectManager;
 
     /**
      * @var \CrazyCat\Framework\App\Component\Language\Translator
@@ -42,11 +44,13 @@ abstract class AbstractLangModel extends AbstractModel
     protected $langTable;
 
     public function __construct(
-        Translator $translator,
-        EventManager $eventManager,
-        DbManager $dbManager,
+        \CrazyCat\Framework\App\Component\Language\Translator $translator,
+        \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\Db\Manager $dbManager,
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
         array $data = []
     ) {
+        $this->objectManager = $objectManager;
         $this->translator = $translator;
 
         parent::__construct($eventManager, $dbManager, $data);
@@ -59,10 +63,11 @@ abstract class AbstractLangModel extends AbstractModel
      * @param string $idFieldName
      * @param string $connName
      * @return void
+     * @throws \ReflectionException
      */
     protected function init()
     {
-        list($modelName, $mainTable, $idFieldName, $connName) = array_pad(func_get_args(), 4, null);
+        [$modelName, $mainTable, $idFieldName, $connName] = array_pad(func_get_args(), 4, null);
         parent::init($modelName, $mainTable, $idFieldName, $connName);
 
         $this->langTable = $this->mainTable . '_lang';
@@ -76,6 +81,15 @@ abstract class AbstractLangModel extends AbstractModel
                 self::$langFields[static::class][] = $field;
             }
         }
+    }
+
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
+    protected function getDefaultLang()
+    {
+        return $this->objectManager->get(Config::class)->getValue(Area::CODE_GLOBAL)['lang'];
     }
 
     /**
@@ -109,9 +123,7 @@ abstract class AbstractLangModel extends AbstractModel
         $fieldName = ($field === null) ? $this->idFieldName : $field;
 
         $langCode = $this->translator->getLangCode();
-
-        $config = ObjectManager::getInstance()->get(Config::class);
-        $defLangCode = $config->getValue('general/default_languages') ?: $config->getValue('lang');
+        $defLangCode = $this->getDefaultLang();
 
         $sql = 'SELECT %s ' .
             'FROM `%s` AS `main` ' .

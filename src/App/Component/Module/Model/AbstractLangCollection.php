@@ -7,11 +7,8 @@
 
 namespace CrazyCat\Framework\App\Component\Module\Model;
 
+use CrazyCat\Framework\App\Area;
 use CrazyCat\Framework\App\Config;
-use CrazyCat\Framework\App\Db\Manager as DbManager;
-use CrazyCat\Framework\App\EventManager;
-use CrazyCat\Framework\App\ObjectManager;
-use CrazyCat\Framework\App\Component\Language\Translator;
 
 /**
  * @category CrazyCat
@@ -42,10 +39,10 @@ abstract class AbstractLangCollection extends AbstractCollection
     protected $langFields;
 
     public function __construct(
-        Translator $translator,
-        ObjectManager $objectManager,
-        EventManager $eventManager,
-        DbManager $dbManager
+        \CrazyCat\Framework\App\Component\Language\Translator $translator,
+        \CrazyCat\Framework\App\ObjectManager $objectManager,
+        \CrazyCat\Framework\App\EventManager $eventManager,
+        \CrazyCat\Framework\App\Db\Manager $dbManager
     ) {
         $this->translator = $translator;
 
@@ -115,6 +112,15 @@ abstract class AbstractLangCollection extends AbstractCollection
     }
 
     /**
+     * @return string
+     * @throws \ReflectionException
+     */
+    protected function getDefaultLang()
+    {
+        return $this->objectManager->get(Config::class)->getValue(Area::CODE_GLOBAL)['lang'];
+    }
+
+    /**
      * @return $this
      * @throws \ReflectionException
      */
@@ -153,15 +159,12 @@ abstract class AbstractLangCollection extends AbstractCollection
         $mainTable = $this->conn->getTableName($this->mainTable);
         $langTable = $this->conn->getTableName($this->langTable);
 
-        $config = $this->objectManager->get(Config::class);
-        $defLangCode = $config->getValue('general/default_languages') ?: $config->getValue('lang');
-
         /**
          * Structure of attribute `conditions` is like:
          *     [ [ cond1 OR cond2 ] AND [ cond3 OR cond4 ] AND [ cond5 ] ]
          */
         $txtConditions = '';
-        $binds = [$this->translator->getLangCode(), $defLangCode];
+        $binds = [$this->translator->getLangCode(), $this->getDefaultLang()];
         foreach ($this->conditions as $conditionGroup) {
             [$andSql, $andBinds] = $this->parseConditions($conditionGroup);
             $txtConditions .= ' AND ( ' . $andSql . ' )';
