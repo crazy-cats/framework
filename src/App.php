@@ -61,16 +61,20 @@ class App
         return App\ObjectManager::getInstance()->get(self::class);
     }
 
-    public function __construct(
-        \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\ObjectManager $objectManager,
-        \CrazyCat\Framework\App\Setup\Wizard $wizard
-    ) {
-        $this->area = $area;
-        $this->objectManager = $objectManager;
+    public function __construct()
+    {
+        /**
+         * This is the most first initialization, to make sure all base Dependence Injection of the application
+         *     can be defined correctly through configuration file `app/config/di.php`.
+         */
+        $this->objectManager = App\ObjectManager::getInstance();
+        $diFile = DIR_APP . DS . App\Config::DIR . DS . App\ObjectManager::CONFIG_FILE;
+        if (is_file($diFile)) {
+            $this->objectManager->collectPreferences(require $diFile);
+        }
 
         if (!is_file(DIR_APP . DS . App\Config::DIR . DS . App\Config::FILE)) {
-            $wizard->launch();
+            $this->objectManager->get(\CrazyCat\Framework\App\Setup\Wizard::class)->launch();
         }
         $this->init();
     }
@@ -91,6 +95,7 @@ class App
          */
         ini_set('date.timezone', 'UTC');
 
+        $this->area = $this->objectManager->get(\CrazyCat\Framework\App\Area::class);
         $this->config = $this->objectManager->get(\CrazyCat\Framework\App\Config::class);
 
         /**
@@ -173,7 +178,7 @@ class App
         $pathArr = explode('/', $path);
 
         /* @var $theme \CrazyCat\Framework\App\Component\Theme */
-        list($areaCode, $themeName) = $pathArr;
+        [$areaCode, $themeName] = $pathArr;
         $theme = $this->objectManager->get(ThemeManager::class)->init()
             ->getTheme($areaCode, $themeName);
 
