@@ -299,7 +299,10 @@ class Manager
         foreach ($events as $eventName => $observers) {
             $this->eventManager->addEvent($eventName, $observers);
         }
-        $this->eventManager->dispatch('after_collect_config', ['di' => $di, 'events' => $events]);
+        $this->eventManager->dispatch(
+            'after_collect_module_config',
+            ['area_code' => $areaCode, 'di' => $di, 'events' => $events]
+        );
     }
 
     /**
@@ -335,7 +338,7 @@ class Manager
     }
 
     /**
-     * @param string      $routeName
+     * @param string $routeName
      * @param string|null $areaCode
      * @return \CrazyCat\Framework\App\Component\Module|null
      */

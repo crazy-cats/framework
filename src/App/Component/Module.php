@@ -28,8 +28,7 @@ class Module extends \CrazyCat\Framework\App\Data\DataObject
         'namespace' => ['required' => true, 'type' => 'string'],
         'depends'   => ['required' => true, 'type' => 'array'],
         'setup'     => ['required' => false, 'type' => 'array'],
-        'routes'    => ['required' => false, 'type' => 'array'],
-        'settings'  => ['required' => false, 'type' => 'array']
+        'routes'    => ['required' => false, 'type' => 'array']
     ];
 
     /**
