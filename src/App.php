@@ -76,6 +76,7 @@ class App
         if (!is_file(DIR_APP . DS . App\Config::DIR . DS . App\Config::FILE)) {
             $this->objectManager->get(\CrazyCat\Framework\App\Setup\Wizard::class)->launch();
         }
+
         $this->init();
     }
 
