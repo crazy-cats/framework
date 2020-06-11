@@ -144,7 +144,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
         $txtConditions = '';
         $binds = [];
         foreach ($conditions as $conditionGroup) {
-            list($andSql, $andBinds) = $this->parseConditionGroup($conditionGroup);
+            [$andSql, $andBinds] = $this->parseConditionGroup($conditionGroup);
             $txtConditions .= ' AND ( ' . $andSql . ' )';
             $binds = array_merge($binds, $andBinds);
         }
@@ -162,7 +162,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
         $binds = [];
         if (is_array($field)) {
             foreach ($field as $orConditions) {
-                list($orSql, $orBinds) = $this->parseConditionGroup(
+                [$orSql, $orBinds] = $this->parseConditionGroup(
                     $orConditions['field'],
                     $orConditions['conditions']
                 );
@@ -307,7 +307,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
             $fields = '`' . implode('`, `', $this->fields) . '`';
         }
         $table = $this->conn->getTableName($this->mainTable);
-        list($txtConditions, $binds) = $this->parseConditions($this->conditions);
+        [$txtConditions, $binds] = $this->parseConditions($this->conditions);
         $sortOrders = empty($this->sortOrders) ? '' : ('ORDER BY ' . implode(', ', $this->sortOrders));
         $limitation = $this->pageSize ? ('LIMIT ' . $this->pageSize * ($this->currentPage - 1) . ', ' . $this->pageSize) : '';
         $itemsData = $this->conn->fetchAll(
@@ -370,7 +370,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
     public function getSize()
     {
         $table = $this->conn->getTableName($this->mainTable);
-        list($txtConditions, $binds) = $this->parseConditions($this->conditions);
+        [$txtConditions, $binds] = $this->parseConditions($this->conditions);
         return (int)$this->conn->fetchOne(
             sprintf('SELECT COUNT(*) FROM `%s` AS `main` WHERE 1=1 %s', $table, $txtConditions),
             $binds
@@ -383,7 +383,7 @@ abstract class AbstractCollection extends \CrazyCat\Framework\App\Data\Collectio
     public function getAllIds()
     {
         $table = $this->conn->getTableName($this->mainTable);
-        list($txtConditions, $binds) = $this->parseConditions($this->conditions);
+        [$txtConditions, $binds] = $this->parseConditions($this->conditions);
         return $this->conn->fetchCol(
             sprintf('SELECT `%s` FROM `%s` AS `main` WHERE 1=1 %s', $this->idFieldName, $table, $txtConditions),
             $binds

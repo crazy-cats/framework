@@ -77,7 +77,7 @@ abstract class AbstractLangCollection extends AbstractCollection
      * @param array|null   $conditions
      * @return array [ sql, binds ]
      */
-    protected function parseConditions($field, $conditions = null)
+    protected function parseConditionGroup($field, $conditions = null)
     {
         $sql = '';
         $binds = [];
@@ -85,7 +85,7 @@ abstract class AbstractLangCollection extends AbstractCollection
             return [$sql, $binds];
         } elseif (is_array($field)) {
             foreach ($field as $orConditions) {
-                [$orSql, $orBinds] = $this->parseConditions($orConditions['field'], $orConditions['conditions']);
+                [$orSql, $orBinds] = $this->parseConditionGroup($orConditions['field'], $orConditions['conditions']);
                 $sql .= ' OR ( ' . $orSql . ' )';
                 $binds = array_merge($binds, $orBinds);
             }
@@ -166,7 +166,7 @@ abstract class AbstractLangCollection extends AbstractCollection
         $txtConditions = '';
         $binds = [$this->translator->getLangCode(), $this->getDefaultLang()];
         foreach ($this->conditions as $conditionGroup) {
-            [$andSql, $andBinds] = $this->parseConditions($conditionGroup);
+            [$andSql, $andBinds] = $this->parseConditionGroup($conditionGroup);
             $txtConditions .= ' AND ( ' . $andSql . ' )';
             $binds = array_merge($binds, $andBinds);
         }
