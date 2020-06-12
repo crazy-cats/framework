@@ -157,6 +157,7 @@ abstract class AbstractLangModel extends AbstractModel
 
     /**
      * @return $this
+     * @throws \ReflectionException
      */
     public function save()
     {

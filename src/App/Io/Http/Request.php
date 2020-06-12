@@ -77,7 +77,7 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
     {
         $isDefaultRoute = empty($pathParts);
         $pathParts = array_values(array_pad($pathParts, 3, 'index'));
-        list($this->routeName, $this->controllerName, $this->actionName) = $pathParts;
+        [$this->routeName, $this->controllerName, $this->actionName] = $pathParts;
         if ($isDefaultRoute && $this->area->getCode() == Area::CODE_BACKEND) {
             $this->routeName = 'system';
         } elseif ($this->routeName == '' && $this->area->getCode() == Area::CODE_FRONTEND) {
@@ -91,7 +91,11 @@ class Request extends \CrazyCat\Framework\App\Io\AbstractRequest
 
         if ($processParams) {
             unset($pathParts[0], $pathParts[1], $pathParts[2]);
-            $this->requestData = array_merge($this->requestData, $pathParts);
+            foreach (array_chunk($pathParts, 2) as $param) {
+                if (isset($param[1])) {
+                    $this->requestData[$param[0]] = $param[1];
+                }
+            }
         }
     }
 
