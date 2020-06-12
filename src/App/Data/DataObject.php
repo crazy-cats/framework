@@ -69,7 +69,7 @@ class DataObject implements \ArrayAccess
             } elseif ($value instanceof Object) {
                 $result[sprintf('%s (%s)', $key, get_class($value))] = $value->debug(null, $objectHashes);
             } elseif (is_array($value)) {
-                $result[$key] = $this->debug($data, $objectHashes);
+                $result[$key] = $this->debug($value, $objectHashes);
             }
         }
         return $result;
