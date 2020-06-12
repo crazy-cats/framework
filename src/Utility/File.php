@@ -98,4 +98,15 @@ class File
         }
         return $row;
     }
+
+    /**
+     * @param string $fileName
+     * @return string
+     */
+    public function renameByDate($fileName)
+    {
+        $pathInfo = pathinfo($fileName);
+        return date('YmdHis') . rand(1000, 9999)
+            . (isset($pathInfo['extension']) ? ".{$pathInfo['extension']}" : '');
+    }
 }
