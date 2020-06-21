@@ -245,9 +245,7 @@ class Manager
                         if (in_array($setupClass, $completedExecutions)) {
                             continue;
                         }
-                        if (class_exists($setupClass)) {
-                            $this->objectManager->get($setupClass)->execute();
-                        }
+                        $this->objectManager->get($setupClass)->execute();
                         $completedSetupClasses[] = ['class' => $setupClass];
                     }
                 }
@@ -338,7 +336,7 @@ class Manager
     }
 
     /**
-     * @param string $routeName
+     * @param string      $routeName
      * @param string|null $areaCode
      * @return \CrazyCat\Framework\App\Component\Module|null
      */
