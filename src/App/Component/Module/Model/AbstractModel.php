@@ -78,7 +78,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
      */
     protected function init()
     {
-        list($modelName, $mainTable, $idFieldName, $connName) = array_pad(func_get_args(), 4, null);
+        [$modelName, $mainTable, $idFieldName, $connName] = array_pad(func_get_args(), 4, null);
 
         $this->connName = $connName ?: 'default';
         $this->idFieldName = $idFieldName ?: 'id';
@@ -141,6 +141,9 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
      */
     protected function beforeSave()
     {
+        if (!$this->getData($this->idFieldName)) {
+            $this->setData('is_new');
+        }
         $this->eventManager->dispatch('model_save_before', ['model' => $this]);
         $this->eventManager->dispatch($this->modelName . '_save_before', ['model' => $this]);
     }
@@ -176,7 +179,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
     }
 
     /**
-     * @param int|string $id
+     * @param int|string  $id
      * @param string|null $field
      * @return $this
      * @throws \ReflectionException
