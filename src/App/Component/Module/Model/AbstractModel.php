@@ -142,7 +142,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
     protected function beforeSave()
     {
         if (!$this->getData($this->idFieldName)) {
-            $this->setData('is_new');
+            $this->setData('is_new', true);
         }
         $this->eventManager->dispatch('model_save_before', ['model' => $this]);
         $this->eventManager->dispatch($this->modelName . '_save_before', ['model' => $this]);
