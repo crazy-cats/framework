@@ -160,7 +160,6 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
      */
     protected function afterSave()
     {
-        $this->isNew = false;
         $this->eventManager->dispatch('model_save_after', ['model' => $this]);
         $this->eventManager->dispatch($this->modelName . '_save_after', ['model' => $this]);
     }
