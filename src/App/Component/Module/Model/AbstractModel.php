@@ -46,6 +46,11 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
     protected $idFieldName;
 
     /**
+     * @var bool
+     */
+    protected $isNew;
+
+    /**
      * @var string
      */
     protected $mainTable;
@@ -118,6 +123,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     protected function beforeLoad()
     {
@@ -142,7 +148,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
     protected function beforeSave()
     {
         if (!$this->getData($this->idFieldName)) {
-            $this->setData('is_new', true);
+            $this->isNew = true;
         }
         $this->eventManager->dispatch('model_save_before', ['model' => $this]);
         $this->eventManager->dispatch($this->modelName . '_save_before', ['model' => $this]);
@@ -154,6 +160,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
      */
     protected function afterSave()
     {
+        $this->isNew = false;
         $this->eventManager->dispatch('model_save_after', ['model' => $this]);
         $this->eventManager->dispatch($this->modelName . '_save_after', ['model' => $this]);
     }
