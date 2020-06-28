@@ -18,6 +18,11 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
     /**
      * @var array
      */
+    protected $orgData = [];
+
+    /**
+     * @var array
+     */
     protected static $mainFields = [];
 
     /**
@@ -197,6 +202,7 @@ abstract class AbstractModel extends \CrazyCat\Framework\App\Data\DataObject
         $table = $this->conn->getTableName($this->mainTable);
         $fieldName = ($field === null) ? $this->idFieldName : $field;
         $this->setData($this->conn->fetchRow(sprintf('SELECT * FROM `%s` WHERE `%s` = ?', $table, $fieldName), [$id]));
+        $this->orgData = $this->data;
 
         $this->afterLoad();
 

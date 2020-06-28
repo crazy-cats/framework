@@ -65,7 +65,7 @@ class MySql extends AbstractAdapter
      */
     public function fetchAll($sql, array $binds = [])
     {
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
         if (!$statement->execute($binds)) {
             [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
@@ -81,7 +81,7 @@ class MySql extends AbstractAdapter
      */
     public function fetchPairs($sql, array $binds = [])
     {
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
         if (!$statement->execute($binds)) {
             [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
@@ -101,7 +101,7 @@ class MySql extends AbstractAdapter
      */
     public function fetchCol($sql, array $binds = [])
     {
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
         if (!$statement->execute($binds)) {
             [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
@@ -121,7 +121,7 @@ class MySql extends AbstractAdapter
      */
     public function fetchRow($sql, array $binds = [])
     {
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
         if (!$statement->execute($binds)) {
             [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
@@ -137,7 +137,7 @@ class MySql extends AbstractAdapter
      */
     public function fetchOne($sql, array $binds = [])
     {
-        $statement = $this->pdo->prepare($sql);
+        $statement = $this->pdo->prepare($sql, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
         if (!$statement->execute($binds)) {
             [, , $errorInfo] = $statement->errorInfo();
             throw new \Exception(sprintf("%s, SQL is:\n%s", $errorInfo, $sql));
@@ -218,6 +218,9 @@ class MySql extends AbstractAdapter
      */
     public function insertArray($table, array $data)
     {
+        if (!isset($data[0])) {
+            $data = array_values($data);
+        }
         [$keyMarks, $valueMarks] = $this->processKeyValue($data);
 
         $k = 0;
@@ -225,7 +228,7 @@ class MySql extends AbstractAdapter
             'INSERT INTO `%s` ( %s ) VALUES ( %s )',
             $this->getTableName($table),
             implode(', ', $keyMarks),
-            implode('), (', $valueMarks)
+            implode(' ), ( ', $valueMarks)
         );
         $statement = $this->pdo->prepare($sql);
         foreach ($data as $row) {
@@ -249,6 +252,9 @@ class MySql extends AbstractAdapter
      */
     public function insertUpdate($table, array $data, $updateFields)
     {
+        if (!isset($data[0])) {
+            $data = array_values($data);
+        }
         [$keyMarks, $valueMarks] = $this->processKeyValue($data);
 
         $keyMarksTxt = implode(', ', $keyMarks);

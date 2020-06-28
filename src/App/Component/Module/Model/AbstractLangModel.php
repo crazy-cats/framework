@@ -149,6 +149,7 @@ abstract class AbstractLangModel extends AbstractModel
                 [$langCode, $defLangCode, $id]
             )
         );
+        $this->orgData = $this->data;
 
         $this->afterLoad();
 
