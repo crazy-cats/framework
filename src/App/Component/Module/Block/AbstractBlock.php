@@ -25,4 +25,9 @@ abstract class AbstractBlock extends \CrazyCat\Framework\App\Component\Theme\Blo
 
         return $html;
     }
+
+    public function __toString()
+    {
+        return $this->toHtml();
+    }
 }

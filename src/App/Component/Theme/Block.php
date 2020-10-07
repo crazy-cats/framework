@@ -101,7 +101,7 @@ class Block extends \CrazyCat\Framework\App\Data\DataObject
      */
     protected function getAbsTemplatePath($template)
     {
-        list($namespace, $filePath) = explode('::', $template);
+        [$namespace, $filePath] = explode('::', $template);
         if (is_file(
             $file = $this->themeManager->getCurrentTheme()->getData('dir') .
                 DS . 'view/templates/blocks' .
@@ -144,6 +144,7 @@ class Block extends \CrazyCat\Framework\App\Data\DataObject
     /**
      * @param string $path
      * @return string
+     * @throws \Exception
      */
     public function getUrl($path)
     {
@@ -164,6 +165,23 @@ class Block extends \CrazyCat\Framework\App\Data\DataObject
     public function getCurrentUrl()
     {
         return $this->url->getCurrentUrl();
+    }
+
+    /**
+     * @return array
+     */
+    public function getChildren()
+    {
+        $children = $this->getData('children') ?: [];
+        usort(
+            $children,
+            function ($a, $b) {
+                $sortA = $a->hasData('sort') ? $a->getData('sort') : 9999;
+                $sortB = $b->hasData('sort') ? $b->getData('sort') : 9999;
+                return $sortA > $sortB ? 1 : ($sortA < $sortB ? -1 : 0);
+            }
+        );
+        return $children;
     }
 
     /**
