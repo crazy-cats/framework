@@ -260,6 +260,22 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject
 
     /**
      * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->url->getBaseUrl();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentUrl()
+    {
+        return $this->url->getCurrentUrl();
+    }
+
+    /**
+     * @return string
      * @throws \Exception
      */
     public function toHtml()
