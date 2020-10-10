@@ -87,6 +87,10 @@ class Manager
     {
         $config = $this->config->getValue(Area::CODE_GLOBAL)[self::CONFIG_KEY];
         switch ($config['type']) {
+            case 'redis':
+                $className = Redis::class;
+                break;
+
             default:
                 $className = Files::class;
                 break;
