@@ -29,7 +29,7 @@ class Redis extends AbstractCache
             self::$redis = new \Redis();
             self::$redis->connect($this->config['host'], $this->config['port']);
         }
-        $this->data = self::$redis->get($this->name);
+        $this->data = json_decode(self::$redis->get($this->name), true) ?: [];
     }
 
     /**
@@ -38,7 +38,7 @@ class Redis extends AbstractCache
     public function save()
     {
         if ($this->isEnabled) {
-            self::$redis->set($this->name, $this->data);
+            self::$redis->set($this->name, json_encode($this->data));
         }
     }
 
