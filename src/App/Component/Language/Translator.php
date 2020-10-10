@@ -17,8 +17,8 @@ use CrazyCat\Framework\App\Area;
  */
 class Translator
 {
-    public const CACHE_LANG_NAME = 'languages';
-    public const CACHE_TRANSLATIONS_NAME = 'translations';
+    public const CACHE_NAME_LANG = 'languages';
+    public const CACHE_NAME_TRANSLATIONS = 'translations';
 
     public const DIR = 'i18n';
     public const REQUEST_KEY = 'lang';
@@ -36,7 +36,7 @@ class Translator
     /**
      * @var \CrazyCat\Framework\App\Cache\AbstractCache
      */
-    private $cache;
+    private $langCache;
 
     /**
      * @var \CrazyCat\Framework\Utility\File
@@ -44,9 +44,9 @@ class Translator
     private $fileHelper;
 
     /**
-     * @var \CrazyCat\Framework\App\Cache\AbstractCache[]
+     * @var \CrazyCat\Framework\App\Cache\AbstractCache
      */
-    private $translationsCaches;
+    private $translationCache;
 
     /**
      * @var \CrazyCat\Framework\App\Component\Module\Manager
@@ -77,11 +77,12 @@ class Translator
         \CrazyCat\Framework\Utility\File $fileHelper
     ) {
         $this->area = $area;
-        $this->cache = $cacheManager->create(self::CACHE_LANG_NAME);
         $this->cacheManager = $cacheManager;
         $this->fileHelper = $fileHelper;
         $this->moduleManager = $moduleManager;
         $this->themeManager = $themeManager;
+
+        $this->langCache = $cacheManager->create(self::CACHE_NAME_LANG);
 
         $settings = $config->getValue(Area::CODE_GLOBAL);
         $this->langCode = $settings['lang'];
@@ -117,15 +118,12 @@ class Translator
      */
     public function getTranslations($langCode)
     {
+        $translationCache = $this->cacheManager->get(self::CACHE_NAME_TRANSLATIONS) ?:
+            $this->cacheManager->create(self::CACHE_NAME_TRANSLATIONS);
+
         $cacheKey = $this->area->getCode() . '-' . $langCode;
-
-        if (!isset($this->translationsCaches[$cacheKey])) {
-            $this->translationsCaches[$cacheKey] = $this->cacheManager->create(
-                self::CACHE_TRANSLATIONS_NAME . '-' . $cacheKey
-            );
-        }
-
-        if (empty($this->translationsCaches[$cacheKey]->getData())) {
+        $translations = $translationCache->getData($cacheKey);
+        if (empty($translations)) {
             /**
              * Translations in language packages
              */
@@ -165,10 +163,10 @@ class Translator
                  */
             }
 
-            $this->translationsCaches[$cacheKey]->setData($translations)->save();
+            $translationCache->setData($cacheKey, $translations)->save();
         }
 
-        return $this->translationsCaches[$cacheKey]->getData();
+        return $translations;
     }
 
     /**
@@ -206,7 +204,7 @@ class Translator
      */
     public function init($languageSource)
     {
-        if (empty($this->langPackages = $this->cache->getData())) {
+        if (empty($this->langPackages = $this->langCache->getData())) {
             foreach ($languageSource as $language) {
                 $config = require $language['dir'] . DS . 'config.php';
                 $this->langPackages[$config['code']] = [
@@ -215,7 +213,7 @@ class Translator
                     'name' => $config['name']
                 ];
             }
-            $this->cache->setData($this->langPackages)->save();
+            $this->langCache->setData($this->langPackages)->save();
         }
     }
 
