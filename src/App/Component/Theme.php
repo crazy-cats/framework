@@ -73,7 +73,7 @@ class Theme extends \CrazyCat\Framework\App\Data\DataObject
     private $url;
 
     public function __construct(
-        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Component\Module\Manager $moduleManager,
         \CrazyCat\Framework\App\Io\Http\Url $url,
         \CrazyCat\Framework\App\ObjectManager $objectManager,
@@ -83,10 +83,10 @@ class Theme extends \CrazyCat\Framework\App\Data\DataObject
 
         $this->moduleManager = $moduleManager;
         $this->objectManager = $objectManager;
-        $this->staticFileCache = $cacheFactory->create(
+        $this->staticFileCache = $cacheManager->create(
             $this->getData('config')['area'] . '_' . self::CACHE_STATIC_FILE_NAME
         );
-        $this->staticUrlCache = $cacheFactory->create(
+        $this->staticUrlCache = $cacheManager->create(
             $this->getData('config')['area'] . '_' . self::CACHE_STATIC_URL_NAME
         );
         $this->url = $url;

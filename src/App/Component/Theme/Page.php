@@ -143,6 +143,7 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject
                 throw new \Exception(sprintf('Block name %s exists.', $blockName));
             }
             $data = isset($blockInfo['data']) ? $blockInfo['data'] : [];
+            $data['name'] = $blockName;
             $data['children'] = empty($blockInfo['children']) ? [] : $this->prepareBlocks($blockInfo['children']);
             $this->blocks[$blockName] = $this->objectManager->create(
                 $blockInfo['class'],
@@ -272,6 +273,16 @@ class Page extends \CrazyCat\Framework\App\Data\DataObject
     public function getCurrentUrl()
     {
         return $this->url->getCurrentUrl();
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     * @throws \Exception
+     */
+    public function getUrl($path)
+    {
+        return $this->url->getUrl($path);
     }
 
     /**

@@ -23,7 +23,7 @@ class Context
     /**
      * @var \CrazyCat\Framework\App\Cache\Manager
      */
-    protected $cacheFactory;
+    protected $cacheManager;
 
     /**
      * @var \CrazyCat\Framework\App\EventManager
@@ -62,7 +62,7 @@ class Context
 
     public function __construct(
         \CrazyCat\Framework\App\Area $area,
-        \CrazyCat\Framework\App\Cache\Manager $cacheFactory,
+        \CrazyCat\Framework\App\Cache\Manager $cacheManager,
         \CrazyCat\Framework\App\Component\Language\Translator $translator,
         \CrazyCat\Framework\App\Component\Theme\Manager $themeManager,
         \CrazyCat\Framework\App\EventManager $eventManager,
@@ -72,7 +72,7 @@ class Context
         \CrazyCat\Framework\App\Io\Http\Url $url
     ) {
         $this->area = $area;
-        $this->cacheFactory = $cacheFactory;
+        $this->cacheManager = $cacheManager;
         $this->eventManager = $eventManager;
         $this->moduleManager = $moduleManager;
         $this->registry = $registry;
@@ -93,9 +93,9 @@ class Context
     /**
      * @return \CrazyCat\Framework\App\Cache\Manager
      */
-    public function getCacheFactory()
+    public function getCacheManager()
     {
-        return $this->cacheFactory;
+        return $this->cacheManager;
     }
 
     /**

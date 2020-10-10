@@ -103,7 +103,7 @@ class Manager
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @return \CrazyCat\Framework\App\Cache\AbstractCache|null
      */
     public function get($name = null)
